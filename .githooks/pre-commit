@@ -1,0 +1,62 @@
+#!/bin/bash -e
+# export PATH="$PATH:/opt/homebrew/bin"
+
+# LINT=$(which swiftlint)
+# FORMAT=$(which swiftformat)
+
+# file_path_committed_files=()
+# count=0
+
+# if [[ -e "${FORMAT}" ]]; then
+# 	echo "swiftformat version: $(${FORMAT} --version)"
+
+#    for file_path in $(git ls-files -m --exclude-from=.gitignore | grep ".swift$"); do
+#         export SCRIPT_INPUT_FILE_$count=$file_path
+#         file_path_committed_files=($file_path_committed_files "${file_path}")
+#         count=$((count + 1))
+#     done
+
+#     ##### Check for modified files in unstaged/Staged area #####
+#     for file_path in $(git diff --name-only --cached | grep ".swift$"); do
+#         export SCRIPT_INPUT_FILE_$count=$file_path
+#         file_path_committed_files=($file_path_committed_files "${file_path}")
+#         count=$((count + 1))
+#     done
+
+#     ##### Make the count avilable as global variable #####
+#     export SCRIPT_INPUT_FILE_COUNT=$count
+
+#     for line in "${file_path_committed_files[@]}"; do
+#         $FORMAT --config ./squadeasy/.swiftformat "${line}";
+#     done
+# else
+# 	echo "swiftformat does not exist, download from https://github.com/nicklockwood/SwiftFormat"
+# 	exit 1
+# fi
+
+
+# if [[ -e "${LINT}" ]]; then
+
+#     echo "SwiftLint version: $(${LINT} version)"
+
+#     ##### Lint files or exit if no files found for lintint #####
+#     if [ "$count" -ne 0 ]; then
+#         echo "Found lintable files! Linting..."
+#         $LINT lint --use-script-input-files --config ./squadeasy/.swiftlint.yml #--reporter json
+#     else
+#         echo "No files to lint!"
+#     fi
+
+#     RESULT=$?
+
+#     if [ $RESULT -eq 0 ]; then
+#         exit 0
+#     else
+#         echo ""
+#         echo "Violation found of the type ERROR! Must fix before commit!"
+#         exit 1
+#     fi
+# else
+#     echo "SwiftLint is not installed, download from https://github.com/realm/SwiftLint"
+#     exit 1
+# fi

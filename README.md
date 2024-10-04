@@ -3,6 +3,57 @@
 Ce site permet la gestion des animaux, des familles d'accueil, des vétérinaires et de leurs interventions.
 Le front est réalisé en ReactJS et le server en NodeJS Express
 
+## Git
+
+### Important
+
+Before developing, run after cloning the project:
+
+```
+git config core.hooksPath .githooks
+```
+
+#### [GitLint](https://github.com/jorisroovers/gitlint/)
+
+```
+brew install gitlint
+```
+
+##### How to setup
+
+You have to setup git hooks. Run on your repository root folder:
+
+```
+gitlint install-hook
+```
+
+You should put `.gitlint` file in root folder of your repository:
+
+```
+[general]
+ignore=B6
+contrib=contrib-title-conventional-commits
+```
+
+### Cheat sheet
+
+#### GitLint
+
+Information about [conventionalcommits](https://www.conventionalcommits.org/en/v1.0.0/)
+| Types | |
+|--|--|
+| fix | _A bug fix_ |
+|docs|_Documentation only changes_|
+|feat|_New feature or task related to a feature_|
+|style|_Changes that do not affect the meaning of the code (white­-space, format­ting, missing semi-c­olons, etc)_|
+|refactor|_A code change that neither fixes a bug nor adds a feature_|
+|perf|_A code change that improves perfor­mance_|
+|test|_Adding missing tests or correcting existing tests_|
+|build|_Changes that affect the build system or external depend­encies (example scopes: gulp, broccoli, npm)_|
+|ci|_Changes to our CI config­uration files and scripts (example scopes: Travis, Circle, Browse­rStack, SauceLabs)_|
+|chore|_Other changes that don't modify src or test files_|
+|revert|_Reverts a previous commit_|
+
 ## Installation
 
 - installer le server en local : `cd server && npm i`

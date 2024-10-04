@@ -1,0 +1,11 @@
+[general]
+# Ignore "B6 Body message is missing".
+ignore=B6
+
+contrib=contrib-title-conventional-commits
+
+[title-max-length]
+line-length=72
+
+[body-max-line-length]
+line-length=80
