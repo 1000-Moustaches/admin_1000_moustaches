@@ -105,6 +105,16 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
         }
     };
 
+    const [openBroadcast, setOpenBroadcast] = useState("");
+
+    const toggleBroadcast = (id: string) => {
+        if (openBroadcast === id) {
+            setOpenBroadcast("");
+        } else {
+            setOpenBroadcast(id);
+        }
+    };
+
     const [openExit, setOpenExit] = useState("");
 
     const toggleExit = (id: string) => {
@@ -1185,7 +1195,67 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                 </AccordionBody>
                             </AccordionItem>
                         </Accordion>
-
+                        <Accordion
+                            className="pb-3"
+                            open={openBroadcast}
+                            {...{
+                                toggle: toggleBroadcast,
+                            }}
+                        >
+                            <AccordionItem>
+                                <AccordionHeader targetId="1">
+                                    Diffusion
+                                </AccordionHeader>
+                                <AccordionBody accordionId="1">
+                                    <Row>
+                                        <Col xs={6} md={4}>
+                                            <Label>
+                                                Statut
+                                            </Label>
+                                            <NullableDropdown
+                                                withNewLine={true}
+                                                value={
+                                                    animal.broadcast
+                                                }
+                                                values={[
+                                                    "nsp",
+                                                    "broadcastFrame",
+                                                    "broadcastabled",
+                                                    "broadcast",
+                                                    "no",
+                                                ]}
+                                                valueDisplayName={(value) => 
+                                                    value === null ||
+                                                    value === undefined
+                                                    ? "NSP"
+                                                    : value === "broadcastFrame"
+                                                    ? "Trame demandée"
+                                                    : value === "broadcastabled"
+                                                    ? "Diffusable"
+                                                    : value === "broadcast"
+                                                    ? "Diffusé"
+                                                    : value === "no"
+                                                    ? "Non"
+                                                    : ""
+                                                }
+                                                    valueActiveCheck={(value) =>
+                                                        animal.broadcast === value
+                                                    }
+                                                    key={"broadcast"}
+                                                    disabled={!isEditing}
+                                                    onChange={(newBroadcast) => { 
+                                                        setAnimal({
+                                                            ...animal,
+                                                            broadcast: newBroadcast,
+                                                        });
+                                                    }}
+                                                                                                  
+                                            />
+                                        </Col>
+                                    </Row>
+                                </AccordionBody>
+                            </AccordionItem>
+                        </Accordion>
                         <Accordion
                             className="pb-3"
                             open={openExit}

@@ -44,6 +44,7 @@ class AnimalDTO {
     current_host_family_referent_id?: string;
     contract_sent?: boolean;
     album_created?: boolean;
+    broadcast?: string;
 
     constructor(
         animal: any
@@ -91,6 +92,7 @@ class AnimalDTO {
         this.current_host_family_referent_id = animal.current_host_family_referent_id;
         this.contract_sent = animal.contract_sent === null ? undefined : animal.contract_sent === 1;
         this.album_created = animal.album_created === null ? undefined : animal.album_created === 1;
+        this.broadcast = animal.broadcast;
     }
 
     toEntity(): Animal {
@@ -137,7 +139,8 @@ class AnimalDTO {
             this.current_host_family_id,
             this.current_host_family_referent_id !== undefined ? parseInt(this.current_host_family_referent_id) : undefined,
             this.contract_sent,
-            this.album_created
+            this.album_created,
+            this.broadcast
         );
 
         return animal;

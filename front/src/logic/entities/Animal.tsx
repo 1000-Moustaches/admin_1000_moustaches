@@ -45,6 +45,7 @@ class Animal {
     current_host_family_referent_id?: number;
     contract_sent?: boolean;
     album_created?: boolean;
+    broadcast?: string;
 
     birthdateObject: DateObject;
     entry_dateObject: DateObject;
@@ -100,7 +101,8 @@ class Animal {
             animal.current_host_family_id,
             animal.current_host_family_referent_id,
             animal.contract_sent,
-            animal.album_created
+            animal.album_created,
+            animal.broadcast
         );
     }
 
@@ -147,7 +149,8 @@ class Animal {
         current_host_family_id?: string,
         current_host_family_referent_id?: number,
         contract_sent?: boolean,
-        album_created?: boolean
+        album_created?: boolean,
+        broadcast?: string
     ) {
         this.id = id;
         this.name = name;
@@ -192,6 +195,7 @@ class Animal {
         this.current_host_family_referent_id = current_host_family_referent_id;
         this.contract_sent = contract_sent;
         this.album_created = album_created;
+        this.broadcast = broadcast;
 
         this.birthdateObject = new DateObject();
         this.entry_dateObject = new DateObject();
