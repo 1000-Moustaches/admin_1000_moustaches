@@ -13,10 +13,7 @@ class HostFamiliesManager {
         return new HostFamily();
     };
 
-    static format = (
-        hostFamily: any,
-        hostFamilyKinds: HostFamilyKind[]
-    ): HostFamily => {
+    static format = (hostFamily: any, hostFamilyKinds: HostFamilyKind[]): HostFamily => {
         let hfDTO = new HostFamilyDTO(hostFamily);
 
         return hfDTO.toEntity(hostFamilyKinds);
@@ -39,11 +36,7 @@ class HostFamiliesManager {
                         throw new Error(`Server error - ${json.message}`);
                     });
                 })
-                .then((hostFamilies) =>
-                    hostFamilies.map((hf: any) =>
-                        HostFamiliesManager.format(hf, hostFamilyKinds)
-                    )
-                );
+                .then((hostFamilies) => hostFamilies.map((hf: any) => HostFamiliesManager.format(hf, hostFamilyKinds)));
         });
     };
 
@@ -62,19 +55,14 @@ class HostFamiliesManager {
                         throw new Error(`Server error - ${json.message}`);
                     });
                 })
-                .then((hf: any) =>
-                    HostFamiliesManager.format(hf, hostFamilyKinds)
-                );
+                .then((hf: any) => HostFamiliesManager.format(hf, hostFamilyKinds));
         });
     };
 
     static getByAnimalId = (id: number): Promise<AnimalToHostFamily[]> => {
-        return fetchWithAuth(
-            `${API_URL}/animalsToHostFamilies/withAnimalId/${id}`,
-            {
-                method: "GET",
-            }
-        )
+        return fetchWithAuth(`${API_URL}/animalsToHostFamilies/withAnimalId/${id}`, {
+            method: "GET",
+        })
             .then((response) => {
                 if (response.status === 200) {
                     return response.json();
@@ -83,11 +71,7 @@ class HostFamiliesManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((athfs) =>
-                athfs.map((athf: any) =>
-                    new AnimalToHostFamilyDTO(athf).toEntity()
-                )
-            );
+            .then((athfs) => athfs.map((athf: any) => new AnimalToHostFamilyDTO(athf).toEntity()));
     };
 
     static create = (hostFamily: HostFamily): Promise<HostFamily> => {
@@ -108,9 +92,7 @@ class HostFamiliesManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((hf: any) =>
-                HostFamiliesManager.format(hf, hostFamily.kinds)
-            );
+            .then((hf: any) => HostFamiliesManager.format(hf, hostFamily.kinds));
     };
 
     static update = (hostFamily: HostFamily): Promise<HostFamily> => {
@@ -131,9 +113,7 @@ class HostFamiliesManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((hf: any) =>
-                HostFamiliesManager.format(hf, hostFamily.kinds)
-            );
+            .then((hf: any) => HostFamiliesManager.format(hf, hostFamily.kinds));
     };
 
     static delete = (hostFamily: HostFamily) => {

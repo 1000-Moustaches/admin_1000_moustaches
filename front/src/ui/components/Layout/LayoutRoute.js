@@ -1,12 +1,7 @@
 import React from "react";
 import { Redirect, Route, useLocation } from "react-router-dom";
 
-const LayoutRoute = ({
-    isPrivate,
-    component: Component,
-    layout: Layout,
-    ...rest
-}) => {
+const LayoutRoute = ({ isPrivate, component: Component, layout: Layout, ...rest }) => {
     const location = useLocation();
     if (isPrivate) {
         return (
