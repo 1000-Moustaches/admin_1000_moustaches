@@ -1,14 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import {
-    Button,
-    Card,
-    CardBody,
-    CardHeader,
-    Col,
-    Input,
-    Label,
-    Row,
-} from "reactstrap";
+import { Button, Card, CardBody, CardHeader, Col, Input, Label, Row } from "reactstrap";
 import UsersManager from "../../../managers/users.manager";
 import { MdDelete, MdOutlineModeEdit, MdRefresh, MdSave } from "react-icons/md";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
@@ -29,18 +20,12 @@ interface UserDetailPageProps {
     [key: string]: any;
 }
 
-const UserDetailPage: FC<UserDetailPageProps> = ({
-    match,
-    history,
-    ...props
-}) => {
+const UserDetailPage: FC<UserDetailPageProps> = ({ match, history, ...props }) => {
     const userId = match.params.id;
     const [user, setUser] = useState<User | null>(null);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
-        useState<boolean>(false);
-    const [notificationSystem, setNotificationSystem] =
-        useState<NotificationSystem | null>(null);
+    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | null>(null);
     const [shouldSave, setShouldSave] = useState<boolean>(false);
 
     const getUser = () => {
@@ -125,6 +110,12 @@ const UserDetailPage: FC<UserDetailPageProps> = ({
                     message: "Utilisateur·ice mis à jour",
                     level: "success",
                 });
+
+                var currentUser = JSON.parse(sessionStorage.getItem("User") ?? "");
+                console.log("currentUser", currentUser, userId == currentUser.id);
+                if (userId == currentUser.id) {
+                    sessionStorage.setItem("User", JSON.stringify(user));
+                }
             })
             .catch((err) => {
                 console.error(err);
@@ -169,30 +160,17 @@ const UserDetailPage: FC<UserDetailPageProps> = ({
                 <Row className={"justify-content-end"}>
                     <Col xs={"auto"}>
                         {userId !== "new" && isEditing && (
-                            <Button
-                                color="danger"
-                                onClick={() =>
-                                    setShowDeleteConfirmationModal(true)
-                                }
-                            >
+                            <Button color="danger" onClick={() => setShowDeleteConfirmationModal(true)}>
                                 <MdDelete />
                             </Button>
                         )}
                         {!isEditing && (
-                            <Button
-                                className="ms-2"
-                                color="primary"
-                                onClick={() => setIsEditing(true)}
-                            >
+                            <Button className="ms-2" color="primary" onClick={() => setIsEditing(true)}>
                                 <MdOutlineModeEdit />
                             </Button>
                         )}
                         {isEditing && (
-                            <Button
-                                className="ms-2"
-                                color="success"
-                                onClick={save}
-                            >
+                            <Button className="ms-2" color="success" onClick={save}>
                                 <MdSave />
                             </Button>
                         )}

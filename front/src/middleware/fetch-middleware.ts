@@ -15,6 +15,7 @@ function fetchWithAuth(url: string, options: RequestInit): Promise<Response> {
             if (response.status === 401) {
                 console.warn("Token expired, logging out");
                 sessionStorage.removeItem("Auth Token");
+                sessionStorage.removeItem("User");
                 window.location.href = "/login";
                 window.location.reload();
             }

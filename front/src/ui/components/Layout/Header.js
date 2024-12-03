@@ -1,16 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { MdClearAll, MdExitToApp } from "react-icons/md";
-import {
-    Button,
-    ListGroup,
-    ListGroupItem,
-    Nav,
-    Navbar,
-    NavItem,
-    NavLink,
-    Popover,
-    PopoverBody,
-} from "reactstrap";
+import { Button, ListGroup, ListGroupItem, Nav, Navbar, NavItem, NavLink, Popover, PopoverBody } from "reactstrap";
 import UsersManager from "../../../managers/users.manager";
 import bn from "../../../utils/bemnames";
 import { UserCard } from "../Card";
@@ -22,11 +12,23 @@ const Header = ({ ...props }) => {
     let [isOpenUserCardPopover, setIsOpenUserCardPopover] = useState(false);
 
     useEffect(() => {
-        UsersManager.getLoggedUser().then(setLoggedUser);
+        var loggedUserStr = sessionStorage.getItem("User");
+        if (loggedUserStr) {
+            setLoggedUser(JSON.parse(loggedUserStr));
+            return;
+        }
+        UsersManager.getLoggedUser().then((loggedUser) => {
+            if (loggedUser === null || loggedUser === undefined) {
+                console.error("User not found");
+            }
+            sessionStorage.setItem("User", JSON.stringify(loggedUser));
+            setLoggedUser(loggedUser);
+        });
     }, []);
 
     let logout = () => {
         sessionStorage.removeItem("Auth Token");
+        sessionStorage.removeItem("User");
         window.location = "/login";
     };
 
@@ -38,9 +40,7 @@ const Header = ({ ...props }) => {
         event.preventDefault();
         event.stopPropagation();
 
-        document
-            .querySelector(".cr-sidebar")
-            .classList.toggle("cr-sidebar--open");
+        document.querySelector(".cr-sidebar").classList.toggle("cr-sidebar--open");
     };
 
     return (
@@ -67,17 +67,9 @@ const Header = ({ ...props }) => {
                         style={{ minWidth: 250 }}
                     >
                         <PopoverBody className="p-0 border-light">
-                            <UserCard
-                                title={loggedUser?.email}
-                                className="border-light bg-gradient-theme-top"
-                            >
+                            <UserCard title={loggedUser?.email} className="border-light bg-gradient-theme-top">
                                 <ListGroup flush>
-                                    <ListGroupItem
-                                        tag="button"
-                                        action
-                                        className="border-light"
-                                        onClick={logout}
-                                    >
+                                    <ListGroupItem tag="button" action className="border-light" onClick={logout}>
                                         <MdExitToApp /> Déconnexion
                                     </ListGroupItem>
                                 </ListGroup>
