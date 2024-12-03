@@ -16,41 +16,99 @@ import HostFamily from "../../../logic/entities/HostFamily";
 import NotificationSystem from "react-notification-system";
 import { useHistory } from "react-router-dom";
 
-interface Filter {
-    activated: boolean;
-    name: string;
-    check: (animal: Animal) => boolean;
+class Filter {
+    value: any;
+    type: FilterType;
+
+    constructor(value: any, type: FilterType) {
+        this.value = value;
+        this.type = type;
+    }
+
+    check(animal: Animal): boolean {
+        return FilterType.check(this.type, this.value, animal);
+    }
+}
+
+enum FilterType {
+    ICAD_MISSING = "ICAD manquant",
+    BROADCASTABLE = "Publiable",
+    RESERVED = "Réservé·e",
+    ADOPTED = "Adopté·e",
+    DEAD = "Mort·e",
+    SPECIES = "Espèce(s)",
+    REFERENT = "Référent·e",
+    NAME = "Nom",
+}
+
+namespace FilterType {
+    export function check(
+        filter: FilterType,
+        value: any,
+        animal: Animal
+    ): boolean {
+        if (value === null || value === undefined) return true;
+        switch (filter) {
+            case FilterType.ICAD_MISSING:
+                if (value === true)
+                    return animal.icad === null || animal.icad === "";
+                return true;
+            case FilterType.BROADCASTABLE:
+                return animal.broadcastable === value;
+            case FilterType.RESERVED:
+                return animal.reserved === value;
+            case FilterType.ADOPTED:
+                return animal.adopted === value;
+            case FilterType.DEAD:
+                if (value === true) return animal.death_date !== undefined;
+                return animal.death_date === undefined;
+            case FilterType.SPECIES:
+                return animal.species_id === value;
+            case FilterType.REFERENT:
+                if (value instanceof User)
+                    return animal.current_host_family_referent_id === value.id;
+                return true;
+            case FilterType.NAME:
+                if (typeof value === "string")
+                    return (
+                        animal.name
+                            ?.toLowerCase()
+                            .includes(value.toLowerCase()) ?? false
+                    );
+                return true;
+        }
+    }
 }
 
 interface AnimalsPageProps {}
 
+class AnimalsPageData {
+    animals: Animal[];
+    sexes: Sexe[];
+    species: Species[];
+    referents: User[];
+    hostFamilies: HostFamily[];
+
+    constructor() {
+        this.animals = [];
+        this.sexes = [];
+        this.species = [];
+        this.referents = [];
+        this.hostFamilies = [];
+    }
+}
+
 const AnimalsPage: FC<AnimalsPageProps> = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [animals, setAnimals] = useState<Animal[]>([]);
-    const [sexes, setSexes] = useState<Sexe[]>([]);
-    const [species, setSpecies] = useState<Species[]>([]);
-    const [referents, setReferents] = useState<User[]>([]);
-    const [hostFamilies, setHostFamilies] = useState<HostFamily[]>([]);
+    const [data, setData] = useState<AnimalsPageData>(new AnimalsPageData());
 
     const [filteredAnimals, setFilteredAnimals] = useState<Animal[]>([]);
-    const [searchText, setSearchText] = useState<string>("");
-    const [filters, setFilters] = useState<Filter[]>([
-        {
-            activated: false,
-            name: "ICAD manquant",
-            check: (animal: Animal) => {
-                return animal.icad === null || animal.icad === "";
-            },
-        },
-    ]);
-    const [filterBroadcastable, setFilterBroadcastable] = useState<
-        boolean | null
-    >(null);
-    const [filterReserved, setFilterReserved] = useState<boolean | null>(null);
-    const [filterAdopted, setFilterAdopted] = useState<boolean | null>(null);
-    const [filterDead, setFilterDead] = useState<boolean | null>(false);
-    const [filterSpecies, setFilterSpecies] = useState<Species | null>(null);
-    const [filterReferent, setFilterReferent] = useState<User | null>(null);
+    const [filters, setFilters] = useState<Filter[]>(
+        Object.values(FilterType).map((ft) => {
+            var filterType = ft as FilterType;
+            return new Filter(null, filterType);
+        })
+    );
 
     const [notificationSystem, setNotificationSystem] =
         useState<NotificationSystem | null>(null);
@@ -62,13 +120,13 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
             .then((species) => {
                 return sortBy(species, "name") as Species[];
             })
-            .then(setSpecies)
             .catch((err) => {
                 console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as Species[];
             });
     };
 
@@ -77,24 +135,20 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
             .then((sexes) => {
                 return sortBy(sexes, "name") as Sexe[];
             })
-            .then(setSexes)
             .catch((err) => {
                 console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as Sexe[];
             });
     };
 
     const getAllAnimals = () => {
-        AnimalsManager.getAll()
+        return AnimalsManager.getAll()
             .then((animals) => {
                 return sortBy(animals, "id") as Animal[];
-            })
-            .then((animals) => {
-                setAnimals(animals);
-                setFilteredAnimals(animals);
             })
             .catch((err) => {
                 console.error(err);
@@ -102,36 +156,38 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as Animal[];
             });
     };
 
     const getReferents = () => {
-        setReferents([]);
         return UsersManager.getAllReferents()
             .then((referents) => {
                 console.log("referents", referents);
                 return sortBy(referents, "displayName") as User[];
             })
-            .then(setReferents)
             .catch((err) => {
                 console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as User[];
             });
     };
 
     const getHostFamilies = () => {
-        setHostFamilies([]);
         return HostFamiliesManager.getAll()
-            .then(setHostFamilies)
+            .then((hostFamilies) => {
+                return sortBy(hostFamilies, "displayName") as HostFamily[];
+            })
             .catch((err) => {
                 console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as HostFamily[];
             });
     };
 
@@ -141,61 +197,31 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
 
     useEffect(() => {
         setIsLoading(true);
-        getSexes()
-            .then(getSpecies)
-            .then(getReferents)
-            .then(getHostFamilies)
-            .then(getAllAnimals)
-            .then(() => {
-                setIsLoading(false);
+        Promise.all([
+            getSexes(),
+            getSpecies(),
+            getReferents(),
+            getHostFamilies(),
+            getAllAnimals(),
+        ]).then(([sexes, species, referents, hostFamilies, animals]) => {
+            setData({
+                sexes,
+                species,
+                referents,
+                hostFamilies,
+                animals,
             });
+            setIsLoading(false);
+        });
     }, []);
 
     useEffect(() => {
         setFilteredAnimals(
-            animals.filter((animal) => {
-                return (
-                    filters.every((f) =>
-                        f.activated === true ? f.check(animal) === true : true
-                    ) &&
-                    animal.name
-                        ?.toLowerCase()
-                        .includes(searchText.toLowerCase()) &&
-                    (filterBroadcastable === null
-                        ? true
-                        : animal.broadcastable === filterBroadcastable) &&
-                    (filterReserved === null
-                        ? true
-                        : animal.reserved === filterReserved) &&
-                    (filterAdopted === null
-                        ? true
-                        : animal.adopted === filterAdopted) &&
-                    (filterSpecies === null
-                        ? true
-                        : animal.species_id === filterSpecies?.id) &&
-                    (filterReferent === null
-                        ? true
-                        : animal.current_host_family_referent_id ===
-                          filterReferent?.id) &&
-                    (filterDead === null
-                        ? true
-                        : filterDead === false
-                        ? animal.death_date === undefined
-                        : animal.death_date !== undefined)
-                );
+            data.animals.filter((animal) => {
+                return filters.every((f) => f.check(animal) === true);
             })
         );
-    }, [
-        animals,
-        searchText,
-        filters,
-        filterBroadcastable,
-        filterReserved,
-        filterAdopted,
-        filterSpecies,
-        filterReferent,
-        filterDead,
-    ]);
+    }, [data, filters]);
 
     const createAnimal = () => {
         history.push("animals/new");
@@ -217,10 +243,22 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                     <Input
                         name="animal"
                         placeholder="Rechercher un animal"
-                        value={searchText}
-                        onChange={(e) => {
-                            setSearchText(e.target.value);
-                        }}
+                        value={
+                            filters.find((f) => f.type === FilterType.NAME)
+                                ?.value ?? ""
+                        }
+                        onChange={(e) =>
+                            setFilters((previous) =>
+                                previous.map((f) =>
+                                    f.type === FilterType.NAME
+                                        ? new Filter(
+                                              e.target.value,
+                                              FilterType.NAME
+                                          )
+                                        : f
+                                )
+                            )
+                        }
                     />
                 </Col>
                 <Col xs={"auto"}>
@@ -245,7 +283,13 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={filterBroadcastable}
+                                        value={
+                                            filters.find(
+                                                (f) =>
+                                                    f.type ===
+                                                    FilterType.BROADCASTABLE
+                                            )?.value
+                                        }
                                         values={[true, false, null]}
                                         valueDisplayName={(value) =>
                                             value === null
@@ -255,10 +299,26 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                                 : "Non diffusable"
                                         }
                                         valueActiveCheck={(value) =>
-                                            filterBroadcastable === value
+                                            filters.find(
+                                                (f) =>
+                                                    f.type ===
+                                                    FilterType.BROADCASTABLE
+                                            )?.value === value
                                         }
                                         key={"broadcastable"}
-                                        onChange={setFilterBroadcastable}
+                                        onChange={(value) => {
+                                            setFilters((previous) =>
+                                                previous.map((f) =>
+                                                    f.type ===
+                                                    FilterType.BROADCASTABLE
+                                                        ? new Filter(
+                                                              value,
+                                                              FilterType.BROADCASTABLE
+                                                          )
+                                                        : f
+                                                )
+                                            );
+                                        }}
                                     />
                                 </Col>
                                 <Col className="mb-0">
@@ -266,7 +326,13 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={filterReserved}
+                                        value={
+                                            filters.find(
+                                                (f) =>
+                                                    f.type ===
+                                                    FilterType.RESERVED
+                                            )?.value
+                                        }
                                         values={[true, false, null]}
                                         valueDisplayName={(value) =>
                                             value === null
@@ -276,10 +342,26 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                                 : "Non réservé·es"
                                         }
                                         valueActiveCheck={(value) =>
-                                            filterReserved === value
+                                            filters.find(
+                                                (f) =>
+                                                    f.type ===
+                                                    FilterType.RESERVED
+                                            )?.value === value
                                         }
                                         key={"reserved"}
-                                        onChange={setFilterReserved}
+                                        onChange={(value) => {
+                                            setFilters((previous) =>
+                                                previous.map((f) =>
+                                                    f.type ===
+                                                    FilterType.RESERVED
+                                                        ? new Filter(
+                                                              value,
+                                                              FilterType.RESERVED
+                                                          )
+                                                        : f
+                                                )
+                                            );
+                                        }}
                                     />
                                 </Col>
                                 <Col className="mb-0">
@@ -287,7 +369,13 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={filterAdopted}
+                                        value={
+                                            filters.find(
+                                                (f) =>
+                                                    f.type ===
+                                                    FilterType.ADOPTED
+                                            )?.value
+                                        }
                                         values={[true, false, null]}
                                         valueDisplayName={(value) =>
                                             value === null
@@ -297,10 +385,26 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                                 : "Non adopté·es"
                                         }
                                         valueActiveCheck={(value) =>
-                                            filterAdopted === value
+                                            filters.find(
+                                                (f) =>
+                                                    f.type ===
+                                                    FilterType.ADOPTED
+                                            )?.value === value
                                         }
                                         key={"adopted"}
-                                        onChange={setFilterAdopted}
+                                        onChange={(value) => {
+                                            setFilters((previous) =>
+                                                previous.map((f) =>
+                                                    f.type ===
+                                                    FilterType.ADOPTED
+                                                        ? new Filter(
+                                                              value,
+                                                              FilterType.ADOPTED
+                                                          )
+                                                        : f
+                                                )
+                                            );
+                                        }}
                                     />
                                 </Col>
                                 <Col className="mb-0">
@@ -308,7 +412,12 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={filterDead}
+                                        value={
+                                            filters.find(
+                                                (f) =>
+                                                    f.type === FilterType.DEAD
+                                            )?.value
+                                        }
                                         values={[true, false, null]}
                                         valueDisplayName={(value) =>
                                             value === null
@@ -318,10 +427,24 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                                 : "Vivant·e"
                                         }
                                         valueActiveCheck={(value) =>
-                                            filterDead === value
+                                            filters.find(
+                                                (f) =>
+                                                    f.type === FilterType.DEAD
+                                            )?.value === value
                                         }
                                         key={"dead"}
-                                        onChange={setFilterDead}
+                                        onChange={(value) => {
+                                            setFilters((previous) =>
+                                                previous.map((f) =>
+                                                    f.type === FilterType.DEAD
+                                                        ? new Filter(
+                                                              value,
+                                                              FilterType.DEAD
+                                                          )
+                                                        : f
+                                                )
+                                            );
+                                        }}
                                     />
                                 </Col>
                                 <Col className="mb-0">
@@ -329,22 +452,43 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={species.find(
+                                        value={data.species.find(
                                             (aSpecies) =>
                                                 aSpecies.id ===
-                                                filterSpecies?.id
+                                                filters.find(
+                                                    (f) =>
+                                                        f.type ===
+                                                        FilterType.SPECIES
+                                                )?.value
                                         )}
-                                        values={[...species, null]}
+                                        values={[...data.species, null]}
                                         valueDisplayName={(aSpecies) =>
                                             aSpecies === null
                                                 ? "Toutes"
                                                 : aSpecies?.name
                                         }
                                         valueActiveCheck={(aSpecies) =>
-                                            aSpecies?.id === filterSpecies?.id
+                                            aSpecies?.id ===
+                                            filters.find(
+                                                (f) =>
+                                                    f.type ===
+                                                    FilterType.SPECIES
+                                            )?.value
                                         }
                                         key={"species"}
-                                        onChange={setFilterSpecies}
+                                        onChange={(value) => {
+                                            setFilters((previous) =>
+                                                previous.map((f) =>
+                                                    f.type ===
+                                                    FilterType.SPECIES
+                                                        ? new Filter(
+                                                              value?.id,
+                                                              FilterType.SPECIES
+                                                          )
+                                                        : f
+                                                )
+                                            );
+                                        }}
                                     />
                                 </Col>
                                 <Col className="mb-0">
@@ -352,50 +496,71 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={referents.find(
+                                        value={data.referents.find(
                                             (referent) =>
                                                 referent.id ===
-                                                filterReferent?.id
+                                                filters.find(
+                                                    (f) =>
+                                                        f.type ===
+                                                        FilterType.REFERENT
+                                                )?.value
                                         )}
-                                        values={[...referents, null]}
+                                        values={[...data.referents, null]}
                                         valueDisplayName={(referent) =>
                                             referent === null
                                                 ? "Tous·tes"
                                                 : referent?.displayName
                                         }
                                         valueActiveCheck={(referent) =>
-                                            referent?.id === filterReferent?.id
+                                            referent?.id ===
+                                            filters.find(
+                                                (f) =>
+                                                    f.type ===
+                                                    FilterType.REFERENT
+                                            )?.value
                                         }
                                         key={"referents"}
-                                        onChange={setFilterReferent}
+                                        onChange={(value) => {
+                                            setFilters((previous) =>
+                                                previous.map((f) =>
+                                                    f.type ===
+                                                    FilterType.REFERENT
+                                                        ? new Filter(
+                                                              value,
+                                                              FilterType.REFERENT
+                                                          )
+                                                        : f
+                                                )
+                                            );
+                                        }}
                                     />
                                 </Col>
-                                {filters.map((filter) => {
-                                    return (
-                                        <Col className="mb-0">
-                                            <Label>{filter.name}</Label>
-                                            <Switch
-                                                id={filter.name}
-                                                disabled={false}
-                                                isOn={filter.activated}
-                                                handleToggle={() => {
-                                                    setFilters((previous) =>
-                                                        previous.map((f) =>
-                                                            f.name ===
-                                                            filter.name
-                                                                ? {
-                                                                      ...f,
-                                                                      activated:
-                                                                          !f.activated,
-                                                                  }
-                                                                : f
-                                                        )
-                                                    );
-                                                }}
-                                            />
-                                        </Col>
-                                    );
-                                })}
+                                <Col className="mb-0">
+                                    <Label>ICAD manquant</Label>
+                                    <Switch
+                                        disabled={false}
+                                        isOn={
+                                            filters.find(
+                                                (f) =>
+                                                    f.type ===
+                                                    FilterType.ICAD_MISSING
+                                            )?.value
+                                        }
+                                        handleToggle={() => {
+                                            setFilters((previous) =>
+                                                previous.map((f) =>
+                                                    f.type ===
+                                                    FilterType.ICAD_MISSING
+                                                        ? new Filter(
+                                                              !f.value,
+                                                              FilterType.ICAD_MISSING
+                                                          )
+                                                        : f
+                                                )
+                                            );
+                                        }}
+                                    />
+                                </Col>
                             </Row>
                         </Col>
                     </Row>
@@ -434,13 +599,13 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                             },
                         ]}
                         values={filteredAnimals.map((animal) => {
-                            var hostFamily = hostFamilies.find(
+                            var hostFamily = data.hostFamilies.find(
                                 (hf) => hf.id === animal.current_host_family_id
                             );
                             return {
                                 name: animal.name,
                                 sexe:
-                                    sexes.find(
+                                    data.sexes.find(
                                         (aSexe) => aSexe.key === animal.sexe
                                     )?.value || "",
                                 icad: animal.icad,
