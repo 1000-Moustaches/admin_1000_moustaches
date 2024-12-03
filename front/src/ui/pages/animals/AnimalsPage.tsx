@@ -104,10 +104,13 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
 
     const [filteredAnimals, setFilteredAnimals] = useState<Animal[]>([]);
     const [filters, setFilters] = useState<Filter[]>(
-        Object.values(FilterType).map((ft) => {
-            var filterType = ft as FilterType;
-            return new Filter(null, filterType);
-        })
+        Object.values(FilterType)
+            .map((ft) => {
+                if (typeof ft !== "string") return null;
+                var filterType = ft as FilterType;
+                return new Filter(null, filterType);
+            })
+            .filter((f) => f !== null) as Filter[]
     );
 
     const [notificationSystem, setNotificationSystem] =

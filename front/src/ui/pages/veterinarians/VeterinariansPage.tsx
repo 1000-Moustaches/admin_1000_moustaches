@@ -44,6 +44,38 @@ interface Position {
     lng: number;
 }
 
+class Filter {
+    value: any;
+    type: FilterType;
+
+    constructor(value: any, type: FilterType) {
+        this.value = value;
+        this.type = type;
+    }
+
+    check(veterinarian: Veterinarian): boolean {
+        return FilterType.check(this.type, this.value, veterinarian);
+    }
+}
+
+enum FilterType {
+    EMERGENCIES = "Gère les urgences",
+}
+
+namespace FilterType {
+    export function check(
+        filter: FilterType,
+        value: any,
+        veterinarian: Veterinarian
+    ): boolean {
+        if (value === null || value === undefined) return true;
+        switch (filter) {
+            case FilterType.EMERGENCIES:
+                return veterinarian.emergencies === value;
+        }
+    }
+}
+
 const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
@@ -53,15 +85,15 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
     const [searchText, setSearchText] = useState("");
     const [showMap, setShowMap] = useState(false);
     const [userPosition, setUserPosition] = useState<Position | null>(null);
-    const [filters, setFilters] = useState([
-        {
-            activated: false,
-            name: "Gère les urgences",
-            check: function (vet: Veterinarian) {
-                return vet.emergencies === true;
-            },
-        },
-    ]);
+    const [filters, setFilters] = useState<Filter[]>(
+        Object.values(FilterType)
+            .map((ft) => {
+                if (typeof ft !== "string") return null;
+                var filterType = ft as FilterType;
+                return new Filter(null, filterType);
+            })
+            .filter((f) => f !== null) as Filter[]
+    );
 
     const history = useHistory();
 
@@ -99,9 +131,7 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
             veterinarians.filter(
                 (veterinarian) =>
                     filters.every((f) =>
-                        f.activated === true
-                            ? f.check(veterinarian) === true
-                            : true
+                        f.value === true ? f.check(veterinarian) === true : true
                     ) &&
                     (veterinarian.name ?? "")
                         .toLowerCase()
@@ -220,23 +250,25 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
                         {filters.map((filter) => {
                             return (
                                 <Col className="mb-0">
-                                    <Label>{filter.name}</Label>
+                                    <Label>{filter.type}</Label>
                                     <Switch
-                                        id={filter.name}
-                                        isOn={filter.activated}
+                                        id={filter.type}
+                                        isOn={filter.value === true}
                                         disabled={false}
                                         handleToggle={() => {
-                                            setFilters((previous) =>
-                                                previous.map((f) =>
-                                                    f.name === filter.name
-                                                        ? {
-                                                              ...f,
-                                                              activated:
-                                                                  !f.activated,
-                                                          }
-                                                        : f
-                                                )
-                                            );
+                                            setFilters((prevFilters) => {
+                                                return prevFilters.map((f) => {
+                                                    if (
+                                                        f.type === filter.type
+                                                    ) {
+                                                        return new Filter(
+                                                            !f.value,
+                                                            f.type
+                                                        );
+                                                    }
+                                                    return f;
+                                                });
+                                            });
                                         }}
                                     />
                                 </Col>
