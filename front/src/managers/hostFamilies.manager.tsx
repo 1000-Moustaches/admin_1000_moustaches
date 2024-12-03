@@ -36,7 +36,7 @@ class HostFamiliesManager {
                         throw new Error(`Server error - ${json.message}`);
                     });
                 })
-                .then((hostFamilies) => hostFamilies.map((hf: any) => HostFamiliesManager.format(hf, hostFamilyKinds)));
+                .then((hostFamilies) => hostFamilies.map((hf: any) => HostFamiliesManager.format(hf, hostFamilyKinds)) as HostFamily[]);
         });
     };
 

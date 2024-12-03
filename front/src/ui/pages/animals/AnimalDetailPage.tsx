@@ -1,18 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import {
-    Accordion,
-    AccordionItem,
-    Button,
-    Card,
-    CardBody,
-    CardHeader,
-    Col,
-    Input,
-    Label,
-    Row,
-    AccordionHeader,
-    AccordionBody,
-} from "reactstrap";
+import { Accordion, AccordionItem, Button, Card, CardBody, CardHeader, Col, Input, Label, Row, AccordionHeader, AccordionBody } from "reactstrap";
 import AnimalsManager, { Sexe } from "../../../managers/animals.manager";
 import HostFamiliesManager from "../../../managers/hostFamilies.manager";
 import { MdRefresh, MdOutlineModeEdit, MdSave, MdDelete } from "react-icons/md";
@@ -43,211 +30,217 @@ interface AnimalDetailPageProps {
     [key: string]: any;
 }
 
+class AnimalDetailPageData {
+    animal?: Animal;
+    animalToHostFamilies: AnimalToHostFamily[];
+    species: Species[];
+    hostFamilies: HostFamily[];
+    sexes: Sexe[];
+    veterinarianInterventions: VeterinarianIntervention[];
+
+    constructor() {
+        this.animal = undefined;
+        this.animalToHostFamilies = [];
+        this.species = [];
+        this.hostFamilies = [];
+        this.sexes = [];
+        this.veterinarianInterventions = [];
+    }
+}
+
+enum AnimalDetailPageAccordion {
+    INFO = "INFO",
+    PEC = "PEC",
+    HEALTH = "HEALTH",
+    BEHAVIOUR = "BEHAVIOUR",
+    EXIT = "EXIT",
+    DEATH = "DEATH",
+}
+
+class AnimalDetailPageAccordionState {
+    type: AnimalDetailPageAccordion;
+    id: string;
+
+    constructor(type: AnimalDetailPageAccordion, id: string) {
+        this.type = type;
+        this.id = id;
+    }
+}
+
 const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
     const animalId = match.params.id;
-    const [animal, setAnimal] = useState<Animal | null>(null);
-    const [animalToHostFamilies, setAnimalToHostFamilies] = useState<
-        AnimalToHostFamily[]
-    >([]);
-    const [species, setSpecies] = useState<Species[]>([]);
-    const [hostFamilies, setHostFamilies] = useState<HostFamily[]>([]);
-    const [sexes, setSexes] = useState<Sexe[]>([]);
-    const [veterinarianInterventions, setVeterinarianInterventions] = useState<
-        VeterinarianIntervention[]
-    >([]);
+    const [data, setData] = useState<AnimalDetailPageData>(new AnimalDetailPageData());
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
-        useState<boolean>(false);
+    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
 
-    const [notificationSystem, setNotificationSystem] =
-        useState<NotificationSystem | null>(null);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | null>(null);
 
     const history = useHistory();
 
     // Accordions
-    const [openInfo, setOpenInfo] = useState("");
+    const [accordions, setAccordions] = useState<AnimalDetailPageAccordionState[]>(
+        Object.values(AnimalDetailPageAccordion)
+            .map((type) => {
+                if (typeof type !== "string") return null;
+                var accordionType = type as AnimalDetailPageAccordion;
+                return new AnimalDetailPageAccordionState(accordionType, "");
+            })
+            .filter((a) => a !== null) as AnimalDetailPageAccordionState[]
+    );
 
-    const toggleInfo = (id: string) => {
-        if (openInfo === id) {
-            setOpenInfo("");
-        } else {
-            setOpenInfo(id);
-        }
-    };
-
-    const [openPEC, setOpenPEC] = useState("");
-
-    const togglePEC = (id: string) => {
-        if (openPEC === id) {
-            setOpenPEC("");
-        } else {
-            setOpenPEC(id);
-        }
-    };
-
-    const [openHealth, setOpenHealth] = useState("");
-
-    const toggleHealth = (id: string) => {
-        if (openHealth === id) {
-            setOpenHealth("");
-        } else {
-            setOpenHealth(id);
-        }
-    };
-
-    const [openBehaviour, setOpenBehaviour] = useState("");
-
-    const toggleBehaviour = (id: string) => {
-        if (openBehaviour === id) {
-            setOpenBehaviour("");
-        } else {
-            setOpenBehaviour(id);
-        }
-    };
-
-    const [openExit, setOpenExit] = useState("");
-
-    const toggleExit = (id: string) => {
-        if (openExit === id) {
-            setOpenExit("");
-        } else {
-            setOpenExit(id);
-        }
-    };
-
-    const [openDeath, setOpenDeath] = useState("");
-
-    const toggleDeath = (id: string) => {
-        if (openDeath === id) {
-            setOpenDeath("");
-        } else {
-            setOpenDeath(id);
-        }
+    const toggleAccordion = (type: AnimalDetailPageAccordion, id: string) => {
+        let newAccordions = accordions.map((accordion) => {
+            if (accordion.type === type) {
+                if (accordion.id === id) {
+                    accordion.id = "";
+                } else {
+                    accordion.id = id;
+                }
+            }
+            return accordion;
+        });
+        setAccordions(newAccordions);
     };
 
     const getAnimal = () => {
-        setAnimal(null);
         let id = parseInt(animalId);
         if (isNaN(id)) {
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
-        return AnimalsManager.getById(id)
-            .then((animal) => {
-                if (species.length === 0) {
-                    return animal;
-                }
-                let specie = species.find((sp) => sp.id === animal.species_id);
-                if (specie !== undefined) {
-                    animal.setSpecies(specie);
-                } else {
-                    console.warn(
-                        "Can't find species for animal",
-                        animal,
-                        species
-                    );
-                }
-                return animal;
-            })
-            .then(setAnimal)
-            .catch((err) => {
-                console.error(err);
-                notificationSystem?.addNotification({
-                    message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
-                    level: "error",
-                });
+        return AnimalsManager.getById(id).catch((err) => {
+            console.error(err);
+            notificationSystem?.addNotification({
+                message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
+                level: "error",
             });
+            return undefined;
+        });
     };
 
     const getAnimalToHostFamilies = () => {
-        setAnimalToHostFamilies([]);
         let id = parseInt(animalId);
         if (isNaN(id)) {
-            return;
+            return Promise.resolve([]);
         }
         return HostFamiliesManager.getByAnimalId(id)
-            .then(setAnimalToHostFamilies)
+            .then((animalToHostFamilies) =>
+                animalToHostFamilies.sort((a, b) => new Date(b.entry_date ?? "").getTime() - new Date(a.entry_date ?? "").getTime())
+            )
             .catch((err) => {
                 console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as AnimalToHostFamily[];
             });
     };
 
     const getSpecies = () => {
-        setSpecies([]);
         return AnimalsManager.getSpecies()
-            .then(setSpecies)
+            .then((species) => species.sort((a, b) => a.name.localeCompare(b.name)))
             .catch((err) => {
                 console.log(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as Species[];
             });
     };
 
     const getSexes = () => {
-        setSexes([]);
         return AnimalsManager.getSexes()
-            .then(setSexes)
+            .then((sexes) => sexes.sort((a, b) => a.value.localeCompare(b.value)))
             .catch((err) => {
                 console.log(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as Sexe[];
             });
     };
 
     const getVeterinarianInterventions = () => {
-        setVeterinarianInterventions([]);
         let id = parseInt(animalId);
         if (isNaN(id)) {
-            return;
+            return Promise.resolve([]);
         }
         return VeterinarianInterventionsManager.getByAnimalId(id)
-            .then(setVeterinarianInterventions)
+            .then((interventions) => interventions.sort((a, b) => new Date(b.date ?? "").getTime() - new Date(a.date ?? "").getTime()))
             .catch((err) => {
                 console.log(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as VeterinarianIntervention[];
             });
     };
 
     const getHostFamilies = () => {
-        setHostFamilies([]);
         return HostFamiliesManager.getAll()
-            .then(setHostFamilies)
+            .then((hostFamilies) => hostFamilies.sort((a, b) => a.name?.localeCompare(b.name ?? "") ?? 0))
             .catch((err) => {
                 console.log(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as HostFamily[];
             });
     };
 
     const refresh = () => {
-        if (animalId !== "new") {
-            getSpecies()
-                .then(getSexes)
-                .then(getAnimal)
-                .then(getAnimalToHostFamilies)
-                .then(getHostFamilies)
-                .then(getVeterinarianInterventions);
-        } else {
-            setOpenInfo("1");
-            setOpenPEC("1");
-            setOpenHealth("1");
-
-            getSpecies().then(getSexes).then(getHostFamilies);
-            setAnimal(AnimalsManager.createAnimal());
-            setIsEditing(true);
-        }
+        Promise.all([getSpecies(), getSexes(), getHostFamilies()])
+            .then(([species, sexes, hostFamilies]) => {
+                setData((previousData) => {
+                    return {
+                        ...previousData,
+                        species,
+                        sexes,
+                        hostFamilies,
+                    };
+                });
+            })
+            .then(() => {
+                if (animalId !== "new") {
+                    Promise.all([getAnimal(), getAnimalToHostFamilies(), getVeterinarianInterventions()]).then(
+                        ([animal, animalToHostFamilies, veterinarianInterventions]) => {
+                            if (animal === undefined) {
+                                console.error("Animal not found");
+                                notificationSystem?.addNotification({
+                                    message: "Animal non trouvé",
+                                    level: "error",
+                                });
+                                return;
+                            }
+                            setData((previousData) => {
+                                return {
+                                    ...previousData,
+                                    animal,
+                                    animalToHostFamilies,
+                                    veterinarianInterventions,
+                                };
+                            });
+                        }
+                    );
+                } else {
+                    setAccordions((previousValues) => {
+                        return previousValues.map((value) => {
+                            return new AnimalDetailPageAccordionState(value.type, "1");
+                        });
+                    });
+                    setIsEditing(true);
+                    setData((previousData) => {
+                        return {
+                            ...previousData,
+                            animal: AnimalsManager.createAnimal(),
+                        };
+                    });
+                }
+            });
     };
 
     useEffect(() => {
@@ -256,45 +249,51 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
 
     // Auto select first species for new animal
     useEffect(() => {
-        if (
-            animalId === "new" &&
-            animal !== null &&
-            species.length > 0 &&
-            animal.species_id === undefined
-        ) {
-            setAnimal({
-                ...animal,
-                species_name: species[0].name,
+        if (animalId === "new" && data.animal !== undefined && data.species.length > 0 && data.animal?.species_id === undefined) {
+            setData((previousData) => {
+                return {
+                    ...previousData,
+                    animal: {
+                        ...data.animal!,
+                        species_id: data.species[0].id,
+                        species_name: data.species[0].name,
+                    },
+                };
             });
         }
-    }, [animalId, animal, species]);
+    }, [animalId, data.animal, data.species]);
 
     useEffect(() => {
-        if (animal !== null && species.length > 0) {
-            let specie = species.find((sp) => sp.id === animal.species_id);
+        if (data.animal !== undefined && data.species.length > 0) {
+            let specie = data.species.find((sp) => sp.id === data.animal?.species_id);
             if (specie !== undefined) {
-                animal.setSpecies(specie);
+                data.animal?.setSpecies(specie);
             } else {
-                console.warn("Can't find species for animal", animal, species);
+                console.warn("Can't find species for animal", data.animal, data.species);
             }
         }
-    }, [species, animal]);
+    }, [data.species, data.animal]);
 
     const save = () => {
         setIsEditing(false);
-        if (animal === null) {
+        if (data.animal === undefined) {
             return;
         }
         if (animalId === "new") {
             // Send new data to API
-            AnimalsManager.create(animal)
+            AnimalsManager.create(data.animal)
                 .then((updatedAnimal) => {
                     notificationSystem?.addNotification({
                         message: "Animal créé",
                         level: "success",
                     });
                     history.push(`/animals/${updatedAnimal.id}`);
-                    setAnimal(updatedAnimal);
+                    setData((previousData) => {
+                        return {
+                            ...previousData,
+                            animal: updatedAnimal,
+                        };
+                    });
                 })
                 .catch((err) => {
                     console.error(err);
@@ -307,25 +306,16 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
         }
 
         // Send new data to API
-        AnimalsManager.update(animal)
+        AnimalsManager.update(data.animal)
             .then(() => {
                 getAnimal().then(() => {
-                    var exitOrDeathDate = animal.death_date || animal.exit_date;
-                    if (
-                        exitOrDeathDate !== undefined &&
-                        exitOrDeathDate !== ""
-                    ) {
-                        animalToHostFamilies
+                    var exitOrDeathDate = data.animal?.death_date || data.animal?.exit_date;
+                    if (exitOrDeathDate !== undefined && exitOrDeathDate !== "") {
+                        data.animalToHostFamilies
                             .filter((athf) => athf.exit_date === undefined)
                             .forEach((athf) => {
                                 AnimalsToHostFamiliesManager.update(
-                                    new AnimalToHostFamily(
-                                        athf.animal_id,
-                                        athf.animal_name,
-                                        athf.host_family_id,
-                                        athf.entry_date,
-                                        exitOrDeathDate
-                                    )
+                                    new AnimalToHostFamily(athf.animal_id, athf.animal_name, athf.host_family_id, athf.entry_date, exitOrDeathDate)
                                 );
                             });
                     }
@@ -346,10 +336,10 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
     };
 
     const deleteA = () => {
-        if (animal === null) {
+        if (data.animal === undefined) {
             return;
         }
-        AnimalsManager.delete(animal)
+        AnimalsManager.delete(data.animal)
             .then(() => {
                 notificationSystem?.addNotification({
                     message: "Animal supprimé",
@@ -369,9 +359,9 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
 
     let content = <div>Chargement...</div>;
 
-    if (animal === undefined) {
+    if (data.animal === undefined) {
         content = <div>Animal non trouvé</div>;
-    } else if (animal === null) {
+    } else if (data.animal === null) {
         content = <div>Chargement...</div>;
     } else {
         content = (
@@ -379,30 +369,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                 <Row className={"justify-content-end"}>
                     <Col xs={"auto"}>
                         {animalId !== "new" && isEditing && (
-                            <Button
-                                color="danger"
-                                onClick={() =>
-                                    setShowDeleteConfirmationModal(true)
-                                }
-                            >
+                            <Button color="danger" onClick={() => setShowDeleteConfirmationModal(true)}>
                                 <MdDelete />
                             </Button>
                         )}
                         {!isEditing && (
-                            <Button
-                                className="ms-2"
-                                color="primary"
-                                onClick={() => setIsEditing(true)}
-                            >
+                            <Button className="ms-2" color="primary" onClick={() => setIsEditing(true)}>
                                 <MdOutlineModeEdit />
                             </Button>
                         )}
                         {isEditing && (
-                            <Button
-                                className="ms-2"
-                                color="success"
-                                onClick={() => save()}
-                            >
+                            <Button className="ms-2" color="success" onClick={() => save()}>
                                 <MdSave />
                             </Button>
                         )}
@@ -417,7 +394,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                 <Card>
                     <CardHeader>
                         {animalId === "new" && <h2>Nouvel Animal</h2>}
-                        {animalId !== "new" && <h2>{animal.name}</h2>}
+                        {animalId !== "new" && <h2>{data.animal.name}</h2>}
                     </CardHeader>
                     <CardBody>
                         {(animalId === "new" || isEditing === true) && (
@@ -425,12 +402,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                 <Col xs={12}>
                                     <Label>Nom</Label>
                                     <Input
-                                        value={animal.name || ""}
+                                        value={data.animal.name || ""}
                                         disabled={!isEditing}
                                         onChange={(evt) =>
-                                            setAnimal({
-                                                ...animal,
-                                                name: evt.target.value,
+                                            setData((previousData) => {
+                                                return {
+                                                    ...previousData,
+                                                    animal: {
+                                                        ...previousData.animal!,
+                                                        name: evt.target.value,
+                                                    },
+                                                };
                                             })
                                         }
                                     />
@@ -442,13 +424,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                 <Label>Diffusable</Label>
                                 <BooleanNullableDropdown
                                     withNewLine={true}
-                                    value={animal.broadcastable ?? null}
-                                    disabled={!isEditing || animal.adopted}
+                                    value={data.animal.broadcastable ?? null}
+                                    disabled={!isEditing || data.animal.adopted}
                                     onChange={(newValue) =>
-                                        setAnimal({
-                                            ...animal,
-                                            broadcastable:
-                                                newValue ?? undefined,
+                                        setData((previousData) => {
+                                            return {
+                                                ...previousData,
+                                                animal: {
+                                                    ...previousData.animal!,
+                                                    broadcastable: newValue ?? undefined,
+                                                },
+                                            };
                                         })
                                     }
                                 />
@@ -457,12 +443,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                 <Label>Réservable</Label>
                                 <BooleanNullableDropdown
                                     withNewLine={true}
-                                    value={animal.bookable ?? null}
-                                    disabled={!isEditing || animal.adopted}
+                                    value={data.animal.bookable ?? null}
+                                    disabled={!isEditing || data.animal.adopted}
                                     onChange={(newValue) =>
-                                        setAnimal({
-                                            ...animal,
-                                            bookable: newValue ?? undefined,
+                                        setData((previousData) => {
+                                            return {
+                                                ...previousData,
+                                                animal: {
+                                                    ...previousData.animal!,
+                                                    bookable: newValue ?? undefined,
+                                                },
+                                            };
                                         })
                                     }
                                 />
@@ -471,12 +462,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                 <Label>Réservé·e</Label>
                                 <BooleanNullableDropdown
                                     withNewLine={true}
-                                    value={animal.reserved ?? null}
-                                    disabled={!isEditing || animal.adopted}
+                                    value={data.animal.reserved ?? null}
+                                    disabled={!isEditing || data.animal.adopted}
                                     onChange={(newValue) =>
-                                        setAnimal({
-                                            ...animal,
-                                            reserved: newValue ?? undefined,
+                                        setData((previousData) => {
+                                            return {
+                                                ...previousData,
+                                                animal: {
+                                                    ...previousData.animal!,
+                                                    reserved: newValue ?? undefined,
+                                                },
+                                            };
                                         })
                                     }
                                 />
@@ -486,18 +482,15 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                 <NullableDropdown
                                     withNewLine={true}
                                     color={
-                                        animal.need_icad_duplicate === null ||
-                                        animal.need_icad_duplicate === undefined
+                                        data.animal.need_icad_duplicate === null || data.animal.need_icad_duplicate === undefined
                                             ? "warning"
-                                            : animal.need_icad_duplicate ===
-                                              "received"
+                                            : data.animal.need_icad_duplicate === "received"
                                             ? "success"
-                                            : animal.need_icad_duplicate ===
-                                              "waiting"
+                                            : data.animal.need_icad_duplicate === "waiting"
                                             ? "info"
                                             : "danger"
                                     }
-                                    value={animal.need_icad_duplicate}
+                                    value={data.animal.need_icad_duplicate}
                                     values={["no", "waiting", "received"]}
                                     valueDisplayName={(value) =>
                                         value === null || value === undefined
@@ -508,16 +501,18 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             ? "Oui, demandé"
                                             : "Non"
                                     }
-                                    valueActiveCheck={(value) =>
-                                        animal.need_icad_duplicate === value
-                                    }
+                                    valueActiveCheck={(value) => data.animal?.need_icad_duplicate === value}
                                     key={"need_icad_duplicate"}
-                                    disabled={!isEditing || animal.adopted}
+                                    disabled={!isEditing || data.animal.adopted}
                                     onChange={(newNeedIcadDuplicate) => {
-                                        setAnimal({
-                                            ...animal,
-                                            need_icad_duplicate:
-                                                newNeedIcadDuplicate,
+                                        setData((previousData) => {
+                                            return {
+                                                ...previousData,
+                                                animal: {
+                                                    ...previousData.animal!,
+                                                    need_icad_duplicate: newNeedIcadDuplicate,
+                                                },
+                                            };
                                         });
                                     }}
                                 />
@@ -526,12 +521,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                 <Label>Adopté·e</Label>
                                 <BooleanNullableDropdown
                                     withNewLine={true}
-                                    value={animal.adopted ?? null}
+                                    value={data.animal.adopted ?? null}
                                     disabled={!isEditing}
                                     onChange={(newValue) =>
-                                        setAnimal({
-                                            ...animal,
-                                            adopted: newValue ?? undefined,
+                                        setData((previousData) => {
+                                            return {
+                                                ...previousData,
+                                                animal: {
+                                                    ...previousData.animal!,
+                                                    adopted: newValue ?? undefined,
+                                                },
+                                            };
                                         })
                                     }
                                 />
@@ -540,13 +540,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                 <Label>Album créé</Label>
                                 <BooleanNullableDropdown
                                     withNewLine={true}
-                                    value={animal.album_created ?? null}
-                                    disabled={!isEditing || animal.adopted}
+                                    value={data.animal.album_created ?? null}
+                                    disabled={!isEditing || data.animal.adopted}
                                     onChange={(newValue) =>
-                                        setAnimal({
-                                            ...animal,
-                                            album_created:
-                                                newValue ?? undefined,
+                                        setData((previousData) => {
+                                            return {
+                                                ...previousData,
+                                                animal: {
+                                                    ...previousData.animal!,
+                                                    album_created: newValue ?? undefined,
+                                                },
+                                            };
                                         })
                                     }
                                 />
@@ -555,13 +559,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                 <Label>Contrat envoyé</Label>
                                 <BooleanNullableDropdown
                                     withNewLine={true}
-                                    value={animal.contract_sent ?? null}
-                                    disabled={!isEditing || animal.adopted}
+                                    value={data.animal.contract_sent ?? null}
+                                    disabled={!isEditing || data.animal.adopted}
                                     onChange={(newValue) =>
-                                        setAnimal({
-                                            ...animal,
-                                            contract_sent:
-                                                newValue ?? undefined,
+                                        setData((previousData) => {
+                                            return {
+                                                ...previousData,
+                                                animal: {
+                                                    ...previousData.animal!,
+                                                    contract_sent: newValue ?? undefined,
+                                                },
+                                            };
                                         })
                                     }
                                 />
@@ -569,15 +577,13 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                         </Row>
                         <Accordion
                             className="pb-3"
-                            open={openInfo}
+                            open={accordions.find((a) => a.type === AnimalDetailPageAccordion.INFO)?.id ?? ""}
                             {...{
-                                toggle: toggleInfo,
+                                toggle: (id: string) => toggleAccordion(AnimalDetailPageAccordion.INFO, id),
                             }}
                         >
                             <AccordionItem>
-                                <AccordionHeader targetId="1">
-                                    Informations
-                                </AccordionHeader>
+                                <AccordionHeader targetId="1">Informations</AccordionHeader>
                                 <AccordionBody accordionId="1">
                                     <Row>
                                         <Col xs={6}>
@@ -588,15 +594,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                                 <Col xs={12}>
                                                     <Label>ICAD</Label>
                                                     <Input
-                                                        value={
-                                                            animal.icad || ""
-                                                        }
+                                                        value={data.animal.icad || ""}
                                                         disabled={!isEditing}
                                                         onChange={(evt) =>
-                                                            setAnimal({
-                                                                ...animal,
-                                                                icad: evt.target
-                                                                    .value,
+                                                            setData((previousData) => {
+                                                                return {
+                                                                    ...previousData,
+                                                                    animal: {
+                                                                        ...previousData.animal!,
+                                                                        icad: evt.target.value,
+                                                                    },
+                                                                };
                                                             })
                                                         }
                                                     />
@@ -610,29 +618,23 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                                         color={"primary"}
                                                         disabled={!isEditing}
                                                         value={{
-                                                            id: animal.species_id,
-                                                            name: animal.species_name,
+                                                            id: data.animal.species_id,
+                                                            name: data.animal.species_name,
                                                         }}
-                                                        values={species}
-                                                        valueDisplayName={(
-                                                            aSpecies
-                                                        ) => aSpecies.name}
-                                                        valueActiveCheck={(
-                                                            aSpecies
-                                                        ) =>
-                                                            aSpecies.id ===
-                                                            animal.species_id
-                                                        }
+                                                        values={data.species}
+                                                        valueDisplayName={(aSpecies) => aSpecies.name}
+                                                        valueActiveCheck={(aSpecies) => aSpecies.id === data.animal?.species_id}
                                                         key={"species"}
-                                                        onChange={(
-                                                            newSpecies
-                                                        ) =>
-                                                            setAnimal({
-                                                                ...animal,
-                                                                species_name:
-                                                                    newSpecies.name,
-                                                                species_id:
-                                                                    newSpecies.id,
+                                                        onChange={(newSpecies) =>
+                                                            setData((previousData) => {
+                                                                return {
+                                                                    ...previousData,
+                                                                    animal: {
+                                                                        ...previousData.animal!,
+                                                                        species_id: newSpecies.id,
+                                                                        species_name: newSpecies.name,
+                                                                    },
+                                                                };
                                                             })
                                                         }
                                                     />
@@ -644,31 +646,23 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                                         color={"primary"}
                                                         disabled={!isEditing}
                                                         value={
-                                                            animal.sexe ===
-                                                                undefined ||
-                                                            animal.sexe === null
+                                                            data.animal.sexe === undefined || data.animal.sexe === null
                                                                 ? null
-                                                                : sexes.find(
-                                                                      (aSexe) =>
-                                                                          aSexe.key ===
-                                                                          animal.sexe
-                                                                  )
+                                                                : data.sexes.find((aSexe) => aSexe.key === data.animal?.sexe)
                                                         }
-                                                        values={sexes}
-                                                        valueDisplayName={(
-                                                            aSexe
-                                                        ) => aSexe.value}
-                                                        valueActiveCheck={(
-                                                            aSexe
-                                                        ) =>
-                                                            aSexe.key ===
-                                                            animal.sexe
-                                                        }
+                                                        values={data.sexes}
+                                                        valueDisplayName={(aSexe) => aSexe.value}
+                                                        valueActiveCheck={(aSexe) => aSexe.key === data.animal?.sexe}
                                                         key={"sexes"}
                                                         onChange={(newSexe) =>
-                                                            setAnimal({
-                                                                ...animal,
-                                                                sexe: newSexe.key,
+                                                            setData((previousData) => {
+                                                                return {
+                                                                    ...previousData,
+                                                                    animal: {
+                                                                        ...previousData.animal!,
+                                                                        sexe: newSexe?.key,
+                                                                    },
+                                                                };
                                                             })
                                                         }
                                                     />
@@ -678,15 +672,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                                 <Col xs={6}>
                                                     <Label>Race</Label>
                                                     <Input
-                                                        value={
-                                                            animal.race || ""
-                                                        }
+                                                        value={data.animal.race || ""}
                                                         disabled={!isEditing}
                                                         onChange={(evt) =>
-                                                            setAnimal({
-                                                                ...animal,
-                                                                race: evt.target
-                                                                    .value,
+                                                            setData((previousData) => {
+                                                                return {
+                                                                    ...previousData,
+                                                                    animal: {
+                                                                        ...previousData.animal!,
+                                                                        race: evt.target.value,
+                                                                    },
+                                                                };
                                                             })
                                                         }
                                                     />
@@ -699,13 +695,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Date de naissance</Label>
                                             <Input
                                                 type="date"
-                                                value={animal.birthdate}
+                                                value={data.animal.birthdate}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        birthdate:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                birthdate: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -714,16 +714,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Signes distinctifs</Label>
                                             <Input
                                                 type="textarea"
-                                                value={
-                                                    animal.distinctive_signs ||
-                                                    ""
-                                                }
+                                                value={data.animal.distinctive_signs || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        distinctive_signs:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                distinctive_signs: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -734,28 +735,30 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                         </Accordion>
                         <Accordion
                             className="pb-3"
-                            open={openPEC}
+                            open={accordions.find((a) => a.type === AnimalDetailPageAccordion.PEC)?.id ?? ""}
                             {...{
-                                toggle: togglePEC,
+                                toggle: (id: string) => toggleAccordion(AnimalDetailPageAccordion.PEC, id),
                             }}
                         >
                             <AccordionItem>
-                                <AccordionHeader targetId="1">
-                                    Prise en charge
-                                </AccordionHeader>
+                                <AccordionHeader targetId="1">Prise en charge</AccordionHeader>
                                 <AccordionBody accordionId="1">
                                     <Row>
                                         <Col xs={6}>
                                             <Label>Date de PEC</Label>
                                             <Input
                                                 type="date"
-                                                value={animal.entry_date}
+                                                value={data.animal.entry_date}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        entry_date:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                entry_date: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -764,15 +767,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Lieu de PEC</Label>
                                             <Input
                                                 type="textarea"
-                                                value={
-                                                    animal.place_of_care || ""
-                                                }
+                                                value={data.animal.place_of_care || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        place_of_care:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                place_of_care: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -783,15 +788,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Raisons de PEC</Label>
                                             <Input
                                                 type="textarea"
-                                                value={
-                                                    animal.reason_for_care || ""
-                                                }
+                                                value={data.animal.reason_for_care || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        reason_for_care:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                reason_for_care: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -800,13 +807,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Informations de PEC</Label>
                                             <Input
                                                 type="textarea"
-                                                value={animal.care_infos || ""}
+                                                value={data.animal.care_infos || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        care_infos:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                care_infos: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -817,13 +828,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Cédant</Label>
                                             <Input
                                                 type="textarea"
-                                                value={animal.transferor || ""}
+                                                value={data.animal.transferor || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        transferor:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                transferor: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -834,30 +849,30 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                         </Accordion>
                         <Accordion
                             className="pb-3"
-                            open={openHealth}
+                            open={accordions.find((a) => a.type === AnimalDetailPageAccordion.HEALTH)?.id ?? ""}
                             {...{
-                                toggle: toggleHealth,
+                                toggle: (id: string) => toggleAccordion(AnimalDetailPageAccordion.HEALTH, id),
                             }}
                         >
                             <AccordionItem>
-                                <AccordionHeader targetId="1">
-                                    Santé
-                                </AccordionHeader>
+                                <AccordionHeader targetId="1">Santé</AccordionHeader>
                                 <AccordionBody accordionId="1">
                                     <Row>
                                         <Col xs={6}>
                                             <Label>Primo vaccination</Label>
                                             <Input
                                                 type="date"
-                                                value={
-                                                    animal.first_vaccination_date
-                                                }
+                                                value={data.animal.first_vaccination_date}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        first_vaccination_date:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                first_vaccination_date: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -866,15 +881,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Rappel de vaccin</Label>
                                             <Input
                                                 type="date"
-                                                value={
-                                                    animal.second_vaccination_date
-                                                }
+                                                value={data.animal.second_vaccination_date}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        second_vaccination_date:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                second_vaccination_date: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -885,42 +902,38 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Stérilisé·e</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={
-                                                    animal.sterilised ?? null
-                                                }
+                                                value={data.animal.sterilised ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
-                                                    setAnimal({
-                                                        ...animal,
-                                                        sterilised:
-                                                            newValue ??
-                                                            undefined,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                sterilised: newValue ?? undefined,
+                                                            },
+                                                        };
                                                     });
                                                 }}
                                             />
                                         </Col>
-                                        {animal.species_id ===
-                                            SPECIES_ID.CAT && (
+                                        {data.animal.species_id === SPECIES_ID.CAT && (
                                             <>
                                                 <Col xs={6} md={3}>
-                                                    <Label>
-                                                        Extérieur obligatoire
-                                                    </Label>
+                                                    <Label>Extérieur obligatoire</Label>
                                                     <BooleanNullableDropdown
                                                         withNewLine={true}
-                                                        value={
-                                                            animal.need_external_access ??
-                                                            null
-                                                        }
+                                                        value={data.animal.need_external_access ?? null}
                                                         disabled={!isEditing}
-                                                        onChange={(
-                                                            newValue
-                                                        ) => {
-                                                            setAnimal({
-                                                                ...animal,
-                                                                need_external_access:
-                                                                    newValue ??
-                                                                    undefined,
+                                                        onChange={(newValue) => {
+                                                            setData((previousData) => {
+                                                                return {
+                                                                    ...previousData,
+                                                                    animal: {
+                                                                        ...previousData.animal!,
+                                                                        need_external_access: newValue ?? undefined,
+                                                                    },
+                                                                };
                                                             });
                                                         }}
                                                     />
@@ -929,19 +942,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                                     <Label>Négatif FIV</Label>
                                                     <BooleanNullableDropdown
                                                         withNewLine={true}
-                                                        value={
-                                                            animal.fiv_negative ??
-                                                            null
-                                                        }
+                                                        value={data.animal.fiv_negative ?? null}
                                                         disabled={!isEditing}
-                                                        onChange={(
-                                                            newValue
-                                                        ) => {
-                                                            setAnimal({
-                                                                ...animal,
-                                                                fiv_negative:
-                                                                    newValue ??
-                                                                    undefined,
+                                                        onChange={(newValue) => {
+                                                            setData((previousData) => {
+                                                                return {
+                                                                    ...previousData,
+                                                                    animal: {
+                                                                        ...previousData.animal!,
+                                                                        fiv_negative: newValue ?? undefined,
+                                                                    },
+                                                                };
                                                             });
                                                         }}
                                                     />
@@ -950,19 +961,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                                     <Label>Négatif FELV</Label>
                                                     <BooleanNullableDropdown
                                                         withNewLine={true}
-                                                        value={
-                                                            animal.felv_negative ??
-                                                            null
-                                                        }
+                                                        value={data.animal.felv_negative ?? null}
                                                         disabled={!isEditing}
-                                                        onChange={(
-                                                            newValue
-                                                        ) => {
-                                                            setAnimal({
-                                                                ...animal,
-                                                                felv_negative:
-                                                                    newValue ??
-                                                                    undefined,
+                                                        onChange={(newValue) => {
+                                                            setData((previousData) => {
+                                                                return {
+                                                                    ...previousData,
+                                                                    animal: {
+                                                                        ...previousData.animal!,
+                                                                        felv_negative: newValue ?? undefined,
+                                                                    },
+                                                                };
                                                             });
                                                         }}
                                                     />
@@ -972,20 +981,20 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                     </Row>
                                     <Row>
                                         <Col xs={6}>
-                                            <Label>
-                                                Date des anti-parasitaires
-                                            </Label>
+                                            <Label>Date des anti-parasitaires</Label>
                                             <Input
                                                 type="date"
-                                                value={
-                                                    animal.anti_parasitic_date
-                                                }
+                                                value={data.animal.anti_parasitic_date}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        anti_parasitic_date:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                anti_parasitic_date: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -993,20 +1002,20 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                     </Row>
                                     <Row>
                                         <Col xs={12}>
-                                            <Label>
-                                                Particularité de santé
-                                            </Label>
+                                            <Label>Particularité de santé</Label>
                                             <Input
                                                 type="textarea"
-                                                value={
-                                                    animal.health_issues || ""
-                                                }
+                                                value={data.animal.health_issues || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        health_issues:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                health_issues: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -1017,28 +1026,30 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                         </Accordion>
                         <Accordion
                             className="pb-3"
-                            open={openBehaviour}
+                            open={accordions.find((a) => a.type === AnimalDetailPageAccordion.BEHAVIOUR)?.id ?? ""}
                             {...{
-                                toggle: toggleBehaviour,
+                                toggle: (id: string) => toggleAccordion(AnimalDetailPageAccordion.BEHAVIOUR, id),
                             }}
                         >
                             <AccordionItem>
-                                <AccordionHeader targetId="1">
-                                    Comportement
-                                </AccordionHeader>
+                                <AccordionHeader targetId="1">Comportement</AccordionHeader>
                                 <AccordionBody accordionId="1">
                                     <Row>
                                         <Col xs={12}>
                                             <Label>Caractère</Label>
                                             <Input
                                                 type="textarea"
-                                                value={animal.behaviour || ""}
+                                                value={data.animal.behaviour || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        behaviour:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                behaviour: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -1049,16 +1060,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Besoin congénère</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={
-                                                    animal.need_friends ?? null
-                                                }
+                                                value={data.animal.need_friends ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
-                                                    setAnimal({
-                                                        ...animal,
-                                                        need_friends:
-                                                            newValue ??
-                                                            undefined,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                need_friends: newValue ?? undefined,
+                                                            },
+                                                        };
                                                     });
                                                 }}
                                             />
@@ -1068,27 +1080,18 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <NullableDropdown
                                                 withNewLine={true}
                                                 color={
-                                                    animal.posture === null ||
-                                                    animal.posture === undefined
+                                                    data.animal.posture === null || data.animal.posture === undefined
                                                         ? "fearfull"
-                                                        : animal.posture ===
-                                                          "shy"
+                                                        : data.animal.posture === "shy"
                                                         ? "info"
-                                                        : animal.posture ===
-                                                          "sociable"
+                                                        : data.animal.posture === "sociable"
                                                         ? "success"
                                                         : "danger"
                                                 }
-                                                value={animal.posture}
-                                                values={[
-                                                    "nsp",
-                                                    "fearfull",
-                                                    "shy",
-                                                    "sociable",
-                                                ]}
+                                                value={data.animal.posture}
+                                                values={["nsp", "fearfull", "shy", "sociable"]}
                                                 valueDisplayName={(value) =>
-                                                    value === null ||
-                                                    value === undefined
+                                                    value === null || value === undefined
                                                         ? "NSP"
                                                         : value === "fearfull"
                                                         ? "Craintif"
@@ -1098,15 +1101,18 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                                         ? "Sociable"
                                                         : ""
                                                 }
-                                                valueActiveCheck={(value) =>
-                                                    animal.posture === value
-                                                }
+                                                valueActiveCheck={(value) => data.animal?.posture === value}
                                                 key={"posture"}
                                                 disabled={!isEditing}
                                                 onChange={(newPosture) => {
-                                                    setAnimal({
-                                                        ...animal,
-                                                        posture: newPosture,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                posture: newPosture,
+                                                            },
+                                                        };
                                                     });
                                                 }}
                                             />
@@ -1117,14 +1123,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>OK chats</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={animal.cats_ok ?? null}
+                                                value={data.animal.cats_ok ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
-                                                    setAnimal({
-                                                        ...animal,
-                                                        cats_ok:
-                                                            newValue ??
-                                                            undefined,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                cats_ok: newValue ?? undefined,
+                                                            },
+                                                        };
                                                     });
                                                 }}
                                             />
@@ -1133,14 +1142,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>OK chiens</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={animal.dogs_ok ?? null}
+                                                value={data.animal.dogs_ok ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
-                                                    setAnimal({
-                                                        ...animal,
-                                                        dogs_ok:
-                                                            newValue ??
-                                                            undefined,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                dogs_ok: newValue ?? undefined,
+                                                            },
+                                                        };
                                                     });
                                                 }}
                                             />
@@ -1149,14 +1161,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>OK enfants</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={animal.kids_ok ?? null}
+                                                value={data.animal.kids_ok ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
-                                                    setAnimal({
-                                                        ...animal,
-                                                        kids_ok:
-                                                            newValue ??
-                                                            undefined,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                kids_ok: newValue ?? undefined,
+                                                            },
+                                                        };
                                                     });
                                                 }}
                                             />
@@ -1167,16 +1182,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Particularité</Label>
                                             <Input
                                                 type="textarea"
-                                                value={
-                                                    animal.behavior_particularity ||
-                                                    ""
-                                                }
+                                                value={data.animal.behavior_particularity || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        behavior_particularity:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                behavior_particularity: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -1188,32 +1204,30 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
 
                         <Accordion
                             className="pb-3"
-                            open={openExit}
+                            open={accordions.find((a) => a.type === AnimalDetailPageAccordion.EXIT)?.id ?? ""}
                             {...{
-                                toggle: toggleExit,
+                                toggle: (id: string) => toggleAccordion(AnimalDetailPageAccordion.EXIT, id),
                             }}
                         >
                             <AccordionItem>
-                                <AccordionHeader targetId="1">
-                                    Sortie
-                                </AccordionHeader>
+                                <AccordionHeader targetId="1">Sortie</AccordionHeader>
                                 <AccordionBody accordionId="1">
                                     <Row>
                                         <Col xs={6} md={4}>
                                             <Label>Certificat de cession</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={
-                                                    animal.transfer_certificate ??
-                                                    null
-                                                }
+                                                value={data.animal.transfer_certificate ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
-                                                    setAnimal({
-                                                        ...animal,
-                                                        transfer_certificate:
-                                                            newValue ??
-                                                            undefined,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                transfer_certificate: newValue ?? undefined,
+                                                            },
+                                                        };
                                                     });
                                                 }}
                                             />
@@ -1222,13 +1236,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Date de sortie</Label>
                                             <Input
                                                 type="date"
-                                                value={animal.exit_date}
+                                                value={data.animal.exit_date}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        exit_date:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                exit_date: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -1237,13 +1255,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Raison de sortie</Label>
                                             <Input
                                                 type="textarea"
-                                                value={animal.exit_reason || ""}
+                                                value={data.animal.exit_reason || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        exit_reason:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                exit_reason: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -1254,28 +1276,30 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                         </Accordion>
                         <Accordion
                             className="pb-3"
-                            open={openDeath}
+                            open={accordions.find((a) => a.type === AnimalDetailPageAccordion.DEATH)?.id ?? ""}
                             {...{
-                                toggle: toggleDeath,
+                                toggle: (id: string) => toggleAccordion(AnimalDetailPageAccordion.DEATH, id),
                             }}
                         >
                             <AccordionItem>
-                                <AccordionHeader targetId="1">
-                                    Décès
-                                </AccordionHeader>
+                                <AccordionHeader targetId="1">Décès</AccordionHeader>
                                 <AccordionBody accordionId="1">
                                     <Row>
                                         <Col xs={6}>
                                             <Label>Date de décès</Label>
                                             <Input
                                                 type="date"
-                                                value={animal.death_date}
+                                                value={data.animal.death_date}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        death_date:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                death_date: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -1284,15 +1308,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                                             <Label>Raison du décès</Label>
                                             <Input
                                                 type="textarea"
-                                                value={
-                                                    animal.death_reason || ""
-                                                }
+                                                value={data.animal.death_reason || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
-                                                    setAnimal({
-                                                        ...animal,
-                                                        death_reason:
-                                                            evt.target.value,
+                                                    setData((previousData) => {
+                                                        return {
+                                                            ...previousData,
+                                                            animal: {
+                                                                ...previousData.animal!,
+                                                                death_reason: evt.target.value,
+                                                            },
+                                                        };
                                                     })
                                                 }
                                             />
@@ -1309,9 +1335,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                         <br />
                         <VeterinarianInterventionsHistory
                             animalId={parseInt(animalId)}
-                            veterinarianInterventions={
-                                veterinarianInterventions
-                            }
+                            veterinarianInterventions={data.veterinarianInterventions}
                             notificationSystem={notificationSystem}
                             shouldRefresh={getVeterinarianInterventions}
                             {...props}
@@ -1319,9 +1343,9 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                         <br />
                         <HostFamiliesHistory
                             animalId={parseInt(animalId)}
-                            animalName={animal.name ?? ""}
-                            hostFamilies={hostFamilies}
-                            animalToHostFamilies={animalToHostFamilies}
+                            animalName={data.animal.name ?? ""}
+                            hostFamilies={data.hostFamilies}
+                            animalToHostFamilies={data.animalToHostFamilies}
                             notificationSystem={notificationSystem}
                             shouldRefresh={() => {
                                 getAnimalToHostFamilies()?.then(getAnimal);
@@ -1338,10 +1362,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
         <Page
             className="AnimalPage"
             title="Détail de l'animal"
-            breadcrumbs={[
-                { name: "Animaux", to: "/animals" } as CustomBreadcrumbItem,
-                { name: "Animal", active: true } as CustomBreadcrumbItem,
-            ]}
+            breadcrumbs={[{ name: "Animaux", to: "/animals" } as CustomBreadcrumbItem, { name: "Animal", active: true } as CustomBreadcrumbItem]}
             notificationSystemCallback={(notifSystem) => {
                 setNotificationSystem(notifSystem);
             }}

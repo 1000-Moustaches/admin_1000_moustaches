@@ -13,9 +13,7 @@ class VeterinarianInterventionsManager {
         return new VeterinarianInterventionDTO(vetInter).toEntity();
     };
 
-    static formatForServer = (
-        vetInter: VeterinarianIntervention
-    ): VeterinarianIntervention => {
+    static formatForServer = (vetInter: VeterinarianIntervention): VeterinarianIntervention => {
         return vetInter;
     };
 
@@ -31,9 +29,7 @@ class VeterinarianInterventionsManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((vetInters) =>
-                vetInters.map(VeterinarianInterventionsManager.format)
-            );
+            .then((vetInters) => vetInters.map(VeterinarianInterventionsManager.format));
     };
 
     static getById = (id: number) => {
@@ -52,10 +48,7 @@ class VeterinarianInterventionsManager {
     };
 
     static getByAnimalId = (animalId: number) => {
-        return fetchWithAuth(
-            `${API_URL}/veterinarianInterventions/withAnimalId/${animalId}`,
-            { method: "GET" }
-        )
+        return fetchWithAuth(`${API_URL}/veterinarianInterventions/withAnimalId/${animalId}`, { method: "GET" })
             .then((response) => {
                 if (response.status === 200) {
                     return response.json();
@@ -64,16 +57,11 @@ class VeterinarianInterventionsManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((vetInters) =>
-                vetInters.map(VeterinarianInterventionsManager.format)
-            );
+            .then((vetInters) => vetInters.map(VeterinarianInterventionsManager.format) as VeterinarianIntervention[]);
     };
 
     static getByVeterinarianId = (vetId: number) => {
-        return fetchWithAuth(
-            `${API_URL}/veterinarianInterventions/withVeterinarianId/${vetId}`,
-            { method: "GET" }
-        )
+        return fetchWithAuth(`${API_URL}/veterinarianInterventions/withVeterinarianId/${vetId}`, { method: "GET" })
             .then((response) => {
                 if (response.status === 200) {
                     return response.json();
@@ -82,9 +70,7 @@ class VeterinarianInterventionsManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((vetInters) =>
-                vetInters.map(VeterinarianInterventionsManager.format)
-            );
+            .then((vetInters) => vetInters.map(VeterinarianInterventionsManager.format));
     };
 
     static create = (vetInter: VeterinarianIntervention) => {
@@ -109,16 +95,13 @@ class VeterinarianInterventionsManager {
     };
 
     static update = (vetInter: VeterinarianIntervention) => {
-        return fetchWithAuth(
-            `${API_URL}/veterinarianInterventions/${vetInter.id}`,
-            {
-                method: "PUT",
-                body: JSON.stringify(vetInter),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        )
+        return fetchWithAuth(`${API_URL}/veterinarianInterventions/${vetInter.id}`, {
+            method: "PUT",
+            body: JSON.stringify(vetInter),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
             .then((response) => {
                 if (response.status === 200) {
                     return response.json();
@@ -131,15 +114,12 @@ class VeterinarianInterventionsManager {
     };
 
     static delete = (vetInter: VeterinarianIntervention) => {
-        return fetchWithAuth(
-            `${API_URL}/veterinarianInterventions/${vetInter.id}`,
-            {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        ).then((response) => {
+        return fetchWithAuth(`${API_URL}/veterinarianInterventions/${vetInter.id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }).then((response) => {
             if (response.status === 200) {
                 return response.json();
             }
