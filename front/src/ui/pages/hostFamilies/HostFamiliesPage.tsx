@@ -61,42 +61,102 @@ interface HostFamiliesPageProps {
     [key: string]: any;
 }
 
+class Filter {
+    value: any;
+    type: FilterType;
+
+    constructor(value: any, type: FilterType) {
+        this.value = value;
+        this.type = type;
+    }
+
+    check(hostFamily: HostFamily): boolean {
+        return FilterType.check(this.type, this.value, hostFamily);
+    }
+}
+
+enum FilterType {
+    MEMBERSHIP_LATE = "En retard de cotisation uniquement",
+    HAS_A_VEHICULE = "Véhiculé·e uniquement",
+    ON_A_BREAK = "Statut",
+    TEMPORARY = "Tampon",
+    REFERENT = "Référent·e",
+    TYPE = "Type de FA",
+}
+
+namespace FilterType {
+    export function isSwitch(filter: FilterType): boolean {
+        switch (filter) {
+            case FilterType.MEMBERSHIP_LATE:
+            case FilterType.HAS_A_VEHICULE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    export function check(
+        filter: FilterType,
+        value: any,
+        hostFamily: HostFamily
+    ): boolean {
+        if (value === null || value === undefined) return true;
+        console.log("value", value, typeof value);
+        console.log("hostFamily", hostFamily);
+        switch (filter) {
+            case FilterType.MEMBERSHIP_LATE:
+                return value === true
+                    ? hostFamily.membership_up_to_date === false
+                    : true;
+            case FilterType.HAS_A_VEHICULE:
+                return value === true
+                    ? hostFamily.has_vehicule === value
+                    : true;
+            case FilterType.ON_A_BREAK:
+                return hostFamily.on_break === value;
+            case FilterType.TEMPORARY:
+                return hostFamily.is_temporary === value;
+            case FilterType.REFERENT:
+                return hostFamily.referent_id === value;
+            case FilterType.TYPE:
+                return hostFamily.kinds.map((hfk) => hfk.id).includes(value);
+        }
+    }
+}
+
+class HostFamiliesPageData {
+    hostFamilies: HostFamily[];
+    hostFamilyKinds: HostFamilyKind[];
+    referents: User[];
+
+    constructor() {
+        this.hostFamilies = [];
+        this.hostFamilyKinds = [];
+        this.referents = [];
+    }
+}
+
 const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
     const [isLoading, setIsLoading] = useState(false);
-    const [hostFamilies, setHostFamilies] = useState<HostFamily[]>([]);
-    const [hostFamilyKinds, setHostFamilyKinds] = useState<HostFamilyKind[]>(
-        []
+    const [data, setData] = useState<HostFamiliesPageData>(
+        new HostFamiliesPageData()
     );
+
     const [filteredHostFamilies, setFilteredHostFamilies] = useState<
         HostFamily[]
     >([]);
-    const [referents, setReferents] = useState<User[]>([]);
     const [searchText, setSearchText] = useState("");
     const [showMap, setShowMap] = useState(false);
     const [userPosition, setUserPosition] = useState<any | null>(null);
-    const [switchFilters, setSwitchFilters] = useState<SwitchFilter[]>([
-        {
-            activated: false,
-            name: "En retard de cotisation uniquement",
-            check: function (hostFamily) {
-                return hostFamily.membership_up_to_date === 0;
-            },
-        },
-        {
-            activated: false,
-            name: "Véhiculé·e uniquement",
-            check: function (hostFamily) {
-                return hostFamily.has_vehicule === 1;
-            },
-        },
-    ]);
-    const [filterBreak, setFilterBreak] = useState<boolean | null>(false);
-    const [filterTemporary, setFilterTemporary] = useState<boolean | null>(
-        null
+    const [filters, setFilters] = useState<Filter[]>(
+        Object.values(FilterType)
+            .map((ft) => {
+                if (typeof ft !== "string") return null;
+                var filterType = ft as FilterType;
+                return new Filter(null, filterType);
+            })
+            .filter((f) => f !== null) as Filter[]
     );
-    const [filterReferent, setFilterReferent] = useState<User | null>(null);
-    const [filterHostFamilyKind, setFilterHostFamilyKind] =
-        useState<HostFamilyKind | null>(null);
 
     const history = useHistory();
 
@@ -105,91 +165,71 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
     const [mapRef, setMapRef] = useState<L.Map | null>(null);
 
     const getAllHostFamilies = () => {
-        HostFamiliesManager.getAll()
+        return HostFamiliesManager.getAll()
             .then((hostFamilies) => {
-                return sortBy(hostFamilies || [], "id");
+                return sortBy(hostFamilies || [], "id") as HostFamily[];
             })
-            .then(setHostFamilies)
             .catch((err) => {
                 console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as HostFamily[];
             });
     };
 
     const getHostFamilyKinds = () => {
-        setHostFamilyKinds([]);
         return HostFamilyKindsManager.getAll()
-            .then(setHostFamilyKinds)
+            .then((hostFamilyKinds) => {
+                return sortBy(hostFamilyKinds || [], "name");
+            })
             .catch((err) => {
                 console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as HostFamilyKind[];
             });
     };
 
     const getReferents = () => {
-        setReferents([]);
         return UsersManager.getAllReferents()
-            .then(setReferents)
+            .then((referents) => {
+                return sortBy(referents || [], "displayName");
+            })
             .catch((err) => {
                 console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
                 });
+                return [] as User[];
             });
     };
 
     useEffect(() => {
         setIsLoading(true);
-        getHostFamilyKinds()
-            .then(getAllHostFamilies)
-            .then(getReferents)
-            .then(() => {
-                setIsLoading(false);
+        Promise.all([
+            getHostFamilyKinds(),
+            getAllHostFamilies(),
+            getReferents(),
+        ]).then(([hostFamilyKinds, hostFamilies, referents]) => {
+            setData({
+                hostFamilies,
+                hostFamilyKinds,
+                referents,
             });
+            setIsLoading(false);
+        });
     }, []);
 
     useEffect(() => {
-        var filteredHostFamilies = hostFamilies.filter((hostFamily) => {
-            var filtered =
-                switchFilters.every((f) =>
-                    f.activated === true ? f.check(hostFamily) === true : true
-                ) &&
-                hostFamily.name
-                    ?.toLowerCase()
-                    .includes(searchText.toLowerCase()) &&
-                (filterBreak === null
-                    ? true
-                    : hostFamily.on_break === filterBreak) &&
-                (filterTemporary === null
-                    ? true
-                    : hostFamily.is_temporary === filterTemporary) &&
-                (filterReferent === null
-                    ? true
-                    : hostFamily.referent_id === filterReferent?.id) &&
-                (filterHostFamilyKind === null
-                    ? true
-                    : hostFamily.kinds.find(
-                          (hfk) => hfk.id === filterHostFamilyKind?.id
-                      ) !== undefined);
-            return filtered;
-        });
-        setFilteredHostFamilies(filteredHostFamilies);
-    }, [
-        hostFamilies,
-        searchText,
-        switchFilters,
-        filterBreak,
-        filterTemporary,
-        filterReferent,
-        filterHostFamilyKind,
-    ]);
+        setFilteredHostFamilies(
+            data.hostFamilies.filter((hf) => filters.every((f) => f.check(hf)))
+        );
+    }, [data, searchText, filters]);
 
     useEffect(() => {
         if (mapRef !== null && mapRef !== null) {
@@ -213,7 +253,7 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
     };
 
     const hostFamilyKindNameForId = (id: number | undefined | null) => {
-        return hostFamilyKinds.find((hfk) => hfk.id === id)?.name;
+        return data.hostFamilyKinds.find((hfk) => hfk.id === id)?.name;
     };
 
     const iconForHostFamilyKind = (
@@ -239,6 +279,155 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
             return NACIcon;
         }
         return BlueIcon;
+    };
+
+    const filterBody = (filter: Filter) => {
+        switch (filter.type) {
+            case FilterType.HAS_A_VEHICULE:
+            case FilterType.MEMBERSHIP_LATE:
+                return (
+                    <Col className="mb-0">
+                        <Label>{filter.type}</Label>
+                        <br />
+                        <Switch
+                            disabled={isLoading}
+                            id={filter.type}
+                            isOn={filter.value}
+                            handleToggle={() => {
+                                setFilters((previous) =>
+                                    previous.map((f) =>
+                                        f.type === filter.type
+                                            ? new Filter(!f.value, f.type)
+                                            : f
+                                    )
+                                );
+                            }}
+                        />
+                    </Col>
+                );
+            case FilterType.ON_A_BREAK:
+                return (
+                    <Col className="mb-0">
+                        <Label>Statut</Label>
+                        <Dropdown
+                            withNewLine={true}
+                            color={"primary"}
+                            value={filter.value}
+                            values={[true, false, null]}
+                            valueDisplayName={(onBreak: boolean | null) =>
+                                onBreak === null
+                                    ? "Toutes"
+                                    : onBreak === true
+                                    ? "En pause"
+                                    : "Actives"
+                            }
+                            valueActiveCheck={(onBreak: boolean | null) =>
+                                onBreak === filter.value
+                            }
+                            key={"onBreak"}
+                            onChange={(newBreak) =>
+                                setFilters((previous) =>
+                                    previous.map((f) =>
+                                        f.type === filter.type
+                                            ? new Filter(newBreak, f.type)
+                                            : f
+                                    )
+                                )
+                            }
+                        />
+                    </Col>
+                );
+            case FilterType.REFERENT:
+                return (
+                    <Col className="mb-0">
+                        <Label>Référent·e</Label>
+                        <Dropdown
+                            withNewLine={true}
+                            color={"primary"}
+                            value={data.referents.find(
+                                (usr) => usr.id === filter.value
+                            )}
+                            values={[...data.referents, undefined]}
+                            valueDisplayName={(usr) =>
+                                usr === undefined
+                                    ? "-"
+                                    : `${usr?.name} ${usr?.firstname}`
+                            }
+                            valueActiveCheck={(usr) => usr?.id === filter.value}
+                            key={"referents"}
+                            onChange={(newUser) =>
+                                setFilters((previous) =>
+                                    previous.map((f) =>
+                                        f.type === filter.type
+                                            ? new Filter(newUser?.id, f.type)
+                                            : f
+                                    )
+                                )
+                            }
+                        />
+                    </Col>
+                );
+            case FilterType.TYPE:
+                return (
+                    <Col className="mb-0">
+                        <Label>Type de FA</Label>
+                        <Dropdown
+                            withNewLine={true}
+                            color={"primary"}
+                            value={data.hostFamilyKinds.find(
+                                (hfk) => hfk.id === filter.value
+                            )}
+                            values={[...data.hostFamilyKinds, null]}
+                            valueDisplayName={(hfk) =>
+                                hfk === null ? "-" : hfk?.name ?? ""
+                            }
+                            valueActiveCheck={(hfk) => hfk?.id === filter.value}
+                            key={"hostFamilyKind"}
+                            onChange={(newHFK) =>
+                                setFilters((previous) =>
+                                    previous.map((f) =>
+                                        f.type === filter.type
+                                            ? new Filter(newHFK?.id, f.type)
+                                            : f
+                                    )
+                                )
+                            }
+                        />
+                    </Col>
+                );
+            case FilterType.TEMPORARY:
+                return (
+                    <Col className="mb-0">
+                        <Label>Tampon</Label>
+                        <Dropdown
+                            withNewLine={true}
+                            color={"primary"}
+                            value={filter.value}
+                            values={[true, false, null]}
+                            valueDisplayName={(temporary) =>
+                                temporary === null
+                                    ? "Toutes"
+                                    : temporary === true
+                                    ? "Tampon"
+                                    : "Non tampon"
+                            }
+                            valueActiveCheck={(temporary) =>
+                                temporary === filter.value
+                            }
+                            key={"temporay"}
+                            onChange={(newTemporary) =>
+                                setFilters((previous) =>
+                                    previous.map((f) =>
+                                        f.type === filter.type
+                                            ? new Filter(newTemporary, f.type)
+                                            : f
+                                    )
+                                )
+                            }
+                        />
+                    </Col>
+                );
+        }
     };
 
     return (
@@ -281,123 +470,17 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
                         <Col xs={"auto"} className="mb-0 border-end">
                             <MdFilterAlt />
                         </Col>
-                        {switchFilters.map((filter) => {
-                            return (
-                                <Col className="mb-0">
-                                    <Label>{filter.name}</Label>
-                                    <br />
-                                    <Switch
-                                        disabled={isLoading}
-                                        id={filter.name}
-                                        isOn={filter.activated}
-                                        handleToggle={() => {
-                                            setSwitchFilters((previous) =>
-                                                previous.map((f) =>
-                                                    f.name === filter.name
-                                                        ? {
-                                                              ...f,
-                                                              activated:
-                                                                  !f.activated,
-                                                          }
-                                                        : f
-                                                )
-                                            );
-                                        }}
-                                    />
-                                </Col>
-                            );
-                        })}
-                    </Row>
-                    <Row>
-                        <Col className="mb-0">
-                            <Label>Statut</Label>
-                            <Dropdown
-                                withNewLine={true}
-                                color={"primary"}
-                                value={filterBreak}
-                                values={[true, false, null]}
-                                valueDisplayName={(onBreak: boolean | null) =>
-                                    onBreak === null
-                                        ? "Toutes"
-                                        : onBreak === true
-                                        ? "En pause"
-                                        : "Actives"
-                                }
-                                valueActiveCheck={(onBreak: boolean | null) =>
-                                    onBreak === filterBreak
-                                }
-                                key={"onBreak"}
-                                onChange={(newBreak) =>
-                                    setFilterBreak(newBreak ?? null)
-                                }
-                            />
-                        </Col>
-                        <Col className="mb-0">
-                            <Label>Tampon</Label>
-                            <Dropdown
-                                withNewLine={true}
-                                color={"primary"}
-                                value={filterTemporary}
-                                values={[1, 0, undefined]}
-                                valueDisplayName={(temporary) =>
-                                    temporary === undefined
-                                        ? "Toutes"
-                                        : temporary === 1
-                                        ? "Tampon"
-                                        : "Non tampon"
-                                }
-                                valueActiveCheck={(temporary) =>
-                                    temporary === filterTemporary
-                                }
-                                key={"temporay"}
-                                onChange={(newTemporary) =>
-                                    setFilterTemporary(newTemporary)
-                                }
-                            />
-                        </Col>
-                        <Col className="mb-0">
-                            <Label>Référent·e</Label>
-                            <Dropdown
-                                withNewLine={true}
-                                color={"primary"}
-                                value={referents.find(
-                                    (usr) => usr.id === filterReferent?.id
-                                )}
-                                values={[...referents, undefined]}
-                                valueDisplayName={(usr) =>
-                                    usr === undefined
-                                        ? "-"
-                                        : `${usr?.name} ${usr?.firstname}`
-                                }
-                                valueActiveCheck={(usr) =>
-                                    usr?.id === filterReferent?.id
-                                }
-                                key={"referents"}
-                                onChange={(newUser) =>
-                                    setFilterReferent(newUser)
-                                }
-                            />
-                        </Col>
-                        <Col className="mb-0">
-                            <Label>Type de FA</Label>
-                            <Dropdown
-                                withNewLine={true}
-                                color={"primary"}
-                                value={hostFamilyKinds.find(
-                                    (hfk) => hfk.id === filterHostFamilyKind?.id
-                                )}
-                                values={[...hostFamilyKinds, undefined]}
-                                valueDisplayName={(hfk) =>
-                                    hfk === undefined ? "-" : hfk?.name ?? ""
-                                }
-                                valueActiveCheck={(hfk) =>
-                                    hfk?.id === filterHostFamilyKind?.id
-                                }
-                                key={"hostFamilyKind"}
-                                onChange={(newHFK) =>
-                                    setFilterHostFamilyKind(newHFK)
-                                }
-                            />
+                        <Col>
+                            <Row>
+                                {filters
+                                    .filter((f) => FilterType.isSwitch(f.type))
+                                    .map((filter) => filterBody(filter))}
+                            </Row>
+                            <Row>
+                                {filters
+                                    .filter((f) => !FilterType.isSwitch(f.type))
+                                    .map((filter) => filterBody(filter))}
+                            </Row>
                         </Col>
                     </Row>
                 </CardBody>
