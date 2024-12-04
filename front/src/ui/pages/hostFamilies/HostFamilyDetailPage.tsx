@@ -257,7 +257,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                     if (createdHostFamily.id === undefined) {
                         throw new Error("No ID returned for newly created host family");
                     }
-                    console.log("Will save tmp selected host family kinds", tmpSelectedHostFamilyKinds);
+                    console.info("Will save tmp selected host family kinds", tmpSelectedHostFamilyKinds);
                     return Promise.all([saveTmpSelectedHostFamilyKinds(createdHostFamily.id), Promise.resolve(createdHostFamily)]);
                 })
                 .then(([res, updatedHostFamily]) => {
@@ -303,7 +303,6 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                 return createHostFamilyKindLink(hfk, hostFamilyId);
             })
         ).then(() => {
-            console.log("Tmp selected host family kinds saved");
             setTmpSelectedHostFamilyKinds([]);
         });
     };
@@ -346,12 +345,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
             id = hostFamilyIdOverride;
         }
         if (isNaN(id)) {
-            console.log("Host family ID is not a number");
+            console.info("Host family ID is not a number");
             return;
         }
         HostFamilyKindsManager.createHostFamilyLink(hfk.id, id)
             .then(() => {
-                console.log("Host family kind link created");
+                console.info("Host family kind link created");
                 if (hostFamilyIdOverride !== undefined) {
                     return;
                 }

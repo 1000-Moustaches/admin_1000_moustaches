@@ -154,7 +154,6 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
     const getReferents = () => {
         return UsersManager.getAllReferents()
             .then((referents) => {
-                console.log("referents", referents);
                 return sortBy(referents, "displayName") as User[];
             })
             .catch((err) => {

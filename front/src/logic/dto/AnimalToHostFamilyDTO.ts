@@ -8,7 +8,6 @@ class AnimalToHostFamilyDTO {
     exit_date: string;
 
     constructor(animalToHostFamily: any) {
-        console.log(animalToHostFamily);
         this.animal_id = animalToHostFamily.animal_id;
         this.animal_name = animalToHostFamily.animal_name;
         this.host_family_id = animalToHostFamily.host_family_id;

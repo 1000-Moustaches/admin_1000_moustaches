@@ -136,7 +136,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
         return AnimalsManager.getSpecies()
             .then((species) => species.sort((a, b) => a.name.localeCompare(b.name)))
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
@@ -149,7 +149,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
         return AnimalsManager.getSexes()
             .then((sexes) => sexes.sort((a, b) => a.value.localeCompare(b.value)))
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
@@ -166,7 +166,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
         return VeterinarianInterventionsManager.getByAnimalId(id)
             .then((interventions) => interventions.sort((a, b) => new Date(b.date ?? "").getTime() - new Date(a.date ?? "").getTime()))
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
@@ -179,7 +179,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
         return HostFamiliesManager.getAll()
             .then((hostFamilies) => hostFamilies.sort((a, b) => a.name?.localeCompare(b.name ?? "") ?? 0))
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",

@@ -69,8 +69,6 @@ namespace FilterType {
 
     export function check(filter: FilterType, value: any, hostFamily: HostFamily): boolean {
         if (value === null || value === undefined) return true;
-        console.log("value", value, typeof value);
-        console.log("hostFamily", hostFamily);
         switch (filter) {
             case FilterType.MEMBERSHIP_LATE:
                 return value === true ? hostFamily.membership_up_to_date === false : true;

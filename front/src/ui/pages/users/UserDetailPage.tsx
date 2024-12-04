@@ -32,7 +32,6 @@ const UserDetailPage: FC<UserDetailPageProps> = ({ props }) => {
         if (isNaN(id)) {
             return;
         }
-        console.log("userId", userId, id);
         UsersManager.getById(id)
             .then(setUser)
             .catch((err) => {
@@ -109,7 +108,6 @@ const UserDetailPage: FC<UserDetailPageProps> = ({ props }) => {
                 });
 
                 var currentUser = JSON.parse(sessionStorage.getItem("User") ?? "");
-                console.log("currentUser", currentUser, userId == currentUser.id);
                 if (userId == currentUser.id) {
                     sessionStorage.setItem("User", JSON.stringify(user));
                 }
