@@ -33,20 +33,16 @@ import HostFamily from "../../../logic/entities/HostFamily";
 import NotificationSystem from "react-notification-system";
 import User from "../../../logic/entities/User";
 import AnimalToHostFamily from "../../../logic/entities/AnimalToHostFamily";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { RiZzzFill } from "react-icons/ri";
 
 interface HostFamilyDetailPageProps {
-    match: {
-        params: {
-            id: string;
-        };
-    };
     [key: string]: any;
 }
 
-const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ match, ...props }) => {
-    const hostFamilyId = match.params.id;
+const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
+    let { id: paramHostFamilyId } = useParams();
+    const hostFamilyId = paramHostFamilyId ?? "new";
     const [hostFamily, setHostFamily] = useState<HostFamily | null>(null);
     const [animalsToHostFamily, setAnimalsToHostFamily] = useState<AnimalToHostFamily[]>([]);
     const [hostFamilyKinds, setHostFamilyKinds] = useState<HostFamilyKind[]>([]);
@@ -56,7 +52,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ match, ...props }
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
 
-    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | null>(null);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
     const [geocodeFound, setGeocodeFound] = useState<boolean | null>(null);
     const [previousAddress, setPreviousAddress] = useState<string | null>(null);

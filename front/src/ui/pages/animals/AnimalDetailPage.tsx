@@ -19,14 +19,9 @@ import Species from "../../../logic/entities/Species";
 import HostFamily from "../../../logic/entities/HostFamily";
 import VeterinarianIntervention from "../../../logic/entities/VeterinarianIntervention";
 import Animal from "../../../logic/entities/Animal";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
 interface AnimalDetailPageProps {
-    match: {
-        params: {
-            id: string;
-        };
-    };
     [key: string]: any;
 }
 
@@ -67,8 +62,9 @@ class AnimalDetailPageAccordionState {
     }
 }
 
-const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
-    const animalId = match.params.id;
+const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
+    const { id: paramAnimalId } = useParams();
+    const animalId = paramAnimalId ?? "new";
     const [data, setData] = useState<AnimalDetailPageData>(new AnimalDetailPageData());
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);

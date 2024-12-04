@@ -50,7 +50,7 @@ const AuthForm: FC<AuthFormProps> = ({
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
-    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | null>(null);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
     let isLogin = () => {
         return authState === AuthFormState.LOGIN;
@@ -209,7 +209,7 @@ const AuthForm: FC<AuthFormProps> = ({
 
             <NotificationSystem
                 ref={(notificationSystem) => {
-                    setNotificationSystem(notificationSystem);
+                    setNotificationSystem(notificationSystem === null ? undefined : notificationSystem);
                 }}
                 style={NOTIFICATION_SYSTEM_STYLE}
             />

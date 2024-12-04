@@ -1,22 +1,7 @@
 import React, { FC, useEffect, useState } from "react";
-import {
-    Button,
-    Card,
-    CardBody,
-    CardHeader,
-    Col,
-    Input,
-    Label,
-    Row,
-} from "reactstrap";
+import { Button, Card, CardBody, CardHeader, Col, Input, Label, Row } from "reactstrap";
 import VeterinariansManager from "../../../managers/veterinarians.manager";
-import {
-    MdDelete,
-    MdDirections,
-    MdOutlineModeEdit,
-    MdRefresh,
-    MdSave,
-} from "react-icons/md";
+import { MdDelete, MdDirections, MdOutlineModeEdit, MdRefresh, MdSave } from "react-icons/md";
 import SourceLink from "../../components/SourceLink";
 import BooleanNullableDropdown from "../../components/BooleanNullableDropdown";
 import PriceLevelDropdown from "../../components/PriceLevelDropdown";
@@ -25,29 +10,20 @@ import Geocode from "../../../utils/geocode";
 import NotificationSystem from "react-notification-system";
 import Veterinarian from "../../../logic/entities/Veterinarian";
 import Page, { CustomBreadcrumbItem } from "../../components/Page";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
 interface VeterinarianDetailPageProps {
-    match: {
-        params: {
-            id: string;
-        };
-    };
     [key: string]: any;
 }
 
-const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({
-    match,
-    ...props
-}) => {
-    const vetId = match.params.id;
+const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
+    const { id: paramVetId } = useParams();
+    const vetId = paramVetId ?? "new";
     const [veterinarian, setVeterinarian] = useState<Veterinarian | null>(null);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
-        useState<boolean>(false);
+    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
 
-    const [notificationSystem, setNotificationSystem] =
-        useState<NotificationSystem | null>(null);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
     const [geocodeFound, setGeocodeFound] = useState<boolean | null>(null);
     const [previousAddress, setPreviousAddress] = useState<string | null>(null);
@@ -96,11 +72,7 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({
         if (veterinarian !== null && previousAddress !== veterinarian.address) {
             setPreviousAddress(veterinarian.address ?? null);
 
-            if (
-                veterinarian.address !== null &&
-                veterinarian.address !== undefined &&
-                veterinarian.address.length > 10
-            ) {
+            if (veterinarian.address !== null && veterinarian.address !== undefined && veterinarian.address.length > 10) {
                 // Geocode address
                 setIsGeocoding(true);
                 setGeocodeFound(null);
@@ -228,30 +200,17 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({
                 <Row className={"justify-content-end"}>
                     <Col xs={"auto"}>
                         {vetId !== "new" && isEditing && (
-                            <Button
-                                color="danger"
-                                onClick={() =>
-                                    setShowDeleteConfirmationModal(true)
-                                }
-                            >
+                            <Button color="danger" onClick={() => setShowDeleteConfirmationModal(true)}>
                                 <MdDelete />
                             </Button>
                         )}
                         {!isEditing && (
-                            <Button
-                                className="ms-2"
-                                color="primary"
-                                onClick={() => setIsEditing(true)}
-                            >
+                            <Button className="ms-2" color="primary" onClick={() => setIsEditing(true)}>
                                 <MdOutlineModeEdit />
                             </Button>
                         )}
                         {isEditing && (
-                            <Button
-                                className="ms-2"
-                                color="success"
-                                onClick={save}
-                            >
+                            <Button className="ms-2" color="success" onClick={save}>
                                 <MdSave />
                             </Button>
                         )}
@@ -322,17 +281,13 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({
                             <Col xs={6}>
                                 <Label>
                                     {veterinarian.address !== undefined && (
-                                        <SourceLink
-                                            link={`https://www.google.com/maps/place/${veterinarian.address}`}
-                                        >
+                                        <SourceLink link={`https://www.google.com/maps/place/${veterinarian.address}`}>
                                             <span>
                                                 Adresse <MdDirections />
                                             </span>
                                         </SourceLink>
                                     )}
-                                    {veterinarian.address === undefined && (
-                                        <span>Adresse</span>
-                                    )}
+                                    {veterinarian.address === undefined && <span>Adresse</span>}
                                 </Label>
                                 <Input
                                     type="textarea"
@@ -346,18 +301,8 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({
                                     }
                                 />
                                 {geocodeFound !== null && (
-                                    <p
-                                        className={
-                                            geocodeFound === true
-                                                ? "text-success"
-                                                : "text-danger"
-                                        }
-                                    >
-                                        <small>
-                                            {geocodeFound === true
-                                                ? "Adresse valide"
-                                                : "Adresse non trouvée"}
-                                        </small>
+                                    <p className={geocodeFound === true ? "text-success" : "text-danger"}>
+                                        <small>{geocodeFound === true ? "Adresse valide" : "Adresse non trouvée"}</small>
                                     </p>
                                 )}
                             </Col>
@@ -375,15 +320,12 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({
                                 <Row>
                                     <Col xs={6}>
                                         <BooleanNullableDropdown
-                                            value={
-                                                veterinarian.emergencies ?? null
-                                            }
+                                            value={veterinarian.emergencies ?? null}
                                             disabled={!isEditing}
                                             onChange={(newValue) => {
                                                 setVeterinarian({
                                                     ...veterinarian,
-                                                    emergencies:
-                                                        newValue ?? undefined,
+                                                    emergencies: newValue ?? undefined,
                                                 });
                                             }}
                                         />
@@ -403,20 +345,15 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({
                                 </Row>
                             </Col>
                             <Col xs={6}>
-                                <Label>
-                                    Méthode de confirmation de rendez-vous
-                                </Label>
+                                <Label>Méthode de confirmation de rendez-vous</Label>
                                 <Input
                                     type="textarea"
-                                    value={
-                                        veterinarian.appointment_confirmation_procedure
-                                    }
+                                    value={veterinarian.appointment_confirmation_procedure}
                                     disabled={!isEditing}
                                     onChange={(evt) =>
                                         setVeterinarian({
                                             ...veterinarian,
-                                            appointment_confirmation_procedure:
-                                                evt.target.value,
+                                            appointment_confirmation_procedure: evt.target.value,
                                         })
                                     }
                                 />
@@ -432,8 +369,7 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({
                                     onChange={(evt) =>
                                         setVeterinarian({
                                             ...veterinarian,
-                                            invoice_payment_date:
-                                                evt.target.value,
+                                            invoice_payment_date: evt.target.value,
                                         })
                                     }
                                 />

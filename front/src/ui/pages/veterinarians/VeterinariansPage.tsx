@@ -1,31 +1,12 @@
 import React, { FC, useEffect, useState } from "react";
-import {
-    Button,
-    Card,
-    CardBody,
-    Col,
-    Input,
-    Label,
-    Nav,
-    NavItem,
-    NavLink,
-    Row,
-    TabContent,
-    TabPane,
-} from "reactstrap";
+import { Button, Card, CardBody, Col, Input, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane } from "reactstrap";
 import VeterinariansManager from "../../../managers/veterinarians.manager";
 import { MdRefresh, MdAssignment, MdAddBox, MdFilterAlt } from "react-icons/md";
 import { sortBy } from "../../../utils/sort";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import {
-    BlueIcon,
-    GreenIcon,
-    RedIcon,
-    UserIcon,
-    YellowIcon,
-} from "../../../utils/mapIcons";
+import { BlueIcon, GreenIcon, RedIcon, UserIcon, YellowIcon } from "../../../utils/mapIcons";
 import Switch from "../../components/Switch";
 import SortableTable from "../../components/SortableTable";
 import Veterinarian from "../../../logic/entities/Veterinarian";
@@ -63,11 +44,7 @@ enum FilterType {
 }
 
 namespace FilterType {
-    export function check(
-        filter: FilterType,
-        value: any,
-        veterinarian: Veterinarian
-    ): boolean {
+    export function check(filter: FilterType, value: any, veterinarian: Veterinarian): boolean {
         if (value === null || value === undefined) return true;
         switch (filter) {
             case FilterType.EMERGENCIES:
@@ -79,9 +56,7 @@ namespace FilterType {
 const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
-    const [filteredVeterinarians, setFilteredVeterinarians] = useState<
-        Veterinarian[]
-    >([]);
+    const [filteredVeterinarians, setFilteredVeterinarians] = useState<Veterinarian[]>([]);
     const [searchText, setSearchText] = useState("");
     const [showMap, setShowMap] = useState(false);
     const [userPosition, setUserPosition] = useState<Position | null>(null);
@@ -97,8 +72,7 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
 
     const history = useHistory();
 
-    const [notificationSystem, setNotificationSystem] =
-        useState<NotificationSystem | null>(null);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
     const [mapRef, setMapRef] = useState<L.Map | null>(null);
 
     const getAllVeterinarians = () => {
@@ -130,12 +104,8 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
         setFilteredVeterinarians(
             veterinarians.filter(
                 (veterinarian) =>
-                    filters.every((f) =>
-                        f.value === true ? f.check(veterinarian) === true : true
-                    ) &&
-                    (veterinarian.name ?? "")
-                        .toLowerCase()
-                        .includes(searchText.toLowerCase())
+                    filters.every((f) => (f.value === true ? f.check(veterinarian) === true : true)) &&
+                    (veterinarian.name ?? "").toLowerCase().includes(searchText.toLowerCase())
             )
         );
     }, [searchText, filters]);
@@ -152,19 +122,11 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
     useEffect(() => {
         if (mapRef !== null && mapRef !== null) {
             let latLngs = filteredVeterinarians
-                .filter(
-                    (vet) => vet.latitude !== null && vet.longitude !== null
-                )
-                .map((vet) => [vet.latitude, vet.longitude]) as [
-                number,
-                number
-            ][];
+                .filter((vet) => vet.latitude !== null && vet.longitude !== null)
+                .map((vet) => [vet.latitude, vet.longitude]) as [number, number][];
             if (latLngs.length > 0) {
                 if (userPosition !== null) {
-                    latLngs.push([userPosition.lat, userPosition.lng] as [
-                        number,
-                        number
-                    ]);
+                    latLngs.push([userPosition.lat, userPosition.lng] as [number, number]);
                 }
                 var bounds = new L.LatLngBounds(latLngs);
                 mapRef.fitBounds(bounds);
@@ -224,19 +186,10 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
                     />
                 </Col>
                 <Col xs={"auto"}>
-                    <Button
-                        title="Créer un vétérinaire"
-                        className="ms-2"
-                        onClick={createVeterinarian}
-                        color={"success"}
-                    >
+                    <Button title="Créer un vétérinaire" className="ms-2" onClick={createVeterinarian} color={"success"}>
                         <MdAddBox />
                     </Button>
-                    <Button
-                        title="Rafraîchir les données"
-                        className="ms-2"
-                        onClick={getAllVeterinarians}
-                    >
+                    <Button title="Rafraîchir les données" className="ms-2" onClick={getAllVeterinarians}>
                         <MdRefresh />
                     </Button>
                 </Col>
@@ -258,13 +211,8 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
                                         handleToggle={() => {
                                             setFilters((prevFilters) => {
                                                 return prevFilters.map((f) => {
-                                                    if (
-                                                        f.type === filter.type
-                                                    ) {
-                                                        return new Filter(
-                                                            !f.value,
-                                                            f.type
-                                                        );
+                                                    if (f.type === filter.type) {
+                                                        return new Filter(!f.value, f.type);
                                                     }
                                                     return f;
                                                 });
@@ -326,27 +274,19 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
                                                 sortable: false,
                                             },
                                         ]}
-                                        values={filteredVeterinarians.map(
-                                            (vet) => {
-                                                return {
-                                                    name: vet.name,
-                                                    mail: vet.mail,
-                                                    phone: vet.phone,
-                                                    price: vet.price_level_text,
-                                                    veterinarianDetail: (
-                                                        <Button
-                                                            title="Voir le détail"
-                                                            color="info"
-                                                            onClick={() =>
-                                                                showDetail(vet)
-                                                            }
-                                                        >
-                                                            <MdAssignment />
-                                                        </Button>
-                                                    ),
-                                                };
-                                            }
-                                        )}
+                                        values={filteredVeterinarians.map((vet) => {
+                                            return {
+                                                name: vet.name,
+                                                mail: vet.mail,
+                                                phone: vet.phone,
+                                                price: vet.price_level_text,
+                                                veterinarianDetail: (
+                                                    <Button title="Voir le détail" color="info" onClick={() => showDetail(vet)}>
+                                                        <MdAssignment />
+                                                    </Button>
+                                                ),
+                                            };
+                                        })}
                                         isLoading={isLoading}
                                     />
                                 </Col>
@@ -373,52 +313,29 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
                                         />
                                         {filteredVeterinarians
                                             .filter((vet) => {
-                                                return (
-                                                    vet.latitude !== null &&
-                                                    vet.longitude !== null
-                                                );
+                                                return vet.latitude !== null && vet.longitude !== null;
                                             })
                                             .map((veterinarian) => {
                                                 return (
                                                     <Marker
-                                                        title={
-                                                            veterinarian.name
-                                                        }
+                                                        title={veterinarian.name}
                                                         key={veterinarian.id}
-                                                        position={[
-                                                            veterinarian.latitude!,
-                                                            veterinarian.longitude!,
-                                                        ]}
-                                                        icon={priceMarkerIcon(
-                                                            veterinarian
-                                                        )}
+                                                        position={[veterinarian.latitude!, veterinarian.longitude!]}
+                                                        icon={priceMarkerIcon(veterinarian)}
                                                         pane="markerPane"
                                                     >
                                                         <Popup>
                                                             <div className="text-center">
-                                                                {
-                                                                    veterinarian.name
-                                                                }
+                                                                {veterinarian.name}
                                                                 <br />
-                                                                <span
-                                                                    title={
-                                                                        veterinarian.price_level_tooltip ??
-                                                                        ""
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        veterinarian.price_level_text
-                                                                    }
-                                                                </span>
+                                                                <span title={veterinarian.price_level_tooltip ?? ""}>{veterinarian.price_level_text}</span>
                                                                 <br />
                                                                 <div className="pt-2">
                                                                     <Button
                                                                         title="Voir le détail"
                                                                         color="primary"
                                                                         onClick={() => {
-                                                                            showDetail(
-                                                                                veterinarian
-                                                                            );
+                                                                            showDetail(veterinarian);
                                                                         }}
                                                                     >
                                                                         <MdAssignment />
@@ -433,10 +350,7 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
                                             <Marker
                                                 title={"Ma position"}
                                                 key={"user_position"}
-                                                position={[
-                                                    userPosition.lat,
-                                                    userPosition.lng,
-                                                ]}
+                                                position={[userPosition.lat, userPosition.lng]}
                                                 icon={UserIcon}
                                                 interactive={false}
                                                 pane="overlayPane"
