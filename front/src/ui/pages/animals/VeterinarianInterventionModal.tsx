@@ -14,7 +14,7 @@ interface VeterinarianInterventionModalProps {
     veterinarianIntervention: VeterinarianIntervention;
     show: boolean;
     handleClose: (close: boolean) => void;
-    notificationSystem?: NotificationSystem | null;
+    notificationSystem?: NotificationSystem;
 }
 
 const VeterinarianInterventionModal: FC<VeterinarianInterventionModalProps> = ({

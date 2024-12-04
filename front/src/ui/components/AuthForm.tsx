@@ -50,7 +50,7 @@ const AuthForm: FC<AuthFormProps> = ({
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
-    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | null>(null);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
     let isLogin = () => {
         return authState === AuthFormState.LOGIN;
@@ -73,7 +73,6 @@ const AuthForm: FC<AuthFormProps> = ({
     let handleForgotPassword = () => {
         sendPasswordResetEmail(auth, username)
             .then((response) => {
-                console.log(response);
                 notificationSystem?.addNotification({
                     message: `Un mail a été envoyé l'adresse ${username} pour réinitialiser le mot de passe`,
                     level: "success",
@@ -105,7 +104,7 @@ const AuthForm: FC<AuthFormProps> = ({
                     window.location.href = "/";
                 })
                 .catch((error) => {
-                    console.log("Error for signup");
+                    console.error("Error for signup");
                     console.error(error);
                     notificationSystem?.addNotification({
                         message:
@@ -130,7 +129,7 @@ const AuthForm: FC<AuthFormProps> = ({
                                 window.location.href = "/";
                             })
                             .catch((error) => {
-                                console.log("Error for create user");
+                                console.error("Error for create user");
                                 console.error(error);
                                 notificationSystem?.addNotification({
                                     message: `Une erreur s'est produite pendant la création de l'utilisateur·ice. Merci de ressayer. Si l'erreur persiste, merci de contacter le service informatique.\n${error}`,
@@ -209,7 +208,7 @@ const AuthForm: FC<AuthFormProps> = ({
 
             <NotificationSystem
                 ref={(notificationSystem) => {
-                    setNotificationSystem(notificationSystem);
+                    setNotificationSystem(notificationSystem === null ? undefined : notificationSystem);
                 }}
                 style={NOTIFICATION_SYSTEM_STYLE}
             />

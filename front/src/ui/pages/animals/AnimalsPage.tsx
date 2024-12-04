@@ -14,7 +14,7 @@ import Species from "../../../logic/entities/Species";
 import User from "../../../logic/entities/User";
 import HostFamily from "../../../logic/entities/HostFamily";
 import NotificationSystem from "react-notification-system";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 class Filter {
     value: any;
@@ -42,16 +42,11 @@ enum FilterType {
 }
 
 namespace FilterType {
-    export function check(
-        filter: FilterType,
-        value: any,
-        animal: Animal
-    ): boolean {
+    export function check(filter: FilterType, value: any, animal: Animal): boolean {
         if (value === null || value === undefined) return true;
         switch (filter) {
             case FilterType.ICAD_MISSING:
-                if (value === true)
-                    return animal.icad === null || animal.icad === "";
+                if (value === true) return animal.icad === null || animal.icad === "";
                 return true;
             case FilterType.BROADCASTABLE:
                 return animal.broadcastable === value;
@@ -65,16 +60,10 @@ namespace FilterType {
             case FilterType.SPECIES:
                 return animal.species_id === value;
             case FilterType.REFERENT:
-                if (value instanceof User)
-                    return animal.current_host_family_referent_id === value.id;
+                if (value instanceof User) return animal.current_host_family_referent_id === value.id;
                 return true;
             case FilterType.NAME:
-                if (typeof value === "string")
-                    return (
-                        animal.name
-                            ?.toLowerCase()
-                            .includes(value.toLowerCase()) ?? false
-                    );
+                if (typeof value === "string") return animal.name?.toLowerCase().includes(value.toLowerCase()) ?? false;
                 return true;
         }
     }
@@ -113,10 +102,9 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
             .filter((f) => f !== null) as Filter[]
     );
 
-    const [notificationSystem, setNotificationSystem] =
-        useState<NotificationSystem | null>(null);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const getSpecies = () => {
         return AnimalsManager.getSpecies()
@@ -166,7 +154,6 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
     const getReferents = () => {
         return UsersManager.getAllReferents()
             .then((referents) => {
-                console.log("referents", referents);
                 return sortBy(referents, "displayName") as User[];
             })
             .catch((err) => {
@@ -195,27 +182,23 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
     };
 
     const showDetail = (animal: Animal) => {
-        history.push(`/animals/${animal.id}`);
+        navigate(`/animals/${animal.id}`);
     };
 
     useEffect(() => {
         setIsLoading(true);
-        Promise.all([
-            getSexes(),
-            getSpecies(),
-            getReferents(),
-            getHostFamilies(),
-            getAllAnimals(),
-        ]).then(([sexes, species, referents, hostFamilies, animals]) => {
-            setData({
-                sexes,
-                species,
-                referents,
-                hostFamilies,
-                animals,
-            });
-            setIsLoading(false);
-        });
+        Promise.all([getSexes(), getSpecies(), getReferents(), getHostFamilies(), getAllAnimals()]).then(
+            ([sexes, species, referents, hostFamilies, animals]) => {
+                setData({
+                    sexes,
+                    species,
+                    referents,
+                    hostFamilies,
+                    animals,
+                });
+                setIsLoading(false);
+            }
+        );
     }, []);
 
     useEffect(() => {
@@ -227,16 +210,14 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
     }, [data, filters]);
 
     const createAnimal = () => {
-        history.push("animals/new");
+        navigate("animals/new");
     };
 
     return (
         <Page
             className="AnimalsPage"
             title="Liste des Animaux"
-            breadcrumbs={[
-                { name: "Animaux", active: true } as CustomBreadcrumbItem,
-            ]}
+            breadcrumbs={[{ name: "Animaux", active: true } as CustomBreadcrumbItem]}
             notificationSystemCallback={(notifSystem) => {
                 setNotificationSystem(notifSystem);
             }}
@@ -246,21 +227,9 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                     <Input
                         name="animal"
                         placeholder="Rechercher un animal"
-                        value={
-                            filters.find((f) => f.type === FilterType.NAME)
-                                ?.value ?? ""
-                        }
+                        value={filters.find((f) => f.type === FilterType.NAME)?.value ?? ""}
                         onChange={(e) =>
-                            setFilters((previous) =>
-                                previous.map((f) =>
-                                    f.type === FilterType.NAME
-                                        ? new Filter(
-                                              e.target.value,
-                                              FilterType.NAME
-                                          )
-                                        : f
-                                )
-                            )
+                            setFilters((previous) => previous.map((f) => (f.type === FilterType.NAME ? new Filter(e.target.value, FilterType.NAME) : f)))
                         }
                     />
                 </Col>
@@ -286,40 +255,14 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={
-                                            filters.find(
-                                                (f) =>
-                                                    f.type ===
-                                                    FilterType.BROADCASTABLE
-                                            )?.value
-                                        }
+                                        value={filters.find((f) => f.type === FilterType.BROADCASTABLE)?.value}
                                         values={[true, false, null]}
-                                        valueDisplayName={(value) =>
-                                            value === null
-                                                ? "Tous"
-                                                : value === true
-                                                ? "Diffusable"
-                                                : "Non diffusable"
-                                        }
-                                        valueActiveCheck={(value) =>
-                                            filters.find(
-                                                (f) =>
-                                                    f.type ===
-                                                    FilterType.BROADCASTABLE
-                                            )?.value === value
-                                        }
+                                        valueDisplayName={(value) => (value === null ? "Tous" : value === true ? "Diffusable" : "Non diffusable")}
+                                        valueActiveCheck={(value) => filters.find((f) => f.type === FilterType.BROADCASTABLE)?.value === value}
                                         key={"broadcastable"}
                                         onChange={(value) => {
                                             setFilters((previous) =>
-                                                previous.map((f) =>
-                                                    f.type ===
-                                                    FilterType.BROADCASTABLE
-                                                        ? new Filter(
-                                                              value,
-                                                              FilterType.BROADCASTABLE
-                                                          )
-                                                        : f
-                                                )
+                                                previous.map((f) => (f.type === FilterType.BROADCASTABLE ? new Filter(value, FilterType.BROADCASTABLE) : f))
                                             );
                                         }}
                                     />
@@ -329,40 +272,14 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={
-                                            filters.find(
-                                                (f) =>
-                                                    f.type ===
-                                                    FilterType.RESERVED
-                                            )?.value
-                                        }
+                                        value={filters.find((f) => f.type === FilterType.RESERVED)?.value}
                                         values={[true, false, null]}
-                                        valueDisplayName={(value) =>
-                                            value === null
-                                                ? "Tous"
-                                                : value === true
-                                                ? "Réservé·e"
-                                                : "Non réservé·es"
-                                        }
-                                        valueActiveCheck={(value) =>
-                                            filters.find(
-                                                (f) =>
-                                                    f.type ===
-                                                    FilterType.RESERVED
-                                            )?.value === value
-                                        }
+                                        valueDisplayName={(value) => (value === null ? "Tous" : value === true ? "Réservé·e" : "Non réservé·es")}
+                                        valueActiveCheck={(value) => filters.find((f) => f.type === FilterType.RESERVED)?.value === value}
                                         key={"reserved"}
                                         onChange={(value) => {
                                             setFilters((previous) =>
-                                                previous.map((f) =>
-                                                    f.type ===
-                                                    FilterType.RESERVED
-                                                        ? new Filter(
-                                                              value,
-                                                              FilterType.RESERVED
-                                                          )
-                                                        : f
-                                                )
+                                                previous.map((f) => (f.type === FilterType.RESERVED ? new Filter(value, FilterType.RESERVED) : f))
                                             );
                                         }}
                                     />
@@ -372,40 +289,14 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={
-                                            filters.find(
-                                                (f) =>
-                                                    f.type ===
-                                                    FilterType.ADOPTED
-                                            )?.value
-                                        }
+                                        value={filters.find((f) => f.type === FilterType.ADOPTED)?.value}
                                         values={[true, false, null]}
-                                        valueDisplayName={(value) =>
-                                            value === null
-                                                ? "Tous"
-                                                : value === true
-                                                ? "Adopté·e"
-                                                : "Non adopté·es"
-                                        }
-                                        valueActiveCheck={(value) =>
-                                            filters.find(
-                                                (f) =>
-                                                    f.type ===
-                                                    FilterType.ADOPTED
-                                            )?.value === value
-                                        }
+                                        valueDisplayName={(value) => (value === null ? "Tous" : value === true ? "Adopté·e" : "Non adopté·es")}
+                                        valueActiveCheck={(value) => filters.find((f) => f.type === FilterType.ADOPTED)?.value === value}
                                         key={"adopted"}
                                         onChange={(value) => {
                                             setFilters((previous) =>
-                                                previous.map((f) =>
-                                                    f.type ===
-                                                    FilterType.ADOPTED
-                                                        ? new Filter(
-                                                              value,
-                                                              FilterType.ADOPTED
-                                                          )
-                                                        : f
-                                                )
+                                                previous.map((f) => (f.type === FilterType.ADOPTED ? new Filter(value, FilterType.ADOPTED) : f))
                                             );
                                         }}
                                     />
@@ -415,37 +306,14 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={
-                                            filters.find(
-                                                (f) =>
-                                                    f.type === FilterType.DEAD
-                                            )?.value
-                                        }
+                                        value={filters.find((f) => f.type === FilterType.DEAD)?.value}
                                         values={[true, false, null]}
-                                        valueDisplayName={(value) =>
-                                            value === null
-                                                ? "Tous"
-                                                : value === true
-                                                ? "Décédé·e"
-                                                : "Vivant·e"
-                                        }
-                                        valueActiveCheck={(value) =>
-                                            filters.find(
-                                                (f) =>
-                                                    f.type === FilterType.DEAD
-                                            )?.value === value
-                                        }
+                                        valueDisplayName={(value) => (value === null ? "Tous" : value === true ? "Décédé·e" : "Vivant·e")}
+                                        valueActiveCheck={(value) => filters.find((f) => f.type === FilterType.DEAD)?.value === value}
                                         key={"dead"}
                                         onChange={(value) => {
                                             setFilters((previous) =>
-                                                previous.map((f) =>
-                                                    f.type === FilterType.DEAD
-                                                        ? new Filter(
-                                                              value,
-                                                              FilterType.DEAD
-                                                          )
-                                                        : f
-                                                )
+                                                previous.map((f) => (f.type === FilterType.DEAD ? new Filter(value, FilterType.DEAD) : f))
                                             );
                                         }}
                                     />
@@ -455,41 +323,14 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={data.species.find(
-                                            (aSpecies) =>
-                                                aSpecies.id ===
-                                                filters.find(
-                                                    (f) =>
-                                                        f.type ===
-                                                        FilterType.SPECIES
-                                                )?.value
-                                        )}
+                                        value={data.species.find((aSpecies) => aSpecies.id === filters.find((f) => f.type === FilterType.SPECIES)?.value)}
                                         values={[...data.species, null]}
-                                        valueDisplayName={(aSpecies) =>
-                                            aSpecies === null
-                                                ? "Toutes"
-                                                : aSpecies?.name
-                                        }
-                                        valueActiveCheck={(aSpecies) =>
-                                            aSpecies?.id ===
-                                            filters.find(
-                                                (f) =>
-                                                    f.type ===
-                                                    FilterType.SPECIES
-                                            )?.value
-                                        }
+                                        valueDisplayName={(aSpecies) => (aSpecies === null ? "Toutes" : aSpecies?.name)}
+                                        valueActiveCheck={(aSpecies) => aSpecies?.id === filters.find((f) => f.type === FilterType.SPECIES)?.value}
                                         key={"species"}
                                         onChange={(value) => {
                                             setFilters((previous) =>
-                                                previous.map((f) =>
-                                                    f.type ===
-                                                    FilterType.SPECIES
-                                                        ? new Filter(
-                                                              value?.id,
-                                                              FilterType.SPECIES
-                                                          )
-                                                        : f
-                                                )
+                                                previous.map((f) => (f.type === FilterType.SPECIES ? new Filter(value?.id, FilterType.SPECIES) : f))
                                             );
                                         }}
                                     />
@@ -499,41 +340,14 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Dropdown
                                         withNewLine={true}
                                         color={"primary"}
-                                        value={data.referents.find(
-                                            (referent) =>
-                                                referent.id ===
-                                                filters.find(
-                                                    (f) =>
-                                                        f.type ===
-                                                        FilterType.REFERENT
-                                                )?.value
-                                        )}
+                                        value={data.referents.find((referent) => referent.id === filters.find((f) => f.type === FilterType.REFERENT)?.value)}
                                         values={[...data.referents, null]}
-                                        valueDisplayName={(referent) =>
-                                            referent === null
-                                                ? "Tous·tes"
-                                                : referent?.displayName
-                                        }
-                                        valueActiveCheck={(referent) =>
-                                            referent?.id ===
-                                            filters.find(
-                                                (f) =>
-                                                    f.type ===
-                                                    FilterType.REFERENT
-                                            )?.value
-                                        }
+                                        valueDisplayName={(referent) => (referent === null ? "Tous·tes" : referent?.displayName)}
+                                        valueActiveCheck={(referent) => referent?.id === filters.find((f) => f.type === FilterType.REFERENT)?.value}
                                         key={"referents"}
                                         onChange={(value) => {
                                             setFilters((previous) =>
-                                                previous.map((f) =>
-                                                    f.type ===
-                                                    FilterType.REFERENT
-                                                        ? new Filter(
-                                                              value,
-                                                              FilterType.REFERENT
-                                                          )
-                                                        : f
-                                                )
+                                                previous.map((f) => (f.type === FilterType.REFERENT ? new Filter(value, FilterType.REFERENT) : f))
                                             );
                                         }}
                                     />
@@ -542,24 +356,10 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                                     <Label>ICAD manquant</Label>
                                     <Switch
                                         disabled={false}
-                                        isOn={
-                                            filters.find(
-                                                (f) =>
-                                                    f.type ===
-                                                    FilterType.ICAD_MISSING
-                                            )?.value
-                                        }
+                                        isOn={filters.find((f) => f.type === FilterType.ICAD_MISSING)?.value}
                                         handleToggle={() => {
                                             setFilters((previous) =>
-                                                previous.map((f) =>
-                                                    f.type ===
-                                                    FilterType.ICAD_MISSING
-                                                        ? new Filter(
-                                                              !f.value,
-                                                              FilterType.ICAD_MISSING
-                                                          )
-                                                        : f
-                                                )
+                                                previous.map((f) => (f.type === FilterType.ICAD_MISSING ? new Filter(!f.value, FilterType.ICAD_MISSING) : f))
                                             );
                                         }}
                                     />
@@ -602,28 +402,16 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                             },
                         ]}
                         values={filteredAnimals.map((animal) => {
-                            var hostFamily = data.hostFamilies.find(
-                                (hf) => hf.id === animal.current_host_family_id
-                            );
+                            var hostFamily = data.hostFamilies.find((hf) => hf.id === animal.current_host_family_id);
                             return {
                                 name: animal.name,
-                                sexe:
-                                    data.sexes.find(
-                                        (aSexe) => aSexe.key === animal.sexe
-                                    )?.value || "",
+                                sexe: data.sexes.find((aSexe) => aSexe.key === animal.sexe)?.value || "",
                                 icad: animal.icad,
-                                birthdate:
-                                    animal.birthdateObject.readable ??
-                                    animal.birthdate,
+                                birthdate: animal.birthdateObject.readable ?? animal.birthdate,
                                 hostFamily: hostFamily?.displayName || "",
-                                pec_date:
-                                    animal.entry_dateObject.readable ??
-                                    animal.entry_date,
+                                pec_date: animal.entry_dateObject.readable ?? animal.entry_date,
                                 animal_detail: (
-                                    <Button
-                                        color="info"
-                                        onClick={() => showDetail(animal)}
-                                    >
+                                    <Button color="info" onClick={() => showDetail(animal)}>
                                         <MdAssignment />
                                     </Button>
                                 ),

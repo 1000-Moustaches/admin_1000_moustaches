@@ -6,8 +6,8 @@ import AnimalToHostFamilyModal from "./AnimalToHostFamilyModal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import AnimalToHostFamily from "../../../logic/entities/AnimalToHostFamily";
 import HostFamily from "../../../logic/entities/HostFamily";
-import { useHistory } from "react-router-dom";
 import NotificationSystem from "react-notification-system";
+import { useNavigate } from "react-router-dom";
 
 interface HostFamiliesHistoryProps {
     animalId: number;
@@ -27,7 +27,7 @@ const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
     shouldRefresh,
     ...props
 }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [modalAnimalToHostFamily, setModalAnimalToHostFamily] = useState<AnimalToHostFamily | null>(null);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
@@ -36,7 +36,7 @@ const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
     const [currentAnimalToHostFamily] = animalToHostFamilies.filter((athf) => athf.exit_date !== null);
 
     const showDetail = (animalToHostFamily: AnimalToHostFamily) => {
-        history.push(`/hostFamilies/${animalToHostFamily.host_family_id}`);
+        navigate(`/hostFamilies/${animalToHostFamily.host_family_id}`);
     };
 
     const deleteAnimalToHostFamily = () => {

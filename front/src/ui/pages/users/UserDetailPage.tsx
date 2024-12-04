@@ -7,26 +7,22 @@ import Switch from "../../components/Switch";
 import Page, { CustomBreadcrumbItem } from "../../components/Page";
 import NotificationSystem from "react-notification-system";
 import User from "../../../logic/entities/User";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface UserDetailPageProps {
-    match: {
-        params: {
-            id: string;
-        };
-    };
-    history: {
-        push: (path: string) => void;
-    };
     [key: string]: any;
 }
 
-const UserDetailPage: FC<UserDetailPageProps> = ({ match, history, ...props }) => {
-    const userId = match.params.id;
+const UserDetailPage: FC<UserDetailPageProps> = ({ props }) => {
+    let { id: paramUserId } = useParams();
+    const userId = paramUserId ?? "new";
     const [user, setUser] = useState<User | null>(null);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
-    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | null>(null);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
     const [shouldSave, setShouldSave] = useState<boolean>(false);
+
+    const navigate = useNavigate();
 
     const getUser = () => {
         if (user !== null) {
@@ -89,7 +85,7 @@ const UserDetailPage: FC<UserDetailPageProps> = ({ match, history, ...props }) =
                         message: "Utilisateur·ice créé",
                         level: "success",
                     });
-                    history.push(`/users/${updatedUser.id}`);
+                    navigate(`/users/${updatedUser.id}`);
                     setUser(updatedUser);
                 })
                 .catch((err) => {
@@ -112,7 +108,6 @@ const UserDetailPage: FC<UserDetailPageProps> = ({ match, history, ...props }) =
                 });
 
                 var currentUser = JSON.parse(sessionStorage.getItem("User") ?? "");
-                console.log("currentUser", currentUser, userId == currentUser.id);
                 if (userId == currentUser.id) {
                     sessionStorage.setItem("User", JSON.stringify(user));
                 }
@@ -137,7 +132,7 @@ const UserDetailPage: FC<UserDetailPageProps> = ({ match, history, ...props }) =
                     message: "Utilisateur·ice supprimé",
                     level: "success",
                 });
-                history.push("/users");
+                navigate("/users");
             })
             .catch((err) => {
                 console.error(err);

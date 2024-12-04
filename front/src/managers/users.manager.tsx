@@ -44,11 +44,7 @@ class UsersManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((users) =>
-                users
-                    .filter((usr: User) => usr.is_referent)
-                    .map(UsersManager.format)
-            );
+            .then((users) => users.filter((usr: User) => usr.is_referent).map(UsersManager.format));
     };
 
     static getById = (id: number): Promise<User> => {
@@ -67,7 +63,7 @@ class UsersManager {
     static create = (user: User): Promise<User> => {
         const userToUpload = this.formatForServer(user);
 
-        console.log("Will call post on users");
+        console.info("Will call post on users");
         return fetchWithAuth(`${API_URL}/users`, {
             method: "POST",
             body: JSON.stringify(userToUpload),
@@ -127,11 +123,7 @@ class UsersManager {
             if (firebaseUser !== null) {
                 this.getAll()
                     .then((users) => {
-                        resolve(
-                            users.find(
-                                (usr) => usr.email === firebaseUser.email
-                            )
-                        );
+                        resolve(users.find((usr) => usr.email === firebaseUser.email));
                     })
                     .catch((error) => {
                         console.error(error);
@@ -141,11 +133,7 @@ class UsersManager {
                 onAuthStateChanged(auth, (user) => {
                     this.getAll()
                         .then((users: User[]) => {
-                            resolve(
-                                users.find(
-                                    (usr: User) => usr.email === user?.email
-                                )
-                            );
+                            resolve(users.find((usr: User) => usr.email === user?.email));
                         })
                         .catch((error) => {
                             console.error(error);

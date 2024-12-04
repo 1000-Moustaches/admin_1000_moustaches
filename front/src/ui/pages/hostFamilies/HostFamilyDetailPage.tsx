@@ -33,20 +33,16 @@ import HostFamily from "../../../logic/entities/HostFamily";
 import NotificationSystem from "react-notification-system";
 import User from "../../../logic/entities/User";
 import AnimalToHostFamily from "../../../logic/entities/AnimalToHostFamily";
-import { useHistory } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { RiZzzFill } from "react-icons/ri";
 
 interface HostFamilyDetailPageProps {
-    match: {
-        params: {
-            id: string;
-        };
-    };
     [key: string]: any;
 }
 
-const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ match, ...props }) => {
-    const hostFamilyId = match.params.id;
+const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
+    let { id: paramHostFamilyId } = useParams();
+    const hostFamilyId = paramHostFamilyId ?? "new";
     const [hostFamily, setHostFamily] = useState<HostFamily | null>(null);
     const [animalsToHostFamily, setAnimalsToHostFamily] = useState<AnimalToHostFamily[]>([]);
     const [hostFamilyKinds, setHostFamilyKinds] = useState<HostFamilyKind[]>([]);
@@ -56,7 +52,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ match, ...props }
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
 
-    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | null>(null);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
     const [geocodeFound, setGeocodeFound] = useState<boolean | null>(null);
     const [previousAddress, setPreviousAddress] = useState<string | null>(null);
@@ -67,7 +63,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ match, ...props }
     const [openHomeInfo, setOpenHomeInfo] = useState<string>("");
     const [openHostInfo, setOpenHostInfo] = useState<string>("");
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const getHostFamily = () => {
         setHostFamily(null);
@@ -217,7 +213,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ match, ...props }
     }, [shouldSave, isGeocoding]);
 
     const showDetail = (animalToHostFamily: AnimalToHostFamily) => {
-        history.push(`/animals/${animalToHostFamily.animal_id}`);
+        navigate(`/animals/${animalToHostFamily.animal_id}`);
     };
 
     const save = () => {
@@ -261,7 +257,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ match, ...props }
                     if (createdHostFamily.id === undefined) {
                         throw new Error("No ID returned for newly created host family");
                     }
-                    console.log("Will save tmp selected host family kinds", tmpSelectedHostFamilyKinds);
+                    console.info("Will save tmp selected host family kinds", tmpSelectedHostFamilyKinds);
                     return Promise.all([saveTmpSelectedHostFamilyKinds(createdHostFamily.id), Promise.resolve(createdHostFamily)]);
                 })
                 .then(([res, updatedHostFamily]) => {
@@ -269,7 +265,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ match, ...props }
                         message: "Famille d'Accueil créée",
                         level: "success",
                     });
-                    history.push(`/hostFamilies/${updatedHostFamily.id}`);
+                    navigate(`/hostFamilies/${updatedHostFamily.id}`);
                 })
                 .catch((err) => {
                     console.error(err);
@@ -307,7 +303,6 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ match, ...props }
                 return createHostFamilyKindLink(hfk, hostFamilyId);
             })
         ).then(() => {
-            console.log("Tmp selected host family kinds saved");
             setTmpSelectedHostFamilyKinds([]);
         });
     };
@@ -322,7 +317,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ match, ...props }
                     message: "Famille d'Accueil supprimée",
                     level: "success",
                 });
-                history.push("/hostFamilies");
+                navigate("/hostFamilies");
             })
             .catch((err) => {
                 console.error(err);
@@ -350,12 +345,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ match, ...props }
             id = hostFamilyIdOverride;
         }
         if (isNaN(id)) {
-            console.log("Host family ID is not a number");
+            console.info("Host family ID is not a number");
             return;
         }
         HostFamilyKindsManager.createHostFamilyLink(hfk.id, id)
             .then(() => {
-                console.log("Host family kind link created");
+                console.info("Host family kind link created");
                 if (hostFamilyIdOverride !== undefined) {
                     return;
                 }

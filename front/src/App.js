@@ -1,10 +1,11 @@
 import React from "react";
 import componentQueries from "react-component-queries";
-import { BrowserRouter, Switch } from "react-router-dom";
+import { BrowserRouter, Route } from "react-router-dom";
 import { AuthFormState } from "./ui/components/AuthForm";
 import { EmptyLayout, LayoutRoute, MainLayout } from "./ui/components/Layout";
 import PageSpinner from "./ui/components/PageSpinner";
 import "./ui/styles/reduction.scss";
+import { Outlet, Routes } from "react-router";
 
 const AuthPage = React.lazy(() => import("./ui/pages/AuthPage"));
 const DashboardPage = React.lazy(() => import("./ui/pages/DashboardPage"));
@@ -24,28 +25,105 @@ const getBasename = () => {
 class App extends React.Component {
     render() {
         return (
-            <BrowserRouter basename={getBasename()}>
-                <Switch>
-                    <React.Suspense fallback={<PageSpinner />}>
-                        <LayoutRoute exact path="/login" layout={EmptyLayout} component={(props) => <AuthPage {...props} authState={AuthFormState.LOGIN} />} />
-                        <LayoutRoute
-                            exact
-                            path="/signup"
-                            layout={EmptyLayout}
-                            component={(props) => <AuthPage {...props} authState={AuthFormState.SIGNUP} />}
-                        />
-                        <LayoutRoute isPrivate={true} exact path="/" layout={MainLayout} component={DashboardPage} />
-                        <LayoutRoute isPrivate={true} exact path="/animals" layout={MainLayout} component={AnimalsPage} />
-                        <LayoutRoute isPrivate={true} path="/animals/:id" layout={MainLayout} component={AnimalDetailPage} />
-                        <LayoutRoute isPrivate={true} exact path="/veterinarians" layout={MainLayout} component={VeterinariansPage} />
-                        <LayoutRoute isPrivate={true} path="/veterinarians/:id" layout={MainLayout} component={VeterinarianDetailPage} />
-                        <LayoutRoute isPrivate={true} exact path="/hostFamilies" layout={MainLayout} component={HostFamiliesPage} />
-                        <LayoutRoute isPrivate={true} path="/hostFamilies/:id" layout={MainLayout} component={HostFamilyDetailPage} />
-                        <LayoutRoute isPrivate={true} exact path="/users" layout={MainLayout} component={UsersPage} />
-                        <LayoutRoute isPrivate={true} path="/users/:id" layout={MainLayout} component={UserDetailPage} />
-                        {/* <Redirect to="/" /> */}
-                    </React.Suspense>
-                </Switch>
+            <BrowserRouter>
+                <Routes>
+                    <Route
+                        exact
+                        path="/login"
+                        element={
+                            <React.Suspense fallback={<PageSpinner />}>
+                                <LayoutRoute layout={EmptyLayout} component={(props) => <AuthPage {...props} authState={AuthFormState.LOGIN} />} />
+                            </React.Suspense>
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/signup"
+                        element={
+                            <React.Suspense fallback={<PageSpinner />}>
+                                <LayoutRoute layout={EmptyLayout} component={(props) => <AuthPage {...props} authState={AuthFormState.SIGNUP} />} />
+                            </React.Suspense>
+                        }
+                    />
+                    <Route
+                        index
+                        exact
+                        path="/"
+                        element={
+                            <React.Suspense fallback={<PageSpinner />}>
+                                <LayoutRoute isPrivate layout={MainLayout} component={DashboardPage} />
+                            </React.Suspense>
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/animals"
+                        element={
+                            <React.Suspense fallback={<PageSpinner />}>
+                                <LayoutRoute isPrivate layout={MainLayout} component={AnimalsPage} />
+                            </React.Suspense>
+                        }
+                    />
+                    <Route
+                        path="/animals/:id"
+                        element={
+                            <React.Suspense fallback={<PageSpinner />}>
+                                <LayoutRoute isPrivate layout={MainLayout} component={AnimalDetailPage} />
+                            </React.Suspense>
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/veterinarians"
+                        element={
+                            <React.Suspense fallback={<PageSpinner />}>
+                                <LayoutRoute isPrivate layout={MainLayout} component={VeterinariansPage} />
+                            </React.Suspense>
+                        }
+                    />
+                    <Route
+                        path="/veterinarians/:id"
+                        element={
+                            <React.Suspense fallback={<PageSpinner />}>
+                                <LayoutRoute isPrivate layout={MainLayout} component={VeterinarianDetailPage} />
+                            </React.Suspense>
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/hostFamilies"
+                        element={
+                            <React.Suspense fallback={<PageSpinner />}>
+                                <LayoutRoute isPrivate layout={MainLayout} component={HostFamiliesPage} />
+                            </React.Suspense>
+                        }
+                    />
+                    <Route
+                        path="/hostFamilies/:id"
+                        element={
+                            <React.Suspense fallback={<PageSpinner />}>
+                                <LayoutRoute isPrivate layout={MainLayout} component={HostFamilyDetailPage} />
+                            </React.Suspense>
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/users"
+                        element={
+                            <React.Suspense fallback={<PageSpinner />}>
+                                <LayoutRoute isPrivate layout={MainLayout} component={UsersPage} />
+                            </React.Suspense>
+                        }
+                    />
+                    <Route
+                        path="/users/:id"
+                        element={
+                            <React.Suspense fallback={<PageSpinner />}>
+                                <LayoutRoute isPrivate layout={MainLayout} component={UserDetailPage} />
+                            </React.Suspense>
+                        }
+                    />
+                </Routes>
             </BrowserRouter>
         );
     }

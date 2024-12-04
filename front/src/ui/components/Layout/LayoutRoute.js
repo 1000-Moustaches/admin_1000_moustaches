@@ -1,38 +1,28 @@
 import React from "react";
-import { Redirect, Route, useLocation } from "react-router-dom";
+import { Navigate, Route, useLocation } from "react-router-dom";
 
-const LayoutRoute = ({ isPrivate, component: Component, layout: Layout, ...rest }) => {
+const LayoutRoute = ({ isPrivate, component: Component, layout: Layout, ...props }) => {
     const location = useLocation();
     if (isPrivate) {
-        return (
-            <Route
-                {...rest}
-                render={(props) =>
-                    sessionStorage.getItem("Auth Token") ? (
-                        <Layout {...props}>
-                            <Component {...props} />
-                        </Layout>
-                    ) : (
-                        <Redirect
-                            to={{
-                                pathname: "/login",
-                                state: { from: location },
-                            }}
-                        />
-                    )
-                }
+        return sessionStorage.getItem("Auth Token") ? (
+            <Layout {...props}>
+                <Component {...props} />
+            </Layout>
+        ) : (
+            <Navigate
+                to={{
+                    pathname: "/login",
+                    state: { from: location },
+                }}
             />
         );
     }
     return (
-        <Route
-            {...rest}
-            render={(props) => (
-                <Layout {...props}>
-                    <Component {...props} />
-                </Layout>
-            )}
-        />
+        <Layout {...props}>
+            <React.Suspense fallback={<PageSpinner />}>
+                <Component {...props} />
+            </React.Suspense>
+        </Layout>
     );
 };
 

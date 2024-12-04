@@ -19,14 +19,9 @@ import Species from "../../../logic/entities/Species";
 import HostFamily from "../../../logic/entities/HostFamily";
 import VeterinarianIntervention from "../../../logic/entities/VeterinarianIntervention";
 import Animal from "../../../logic/entities/Animal";
-import { useHistory } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface AnimalDetailPageProps {
-    match: {
-        params: {
-            id: string;
-        };
-    };
     [key: string]: any;
 }
 
@@ -67,15 +62,16 @@ class AnimalDetailPageAccordionState {
     }
 }
 
-const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
-    const animalId = match.params.id;
+const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
+    const { id: paramAnimalId } = useParams();
+    const animalId = paramAnimalId ?? "new";
     const [data, setData] = useState<AnimalDetailPageData>(new AnimalDetailPageData());
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
 
     const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     // Accordions
     const [accordions, setAccordions] = useState<AnimalDetailPageAccordionState[]>(
@@ -140,7 +136,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
         return AnimalsManager.getSpecies()
             .then((species) => species.sort((a, b) => a.name.localeCompare(b.name)))
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
@@ -153,7 +149,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
         return AnimalsManager.getSexes()
             .then((sexes) => sexes.sort((a, b) => a.value.localeCompare(b.value)))
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
@@ -170,7 +166,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
         return VeterinarianInterventionsManager.getByAnimalId(id)
             .then((interventions) => interventions.sort((a, b) => new Date(b.date ?? "").getTime() - new Date(a.date ?? "").getTime()))
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
@@ -183,7 +179,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
         return HostFamiliesManager.getAll()
             .then((hostFamilies) => hostFamilies.sort((a, b) => a.name?.localeCompare(b.name ?? "") ?? 0))
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
                     level: "error",
@@ -296,7 +292,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                         message: "Animal créé",
                         level: "success",
                     });
-                    history.push(`/animals/${updatedAnimal.id}`);
+                    navigate(`/animals/${updatedAnimal.id}`);
                     setData((previousData) => {
                         return {
                             ...previousData,
@@ -354,7 +350,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                     message: "Animal supprimé",
                     level: "success",
                 });
-                history.push("/animals");
+                navigate("/animals");
             })
             .catch((err) => {
                 console.error(err);

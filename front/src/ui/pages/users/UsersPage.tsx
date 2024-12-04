@@ -10,7 +10,7 @@ import SortableTable from "../../components/SortableTable";
 import Page, { CustomBreadcrumbItem } from "../../components/Page";
 import NotificationSystem from "react-notification-system";
 import User from "../../../logic/entities/User";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface UsersPageProps {}
 
@@ -21,10 +21,9 @@ const UsersPage: FC<UsersPageProps> = () => {
     const [searchText, setSearchText] = useState("");
     const [loggedUser, setLoggedUser] = useState<User | null>(null);
 
-    const [notificationSystem, setNotificationSystem] =
-        useState<NotificationSystem | null>(null);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const getAllUsers = () => {
         return UsersManager.getAll()
@@ -67,19 +66,17 @@ const UsersPage: FC<UsersPageProps> = () => {
     useEffect(() => {
         setFilteredUsers(
             users.filter((user) => {
-                return (user.name + " " + user.firstname)
-                    .toLowerCase()
-                    .includes(searchText.toLowerCase());
+                return (user.name + " " + user.firstname).toLowerCase().includes(searchText.toLowerCase());
             })
         );
     }, [searchText]);
 
     const showDetail = (user: User) => {
-        history.push(`/users/${user.id}`);
+        navigate(`/users/${user.id}`);
     };
 
     const createUser = () => {
-        history.push(`/users/new`);
+        navigate(`/users/new`);
     };
 
     return (
@@ -108,19 +105,10 @@ const UsersPage: FC<UsersPageProps> = () => {
                     />
                 </Col>
                 <Col xs={"auto"}>
-                    <Button
-                        title="Créer un·e utilisateur·ice"
-                        className="ms-2"
-                        onClick={createUser}
-                        color={"success"}
-                    >
+                    <Button title="Créer un·e utilisateur·ice" className="ms-2" onClick={createUser} color={"success"}>
                         <MdAddBox />
                     </Button>
-                    <Button
-                        title="Rafraîchir les données"
-                        className="ms-2"
-                        onClick={getAllUsers}
-                    >
+                    <Button title="Rafraîchir les données" className="ms-2" onClick={getAllUsers}>
                         <MdRefresh />
                     </Button>
                 </Col>
@@ -154,20 +142,11 @@ const UsersPage: FC<UsersPageProps> = () => {
                                 ]}
                                 values={filteredUsers.map((user) => {
                                     return {
-                                        icon:
-                                            loggedUser?.email === user.email ? (
-                                                <FaUserAlt />
-                                            ) : (
-                                                <></>
-                                            ),
+                                        icon: loggedUser?.email === user.email ? <FaUserAlt /> : <></>,
                                         name: `${user.firstname} ${user.name}`,
                                         mail: user.email,
                                         userDetail: (
-                                            <Button
-                                                title="Voir le détail"
-                                                color="info"
-                                                onClick={() => showDetail(user)}
-                                            >
+                                            <Button title="Voir le détail" color="info" onClick={() => showDetail(user)}>
                                                 <MdAssignment />
                                             </Button>
                                         ),
