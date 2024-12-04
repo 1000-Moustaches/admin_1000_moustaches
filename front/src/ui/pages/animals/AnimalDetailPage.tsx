@@ -73,7 +73,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
 
-    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | null>(null);
+    const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
     const history = useHistory();
 
@@ -229,7 +229,16 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                 } else {
                     setAccordions((previousValues) => {
                         return previousValues.map((value) => {
-                            return new AnimalDetailPageAccordionState(value.type, "1");
+                            switch (value.type) {
+                                case AnimalDetailPageAccordion.INFO:
+                                case AnimalDetailPageAccordion.PEC:
+                                case AnimalDetailPageAccordion.HEALTH:
+                                case AnimalDetailPageAccordion.BEHAVIOUR:
+                                    return new AnimalDetailPageAccordionState(value.type, "1");
+                                case AnimalDetailPageAccordion.EXIT:
+                                case AnimalDetailPageAccordion.DEATH:
+                                    return new AnimalDetailPageAccordionState(value.type, "");
+                            }
                         });
                     });
                     setIsEditing(true);
@@ -1329,31 +1338,26 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ match, ...props }) => {
                         </Accordion>
                     </CardBody>
                 </Card>
-
-                {animalId !== "new" && (
-                    <>
-                        <br />
-                        <VeterinarianInterventionsHistory
-                            animalId={parseInt(animalId)}
-                            veterinarianInterventions={data.veterinarianInterventions}
-                            notificationSystem={notificationSystem}
-                            shouldRefresh={getVeterinarianInterventions}
-                            {...props}
-                        />
-                        <br />
-                        <HostFamiliesHistory
-                            animalId={parseInt(animalId)}
-                            animalName={data.animal.name ?? ""}
-                            hostFamilies={data.hostFamilies}
-                            animalToHostFamilies={data.animalToHostFamilies}
-                            notificationSystem={notificationSystem}
-                            shouldRefresh={() => {
-                                getAnimalToHostFamilies()?.then(getAnimal);
-                            }}
-                            {...props}
-                        />
-                    </>
-                )}
+                <br />
+                <VeterinarianInterventionsHistory
+                    animalId={parseInt(animalId)}
+                    veterinarianInterventions={data.veterinarianInterventions}
+                    notificationSystem={notificationSystem}
+                    shouldRefresh={getVeterinarianInterventions}
+                    {...props}
+                />
+                <br />
+                <HostFamiliesHistory
+                    animalId={parseInt(animalId)}
+                    animalName={data.animal.name ?? ""}
+                    hostFamilies={data.hostFamilies}
+                    animalToHostFamilies={data.animalToHostFamilies}
+                    notificationSystem={notificationSystem}
+                    shouldRefresh={() => {
+                        getAnimalToHostFamilies()?.then(getAnimal);
+                    }}
+                    {...props}
+                />
             </div>
         );
     }

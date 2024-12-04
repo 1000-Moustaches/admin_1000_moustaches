@@ -82,15 +82,7 @@ export const NOTIFICATION_SYSTEM_STYLE: Style = {
 
         warning: {
             borderTop: 0,
-            backgroundColor: "#ffd700",
-            WebkitBoxShadow: "0",
-            MozBoxShadow: "0",
-            boxShadow: "0",
-        },
-
-        info: {
-            borderTop: 0,
-            background: "linear-gradient(to right, #6a82fb, #fc5c7d)",
+            backgroundColor: "#ff9d00",
             WebkitBoxShadow: "0",
             MozBoxShadow: "0",
             boxShadow: "0",
@@ -106,10 +98,6 @@ export const NOTIFICATION_SYSTEM_STYLE: Style = {
             display: "inline-flex",
             fontSize: 20,
             fontWeight: "bold",
-        },
-
-        warning: {
-            color: "#000",
         },
     },
 
@@ -143,10 +131,6 @@ export const NOTIFICATION_SYSTEM_STYLE: Style = {
             right: "unset",
             lineHeight: "inherit",
         },
-
-        warning: {
-            color: "#000",
-        },
     },
 
     Action: {
@@ -171,7 +155,7 @@ export const NOTIFICATION_SYSTEM_STYLE: Style = {
 
         warning: {
             backgroundColor: "#ffd700",
-            color: "#000",
+            color: "#fff",
         },
 
         info: {

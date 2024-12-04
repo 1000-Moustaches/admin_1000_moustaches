@@ -21,20 +21,11 @@ interface PageProps {
     breadcrumbs?: CustomBreadcrumbItem[];
     className?: string;
     children?: ReactNode;
-    notificationSystemCallback?: (
-        notificationSystem: NotificationSystem | null
-    ) => void;
+    notificationSystemCallback?: (notificationSystem?: NotificationSystem) => void;
     [key: string]: any;
 }
 
-const Page: FC<PageProps> = ({
-    title,
-    breadcrumbs,
-    className,
-    children,
-    notificationSystemCallback,
-    ...restProps
-}): ReactElement => {
+const Page: FC<PageProps> = ({ title, breadcrumbs, className, children, notificationSystemCallback, ...restProps }): ReactElement => {
     const classes = bem.b("px-3", className);
 
     return (
@@ -48,15 +39,7 @@ const Page: FC<PageProps> = ({
                         {breadcrumbs.length &&
                             breadcrumbs.map(({ name, active, to }, index) => (
                                 <BreadcrumbItem key={index} active={active}>
-                                    <a
-                                        href={
-                                            active === true || to === null
-                                                ? ""
-                                                : to
-                                        }
-                                    >
-                                        {name}
-                                    </a>
+                                    <a href={active === true || to === null ? "" : to}>{name}</a>
                                 </BreadcrumbItem>
                             ))}
                     </Breadcrumb>
@@ -75,11 +58,8 @@ const Page: FC<PageProps> = ({
 
             <NotificationSystem
                 ref={(notificationSystem) => {
-                    if (
-                        !!notificationSystemCallback &&
-                        typeof notificationSystemCallback === "function"
-                    ) {
-                        notificationSystemCallback(notificationSystem);
+                    if (!!notificationSystemCallback && typeof notificationSystemCallback === "function") {
+                        notificationSystemCallback(notificationSystem === null ? undefined : notificationSystem);
                     }
                 }}
                 style={NOTIFICATION_SYSTEM_STYLE}

@@ -1,14 +1,6 @@
 import React, { FC, useState } from "react";
-import { MdAddBox, MdAssignment } from "react-icons/md";
-import {
-    Button,
-    Card,
-    CardBody,
-    CardHeader,
-    Col,
-    Row,
-    Table,
-} from "reactstrap";
+import { MdAddBox, MdAssignment, MdDelete } from "react-icons/md";
+import { Button, Card, CardBody, CardHeader, Col, Row, Table } from "reactstrap";
 import VeterinarianInterventionsManager from "../../../managers/veterinarianInterventions.manager";
 import VeterinarianInterventionModal from "./VeterinarianInterventionModal";
 import VeterinarianIntervention from "../../../logic/entities/VeterinarianIntervention";
@@ -17,28 +9,38 @@ import NotificationSystem from "react-notification-system";
 interface VeterinarianInterventionsHistoryProps {
     animalId: number;
     veterinarianInterventions: VeterinarianIntervention[];
-    notificationSystem: NotificationSystem | null;
+    notificationSystem?: NotificationSystem;
     shouldRefresh: () => void;
 }
 
-const VeterinarianInterventionsHistory: FC<
-    VeterinarianInterventionsHistoryProps
-> = ({
+const VeterinarianInterventionsHistory: FC<VeterinarianInterventionsHistoryProps> = ({
     animalId,
     veterinarianInterventions,
     notificationSystem,
     shouldRefresh,
 }) => {
-    const [modalVeterinarianIntervention, setModalVeterinarianIntervention] =
-        useState<VeterinarianIntervention | null>(null);
-    const [
-        showVeterinarianInterventionModal,
-        setShowVeterinarianInterventionModal,
-    ] = useState<boolean>(false);
+    const [modalVeterinarianIntervention, setModalVeterinarianIntervention] = useState<VeterinarianIntervention | null>(null);
 
     const showDetail = (veterinarianIntervention: VeterinarianIntervention) => {
         setModalVeterinarianIntervention(veterinarianIntervention);
-        setShowVeterinarianInterventionModal(true);
+    };
+
+    const deleteVeterinarianIntervention = (veterinarianIntervention: VeterinarianIntervention) => {
+        VeterinarianInterventionsManager.delete(veterinarianIntervention)
+            .then(() => {
+                notificationSystem?.addNotification({
+                    message: "Intervention vétérinaire supprimée",
+                    level: "success",
+                });
+                shouldRefresh();
+            })
+            .catch((err) => {
+                console.error(err);
+                notificationSystem?.addNotification({
+                    message: `Une erreur s'est produite pendant la suppression des données\n${err}`,
+                    level: "error",
+                });
+            });
     };
 
     return (
@@ -53,10 +55,14 @@ const VeterinarianInterventionsHistory: FC<
                             <Button
                                 color="primary"
                                 onClick={() => {
-                                    setModalVeterinarianIntervention(
-                                        VeterinarianInterventionsManager.createVeterinarianIntervention()
-                                    );
-                                    setShowVeterinarianInterventionModal(true);
+                                    if (isNaN(animalId)) {
+                                        notificationSystem?.addNotification({
+                                            message: "Sauvegardez d'abord l'animal avant d'enregistrer une intervention vétérinaire",
+                                            level: "warning",
+                                        });
+                                        return;
+                                    }
+                                    setModalVeterinarianIntervention(VeterinarianInterventionsManager.createVeterinarianIntervention());
                                 }}
                             >
                                 <MdAddBox />
@@ -70,7 +76,8 @@ const VeterinarianInterventionsHistory: FC<
                             <tr>
                                 <th scope="col">Date</th>
                                 <th scope="col">Notes</th>
-                                <th scope="col">Voir plus</th>
+                                <th scope="col">Détail</th>
+                                <th scope="col">Suppression</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,35 +88,21 @@ const VeterinarianInterventionsHistory: FC<
                                     } else if (b.date === undefined) {
                                         return 1;
                                     } else {
-                                        return a.date < b.date
-                                            ? -1
-                                            : a.date > b.date
-                                            ? 1
-                                            : 0;
+                                        return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
                                     }
                                 })
                                 .map((veterinarianIntervention, index) => (
                                     <tr>
-                                        <th scope="row">
-                                            {veterinarianIntervention.dateObject
-                                                .readable ??
-                                                veterinarianIntervention.date}
-                                        </th>
+                                        <th scope="row">{veterinarianIntervention.dateObject.readable ?? veterinarianIntervention.date}</th>
+                                        <td>{veterinarianIntervention.description}</td>
                                         <td>
-                                            {
-                                                veterinarianIntervention.description
-                                            }
+                                            <Button color="info" onClick={() => showDetail(veterinarianIntervention)}>
+                                                <MdAssignment />
+                                            </Button>
                                         </td>
                                         <td>
-                                            <Button
-                                                color="info"
-                                                onClick={() =>
-                                                    showDetail(
-                                                        veterinarianIntervention
-                                                    )
-                                                }
-                                            >
-                                                <MdAssignment />
+                                            <Button color="danger" onClick={() => deleteVeterinarianIntervention(veterinarianIntervention)}>
+                                                <MdDelete />
                                             </Button>
                                         </td>
                                     </tr>
@@ -123,9 +116,8 @@ const VeterinarianInterventionsHistory: FC<
                 <VeterinarianInterventionModal
                     animalId={animalId}
                     veterinarianIntervention={modalVeterinarianIntervention}
-                    show={showVeterinarianInterventionModal}
+                    show={modalVeterinarianIntervention !== null}
                     handleClose={(shouldReload) => {
-                        setShowVeterinarianInterventionModal(false);
                         setModalVeterinarianIntervention(null);
 
                         if (shouldReload) {

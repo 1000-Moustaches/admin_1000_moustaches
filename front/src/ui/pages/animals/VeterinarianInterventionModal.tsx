@@ -1,16 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
 import { MdDelete, MdOutlineModeEdit } from "react-icons/md";
-import {
-    Button,
-    Col,
-    Input,
-    Label,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader,
-    Row,
-} from "reactstrap";
+import { Button, Col, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row } from "reactstrap";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import Dropdown from "../../components/Dropdown";
 import VeterinarianInterventionsManager from "../../../managers/veterinarianInterventions.manager";
@@ -35,11 +25,9 @@ const VeterinarianInterventionModal: FC<VeterinarianInterventionModalProps> = ({
     notificationSystem,
     ...props
 }) => {
-    const [veterinarianIntervention, setVeterinarianIntervention] =
-        useState<VeterinarianIntervention>(vetInter);
+    const [veterinarianIntervention, setVeterinarianIntervention] = useState<VeterinarianIntervention>(vetInter);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
-        useState<boolean>(false);
+    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
     const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
 
     const getVeterinarians = () => {
@@ -56,12 +44,12 @@ const VeterinarianInterventionModal: FC<VeterinarianInterventionModalProps> = ({
 
     useEffect(() => {
         getVeterinarians();
-        setIsEditing(vetInter.id === undefined);
+        setIsEditing(vetInter.id === -1);
     }, []);
 
     const save = () => {
         setIsEditing(false);
-        if (veterinarianIntervention.id === undefined) {
+        if (veterinarianIntervention.id === -1) {
             // Send new data to API
             VeterinarianInterventionsManager.create({
                 ...veterinarianIntervention,
@@ -122,8 +110,6 @@ const VeterinarianInterventionModal: FC<VeterinarianInterventionModalProps> = ({
             });
     };
 
-    console.log(veterinarianIntervention);
-
     return (
         <Modal isOpen={show} {...props}>
             <ModalHeader closeButton>
@@ -132,23 +118,13 @@ const VeterinarianInterventionModal: FC<VeterinarianInterventionModalProps> = ({
                         <h1>Intervention vétérinaire</h1>
                     </Col>
                     <Col xs={"auto"}>
-                        {veterinarianIntervention.id !== undefined &&
-                            isEditing && (
-                                <Button
-                                    color="danger"
-                                    onClick={() =>
-                                        setShowDeleteConfirmationModal(true)
-                                    }
-                                >
-                                    <MdDelete />
-                                </Button>
-                            )}
+                        {veterinarianIntervention.id !== -1 && isEditing && (
+                            <Button color="danger" onClick={() => setShowDeleteConfirmationModal(true)}>
+                                <MdDelete />
+                            </Button>
+                        )}
                         {!isEditing && (
-                            <Button
-                                className="ms-2"
-                                color="primary"
-                                onClick={() => setIsEditing(true)}
-                            >
+                            <Button className="ms-2" color="primary" onClick={() => setIsEditing(true)}>
                                 <MdOutlineModeEdit />
                             </Button>
                         )}
@@ -181,19 +157,11 @@ const VeterinarianInterventionModal: FC<VeterinarianInterventionModalProps> = ({
                             disabled={!isEditing}
                             value={{
                                 id: veterinarianIntervention.veterinarian_id,
-                                name:
-                                    veterinarians.find(
-                                        (vet) =>
-                                            vet.id ===
-                                            veterinarianIntervention.veterinarian_id
-                                    )?.name || "",
+                                name: veterinarians.find((vet) => vet.id === veterinarianIntervention.veterinarian_id)?.name || "",
                             }}
                             values={veterinarians}
                             valueDisplayName={(vet) => vet.name}
-                            valueActiveCheck={(vet) =>
-                                vet.id ===
-                                veterinarianIntervention.veterinarian_id
-                            }
+                            valueActiveCheck={(vet) => vet.id === veterinarianIntervention.veterinarian_id}
                             key={"veterinarian"}
                             onChange={(newVet) =>
                                 setVeterinarianIntervention({
@@ -238,7 +206,7 @@ const VeterinarianInterventionModal: FC<VeterinarianInterventionModalProps> = ({
                         <Button
                             color="danger"
                             onClick={() => {
-                                if (veterinarianIntervention.id === undefined) {
+                                if (veterinarianIntervention.id === -1) {
                                     handleClose(false);
                                 } else {
                                     setVeterinarianIntervention(vetInter);

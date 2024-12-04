@@ -1,27 +1,20 @@
 import React, { FC, useState } from "react";
-import { MdAddBox, MdAssignment, MdDelete } from "react-icons/md";
-import {
-    Button,
-    Card,
-    CardBody,
-    CardHeader,
-    Col,
-    Row,
-    Table,
-} from "reactstrap";
+import { MdAddBox, MdAssignment, MdDelete, MdEdit } from "react-icons/md";
+import { Button, Card, CardBody, CardHeader, Col, Row, Table } from "reactstrap";
 import AnimalsToHostFamiliesManager from "../../../managers/animalsToHostFamilies.manager";
 import AnimalToHostFamilyModal from "./AnimalToHostFamilyModal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import AnimalToHostFamily from "../../../logic/entities/AnimalToHostFamily";
 import HostFamily from "../../../logic/entities/HostFamily";
 import { useHistory } from "react-router-dom";
+import NotificationSystem from "react-notification-system";
 
 interface HostFamiliesHistoryProps {
     animalId: number;
     animalName: string;
     hostFamilies: HostFamily[];
     animalToHostFamilies: AnimalToHostFamily[];
-    notificationSystem: any; // Replace 'any' with the type of your notification system
+    notificationSystem?: NotificationSystem;
     shouldRefresh: () => void;
 }
 
@@ -36,18 +29,11 @@ const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
 }) => {
     const history = useHistory();
 
-    const [modalAnimalToHostFamily, setModalAnimalToHostFamily] =
-        useState<AnimalToHostFamily | null>(null);
-    const [showHAnimalToHostFamilyModal, setShowAnimalToHostFamilyModal] =
-        useState<boolean>(false);
-    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
-        useState<boolean>(false);
-    const [animalToHostFamilyToDelete, setAnimalToHostFamilyToDelete] =
-        useState<AnimalToHostFamily | null>(null);
+    const [modalAnimalToHostFamily, setModalAnimalToHostFamily] = useState<AnimalToHostFamily | null>(null);
+    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
+    const [animalToHostFamilyToDelete, setAnimalToHostFamilyToDelete] = useState<AnimalToHostFamily | null>(null);
 
-    const [currentAnimalToHostFamily] = animalToHostFamilies.filter(
-        (athf) => athf.exit_date !== null
-    );
+    const [currentAnimalToHostFamily] = animalToHostFamilies.filter((athf) => athf.exit_date !== null);
 
     const showDetail = (animalToHostFamily: AnimalToHostFamily) => {
         history.push(`/hostFamilies/${animalToHostFamily.host_family_id}`);
@@ -59,7 +45,7 @@ const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
         }
         AnimalsToHostFamiliesManager.delete(animalToHostFamilyToDelete)
             .then((updatedAnimalToHostFamily) => {
-                notificationSystem.addNotification({
+                notificationSystem?.addNotification({
                     message: "Lien Animal / Famille d'accueil supprimé",
                     level: "success",
                 });
@@ -67,7 +53,7 @@ const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
             })
             .catch((err) => {
                 console.error(err);
-                notificationSystem.addNotification({
+                notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la suppression des données\n${err}`,
                     level: "error",
                 });
@@ -88,13 +74,14 @@ const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
                             <Button
                                 color="primary"
                                 onClick={() => {
-                                    setModalAnimalToHostFamily(
-                                        AnimalsToHostFamiliesManager.createAnimalToHostFamily(
-                                            animalId,
-                                            animalName
-                                        )
-                                    );
-                                    setShowAnimalToHostFamilyModal(true);
+                                    if (isNaN(animalId)) {
+                                        notificationSystem?.addNotification({
+                                            message: "Sauvegardez d'abord l'animal avant de lui attribuer une famille d'accueil",
+                                            level: "warning",
+                                        });
+                                        return;
+                                    }
+                                    setModalAnimalToHostFamily(AnimalsToHostFamiliesManager.createAnimalToHostFamily(animalId, animalName));
                                 }}
                             >
                                 <MdAddBox />
@@ -114,70 +101,40 @@ const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
                             </tr>
                         </thead>
                         <tbody>
-                            {animalToHostFamilies.map(
-                                (animalToHostFamily, index) => {
-                                    var hostFamily = hostFamilies.find(
-                                        (hf) =>
-                                            hf.id ===
-                                            animalToHostFamily.host_family_id
-                                    );
-                                    return (
-                                        <tr>
-                                            <th scope="row">
-                                                {hostFamily?.displayName}
-                                            </th>
-                                            <td>
-                                                {animalToHostFamily
-                                                    .entry_dateObject
-                                                    .readable ??
-                                                    animalToHostFamily.entry_date}
-                                            </td>
-                                            <td>
-                                                <Button
-                                                    color="info"
-                                                    onClick={() =>
-                                                        showDetail(
-                                                            animalToHostFamily
-                                                        )
-                                                    }
-                                                >
-                                                    <MdAssignment />
-                                                </Button>
-                                            </td>
-                                            <td>
-                                                <Button
-                                                    color="info"
-                                                    onClick={() => {
-                                                        setModalAnimalToHostFamily(
-                                                            animalToHostFamily
-                                                        );
-                                                        setShowAnimalToHostFamilyModal(
-                                                            true
-                                                        );
-                                                    }}
-                                                >
-                                                    <MdDelete />
-                                                </Button>
-                                            </td>
-                                            <td>
-                                                <Button
-                                                    color="danger"
-                                                    onClick={() => {
-                                                        setAnimalToHostFamilyToDelete(
-                                                            animalToHostFamily
-                                                        );
-                                                        setShowDeleteConfirmationModal(
-                                                            true
-                                                        );
-                                                    }}
-                                                >
-                                                    <MdDelete />
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    );
-                                }
-                            )}
+                            {animalToHostFamilies.map((animalToHostFamily, index) => {
+                                var hostFamily = hostFamilies.find((hf) => hf.id === animalToHostFamily.host_family_id);
+                                return (
+                                    <tr>
+                                        <th scope="row">{hostFamily?.displayName}</th>
+                                        <td>{animalToHostFamily.entry_dateObject.readable ?? animalToHostFamily.entry_date}</td>
+                                        <td>
+                                            <Button color="info" onClick={() => showDetail(animalToHostFamily)}>
+                                                <MdAssignment />
+                                            </Button>
+                                        </td>
+                                        <td>
+                                            <Button
+                                                color="info"
+                                                onClick={() => {
+                                                    setModalAnimalToHostFamily(animalToHostFamily);
+                                                }}
+                                            >
+                                                <MdEdit />
+                                            </Button>
+                                        </td>
+                                        <td>
+                                            <Button
+                                                color="danger"
+                                                onClick={() => {
+                                                    setAnimalToHostFamilyToDelete(animalToHostFamily);
+                                                }}
+                                            >
+                                                <MdDelete />
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </Table>
                 </CardBody>
@@ -188,9 +145,8 @@ const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
                     hostFamilies={hostFamilies}
                     animalToHostFamily={modalAnimalToHostFamily}
                     currentAnimalToHostFamily={currentAnimalToHostFamily}
-                    show={showHAnimalToHostFamilyModal}
+                    show={modalAnimalToHostFamily !== null}
                     handleClose={(shouldReload: boolean) => {
-                        setShowAnimalToHostFamilyModal(false);
                         setModalAnimalToHostFamily(null);
 
                         if (shouldReload) {
@@ -209,9 +165,7 @@ const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
                         deleteAnimalToHostFamily();
                     }
                 }}
-                bodyEntityName={
-                    "le lien entre l'Animal et la Famille D'acceuil"
-                }
+                bodyEntityName={"le lien entre l'Animal et la Famille D'acceuil"}
             />
         </>
     );
