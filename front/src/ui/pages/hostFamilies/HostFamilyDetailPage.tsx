@@ -33,7 +33,7 @@ import HostFamily from "../../../logic/entities/HostFamily";
 import NotificationSystem from "react-notification-system";
 import User from "../../../logic/entities/User";
 import AnimalToHostFamily from "../../../logic/entities/AnimalToHostFamily";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { RiZzzFill } from "react-icons/ri";
 
 interface HostFamilyDetailPageProps {
@@ -63,7 +63,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
     const [openHomeInfo, setOpenHomeInfo] = useState<string>("");
     const [openHostInfo, setOpenHostInfo] = useState<string>("");
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const getHostFamily = () => {
         setHostFamily(null);
@@ -213,7 +213,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
     }, [shouldSave, isGeocoding]);
 
     const showDetail = (animalToHostFamily: AnimalToHostFamily) => {
-        history.push(`/animals/${animalToHostFamily.animal_id}`);
+        navigate(`/animals/${animalToHostFamily.animal_id}`);
     };
 
     const save = () => {
@@ -265,7 +265,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                         message: "Famille d'Accueil créée",
                         level: "success",
                     });
-                    history.push(`/hostFamilies/${updatedHostFamily.id}`);
+                    navigate(`/hostFamilies/${updatedHostFamily.id}`);
                 })
                 .catch((err) => {
                     console.error(err);
@@ -318,7 +318,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                     message: "Famille d'Accueil supprimée",
                     level: "success",
                 });
-                history.push("/hostFamilies");
+                navigate("/hostFamilies");
             })
             .catch((err) => {
                 console.error(err);

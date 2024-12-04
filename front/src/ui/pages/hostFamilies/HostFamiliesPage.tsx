@@ -19,7 +19,7 @@ import NotificationSystem from "react-notification-system";
 import HostFamily from "../../../logic/entities/HostFamily";
 import HostFamilyKind from "../../../logic/entities/HostFamilyKind";
 import User from "../../../logic/entities/User";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 L.Marker.prototype.options.icon = BlueIcon;
 
@@ -118,7 +118,7 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
             .filter((f) => f !== null) as Filter[]
     );
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
     const [mapRef, setMapRef] = useState<L.Map | null>(null);
@@ -194,11 +194,11 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
     }, [showMap, mapRef]);
 
     const showDetail = (hostFamily: HostFamily) => {
-        history.push(`/hostFamilies/${hostFamily.id}`);
+        navigate(`/hostFamilies/${hostFamily.id}`);
     };
 
     const createHostFamily = () => {
-        history.push(`/hostFamilies/new`);
+        navigate(`/hostFamilies/new`);
     };
 
     const toggleMap = () => {

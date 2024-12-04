@@ -1,5 +1,5 @@
 import React from "react";
-import { Redirect, Route, useLocation } from "react-router-dom";
+import { Navigate, Route, useLocation } from "react-router-dom";
 
 const LayoutRoute = ({ isPrivate, component: Component, layout: Layout, ...props }) => {
     const location = useLocation();
@@ -9,7 +9,7 @@ const LayoutRoute = ({ isPrivate, component: Component, layout: Layout, ...props
                 <Component {...props} />
             </Layout>
         ) : (
-            <Redirect
+            <Navigate
                 to={{
                     pathname: "/login",
                     state: { from: location },

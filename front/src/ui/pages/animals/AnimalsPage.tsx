@@ -14,7 +14,7 @@ import Species from "../../../logic/entities/Species";
 import User from "../../../logic/entities/User";
 import HostFamily from "../../../logic/entities/HostFamily";
 import NotificationSystem from "react-notification-system";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 class Filter {
     value: any;
@@ -104,7 +104,7 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
 
     const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const getSpecies = () => {
         return AnimalsManager.getSpecies()
@@ -183,7 +183,7 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
     };
 
     const showDetail = (animal: Animal) => {
-        history.push(`/animals/${animal.id}`);
+        navigate(`/animals/${animal.id}`);
     };
 
     useEffect(() => {
@@ -211,7 +211,7 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
     }, [data, filters]);
 
     const createAnimal = () => {
-        history.push("animals/new");
+        navigate("animals/new");
     };
 
     return (

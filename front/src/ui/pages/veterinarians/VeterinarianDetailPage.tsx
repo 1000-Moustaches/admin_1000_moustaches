@@ -10,7 +10,7 @@ import Geocode from "../../../utils/geocode";
 import NotificationSystem from "react-notification-system";
 import Veterinarian from "../../../logic/entities/Veterinarian";
 import Page, { CustomBreadcrumbItem } from "../../components/Page";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface VeterinarianDetailPageProps {
     [key: string]: any;
@@ -30,7 +30,7 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
     const [isGeocoding, setIsGeocoding] = useState(false);
     const [shouldSave, setShouldSave] = useState(false);
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const getVeterinarian = () => {
         if (veterinarian !== null) {
@@ -135,7 +135,7 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
                         message: "Vétérinaire créé",
                         level: "success",
                     });
-                    history.push(`/veterinarians/${updatedVeterinarian.id}`);
+                    navigate(`/veterinarians/${updatedVeterinarian.id}`);
                     setVeterinarian(updatedVeterinarian);
                 })
                 .catch((err) => {
@@ -177,7 +177,7 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
                     message: "Vétérinaire supprimé",
                     level: "success",
                 });
-                history.push("/veterinarians");
+                navigate("/veterinarians");
             })
             .catch((err) => {
                 console.error(err);

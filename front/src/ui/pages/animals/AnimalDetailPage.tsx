@@ -19,7 +19,7 @@ import Species from "../../../logic/entities/Species";
 import HostFamily from "../../../logic/entities/HostFamily";
 import VeterinarianIntervention from "../../../logic/entities/VeterinarianIntervention";
 import Animal from "../../../logic/entities/Animal";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface AnimalDetailPageProps {
     [key: string]: any;
@@ -71,7 +71,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
 
     const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     // Accordions
     const [accordions, setAccordions] = useState<AnimalDetailPageAccordionState[]>(
@@ -292,7 +292,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                         message: "Animal créé",
                         level: "success",
                     });
-                    history.push(`/animals/${updatedAnimal.id}`);
+                    navigate(`/animals/${updatedAnimal.id}`);
                     setData((previousData) => {
                         return {
                             ...previousData,
@@ -350,7 +350,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                     message: "Animal supprimé",
                     level: "success",
                 });
-                history.push("/animals");
+                navigate("/animals");
             })
             .catch((err) => {
                 console.error(err);

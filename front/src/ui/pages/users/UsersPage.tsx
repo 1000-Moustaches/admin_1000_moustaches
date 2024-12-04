@@ -10,7 +10,7 @@ import SortableTable from "../../components/SortableTable";
 import Page, { CustomBreadcrumbItem } from "../../components/Page";
 import NotificationSystem from "react-notification-system";
 import User from "../../../logic/entities/User";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface UsersPageProps {}
 
@@ -23,7 +23,7 @@ const UsersPage: FC<UsersPageProps> = () => {
 
     const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const getAllUsers = () => {
         return UsersManager.getAll()
@@ -72,11 +72,11 @@ const UsersPage: FC<UsersPageProps> = () => {
     }, [searchText]);
 
     const showDetail = (user: User) => {
-        history.push(`/users/${user.id}`);
+        navigate(`/users/${user.id}`);
     };
 
     const createUser = () => {
-        history.push(`/users/new`);
+        navigate(`/users/new`);
     };
 
     return (

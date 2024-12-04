@@ -7,7 +7,7 @@ import Switch from "../../components/Switch";
 import Page, { CustomBreadcrumbItem } from "../../components/Page";
 import NotificationSystem from "react-notification-system";
 import User from "../../../logic/entities/User";
-import { useParams, useHistory } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface UserDetailPageProps {
     [key: string]: any;
@@ -22,8 +22,7 @@ const UserDetailPage: FC<UserDetailPageProps> = ({ props }) => {
     const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
     const [shouldSave, setShouldSave] = useState<boolean>(false);
 
-    const history = useHistory();
-    console.log("userId", paramUserId);
+    const navigate = useNavigate();
 
     const getUser = () => {
         if (user !== null) {
@@ -87,7 +86,7 @@ const UserDetailPage: FC<UserDetailPageProps> = ({ props }) => {
                         message: "Utilisateur·ice créé",
                         level: "success",
                     });
-                    history.push(`/users/${updatedUser.id}`);
+                    navigate(`/users/${updatedUser.id}`);
                     setUser(updatedUser);
                 })
                 .catch((err) => {
@@ -135,7 +134,7 @@ const UserDetailPage: FC<UserDetailPageProps> = ({ props }) => {
                     message: "Utilisateur·ice supprimé",
                     level: "success",
                 });
-                history.push("/users");
+                navigate("/users");
             })
             .catch((err) => {
                 console.error(err);

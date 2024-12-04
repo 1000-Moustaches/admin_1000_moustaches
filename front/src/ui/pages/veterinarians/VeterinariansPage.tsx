@@ -12,7 +12,7 @@ import SortableTable from "../../components/SortableTable";
 import Veterinarian from "../../../logic/entities/Veterinarian";
 import NotificationSystem from "react-notification-system";
 import Page, { CustomBreadcrumbItem } from "../../components/Page";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 L.Marker.prototype.options.icon = BlueIcon;
 
@@ -70,7 +70,7 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
             .filter((f) => f !== null) as Filter[]
     );
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
     const [mapRef, setMapRef] = useState<L.Map | null>(null);
@@ -135,11 +135,11 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
     }, [filteredVeterinarians, mapRef, userPosition]);
 
     const showDetail = (veterinarian: Veterinarian) => {
-        history.push(`/veterinarians/${veterinarian.id}`);
+        navigate(`/veterinarians/${veterinarian.id}`);
     };
 
     const createVeterinarian = () => {
-        history.push(`/veterinarians/new`);
+        navigate(`/veterinarians/new`);
     };
 
     const toggleMap = () => {

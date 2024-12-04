@@ -1,26 +1,26 @@
 import React, { FC } from "react";
-import { RouteComponentProps, useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Row, Col, Card } from "reactstrap";
 import AuthForm, { AuthFormState } from "../components/AuthForm";
 
-interface AuthPageProps extends RouteComponentProps {
+interface AuthPageProps {
     authState: AuthFormState;
 }
 
 const AuthPage: FC<AuthPageProps> = ({ authState }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const handleAuthState = (authState: AuthFormState): void => {
         if (authState === AuthFormState.LOGIN) {
             // Go to page /login
-            history.push("/login");
+            navigate("/login");
         } else {
-            history.push("/signup");
+            navigate("/signup");
         }
     };
 
     const handleLogoClick = (): void => {
-        history.push("/");
+        navigate("/");
     };
 
     return (
@@ -33,11 +33,7 @@ const AuthPage: FC<AuthPageProps> = ({ authState }) => {
         >
             <Col md={6} lg={4}>
                 <Card body>
-                    <AuthForm
-                        authState={authState}
-                        onChangeAuthState={handleAuthState}
-                        onLogoClick={handleLogoClick}
-                    />
+                    <AuthForm authState={authState} onChangeAuthState={handleAuthState} onLogoClick={handleLogoClick} />
                 </Card>
             </Col>
         </Row>
