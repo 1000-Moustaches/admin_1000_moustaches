@@ -30,7 +30,7 @@ const checkIfAuthenticated = (req, res, next) => {
       }
       const userInfo = await admin.auth().verifyIdToken(authToken);
       req.authId = userInfo.uid;
-      req.authEmail = userInfo.firebase.identities.email[0] || null;
+      req.authEmail = userInfo.email;
 
       return next();
     } catch (e) {
