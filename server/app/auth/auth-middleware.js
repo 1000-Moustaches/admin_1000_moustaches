@@ -1,3 +1,4 @@
+const Users = require("../models/users.model");
 const admin = require("./firebase-service");
 
 const getAuthToken = (req, res, next) => {
@@ -10,6 +11,16 @@ const getAuthToken = (req, res, next) => {
   next();
 };
 
+const getAuthUser = (req, res, next) => {
+  return Users.findByEmail(req.authEmail, (err, data) => {
+    if (err) {
+      return res.status(401).send({ error: "You are not authorized to make this request" });
+    }
+    req.authUser = data;
+    return next();
+  });
+};
+
 const checkIfAuthenticated = (req, res, next) => {
   getAuthToken(req, res, async () => {
     try {
@@ -19,6 +30,8 @@ const checkIfAuthenticated = (req, res, next) => {
       }
       const userInfo = await admin.auth().verifyIdToken(authToken);
       req.authId = userInfo.uid;
+      req.authEmail = userInfo.email;
+
       return next();
     } catch (e) {
       console.error(e);
@@ -27,4 +40,4 @@ const checkIfAuthenticated = (req, res, next) => {
   });
 };
 
-module.exports = { checkIfAuthenticated };
+module.exports = { checkIfAuthenticated, getAuthUser };
