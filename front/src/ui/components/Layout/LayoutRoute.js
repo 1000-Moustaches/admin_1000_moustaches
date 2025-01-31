@@ -1,5 +1,6 @@
 import React from "react";
 import { Navigate, Route, useLocation } from "react-router-dom";
+import PageSpinner from "../PageSpinner";
 
 const LayoutRoute = ({ isPrivate, component: Component, layout: Layout, ...props }) => {
     const location = useLocation();

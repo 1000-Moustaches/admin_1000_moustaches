@@ -29,8 +29,20 @@ exports.findAll = (req, res) => {
   Users.getAll(name, (err, data) => {
     if (err)
       res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving host users.",
+        message: err.message || "Some error occurred while retrieving host users.",
+      });
+    else res.send(data);
+  });
+};
+
+// Retrieve current User from the database
+exports.findMe = (req, res) => {
+  const email = req.authEmail;
+
+  Users.findByEmail(email, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving current user.",
       });
     else res.send(data);
   });
@@ -43,9 +55,7 @@ exports.findOne = (req, res) => {
   Users.findById(id, (err, data) => {
     if (err)
       res.status(500).send({
-        message:
-          err.message ||
-          `Some error occurred while retrieving user with id ${id}.`,
+        message: err.message || `Some error occurred while retrieving user with id ${id}.`,
       });
     else res.send(data);
   });
@@ -58,9 +68,7 @@ exports.update = (req, res) => {
   Users.updateById(id, req.body, (err, data) => {
     if (err)
       res.status(500).send({
-        message:
-          err.message ||
-          `Some error occurred while updating user with id ${id}.`,
+        message: err.message || `Some error occurred while updating user with id ${id}.`,
       });
     else res.send(data);
   });
@@ -73,9 +81,7 @@ exports.delete = (req, res) => {
   Users.remove(id, (err, data) => {
     if (err)
       res.status(500).send({
-        message:
-          err.message ||
-          `Some error occurred while deleting user with id ${id}.`,
+        message: err.message || `Some error occurred while deleting user with id ${id}.`,
       });
     else res.send(data);
   });
