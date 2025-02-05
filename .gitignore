@@ -3,3 +3,4 @@
 */.env.production
 *.log
 front/dist
+server/dist
