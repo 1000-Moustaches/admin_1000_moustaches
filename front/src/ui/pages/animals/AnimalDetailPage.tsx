@@ -27,19 +27,15 @@ interface AnimalDetailPageProps {
 
 class AnimalDetailPageData {
     animal?: Animal;
-    animalToHostFamilies: AnimalToHostFamily[];
     species: Species[];
-    hostFamilies: HostFamily[];
     sexes: Sexe[];
-    veterinarianInterventions: VeterinarianIntervention[];
+    hostFamilies: HostFamily[];
 
     constructor() {
         this.animal = undefined;
-        this.animalToHostFamilies = [];
         this.species = [];
-        this.hostFamilies = [];
         this.sexes = [];
-        this.veterinarianInterventions = [];
+        this.hostFamilies = [];
     }
 }
 
@@ -119,9 +115,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
             return Promise.resolve([]);
         }
         return HostFamiliesManager.getByAnimalId(id)
-            .then((animalToHostFamilies) =>
-                animalToHostFamilies.sort((a, b) => new Date(b.entry_date ?? "").getTime() - new Date(a.entry_date ?? "").getTime())
-            )
+            .then((animalToHostFamilies) => animalToHostFamilies.sort((a, b) => new Date(b.entryDate ?? "").getTime() - new Date(a.entryDate ?? "").getTime()))
             .catch((err) => {
                 console.error(err);
                 notificationSystem?.addNotification({
@@ -202,26 +196,22 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
             })
             .then(() => {
                 if (animalId !== "new") {
-                    Promise.all([getAnimal(), getAnimalToHostFamilies(), getVeterinarianInterventions()]).then(
-                        ([animal, animalToHostFamilies, veterinarianInterventions]) => {
-                            if (animal === undefined) {
-                                console.error("Animal not found");
-                                notificationSystem?.addNotification({
-                                    message: "Animal non trouvé",
-                                    level: "error",
-                                });
-                                return;
-                            }
-                            setData((previousData) => {
-                                return {
-                                    ...previousData,
-                                    animal,
-                                    animalToHostFamilies,
-                                    veterinarianInterventions,
-                                };
+                    getAnimal().then((animal) => {
+                        if (animal === undefined) {
+                            console.error("Animal not found");
+                            notificationSystem?.addNotification({
+                                message: "Animal non trouvé",
+                                level: "error",
                             });
+                            return;
                         }
-                    );
+                        setData((previousData) => {
+                            return {
+                                ...previousData,
+                                animal,
+                            };
+                        });
+                    });
                 } else {
                     setAccordions((previousValues) => {
                         return previousValues.map((value) => {
@@ -254,30 +244,18 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
 
     // Auto select first species for new animal
     useEffect(() => {
-        if (animalId === "new" && data.animal !== undefined && data.species.length > 0 && data.animal?.species_id === undefined) {
+        if (animalId === "new" && data.animal !== undefined && data.species.length > 0 && data.animal?.species === undefined) {
             setData((previousData) => {
                 return {
                     ...previousData,
                     animal: {
                         ...data.animal!,
-                        species_id: data.species[0].id,
-                        species_name: data.species[0].name,
+                        species: data.species[0],
                     },
                 };
             });
         }
     }, [animalId, data.animal, data.species]);
-
-    useEffect(() => {
-        if (data.animal !== undefined && data.species.length > 0) {
-            let specie = data.species.find((sp) => sp.id === data.animal?.species_id);
-            if (specie !== undefined) {
-                data.animal?.setSpecies(specie);
-            } else {
-                console.warn("Can't find species for animal", data.animal, data.species);
-            }
-        }
-    }, [data.species, data.animal]);
 
     const save = () => {
         setIsEditing(false);
@@ -314,13 +292,21 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
         AnimalsManager.update(data.animal)
             .then(() => {
                 getAnimal().then(() => {
-                    var exitOrDeathDate = data.animal?.death_date || data.animal?.exit_date;
+                    var exitOrDeathDate = data.animal?.deathDate || data.animal?.exitDate;
                     if (exitOrDeathDate !== undefined && exitOrDeathDate !== "") {
-                        data.animalToHostFamilies
-                            .filter((athf) => athf.exit_date === undefined)
+                        data.animal?.hostFamilyRelations
+                            ?.filter((athf) => athf.exitDate === undefined)
                             .forEach((athf) => {
+                                if (
+                                    athf.animal === undefined ||
+                                    athf.animal.id === undefined ||
+                                    athf.hostFamily === undefined ||
+                                    athf.hostFamily.id === undefined
+                                ) {
+                                    return;
+                                }
                                 AnimalsToHostFamiliesManager.update(
-                                    new AnimalToHostFamily(athf.animal_id, athf.animal_name, athf.host_family_id, athf.entry_date, exitOrDeathDate)
+                                    new AnimalToHostFamily(undefined, athf.animal, athf.hostFamily, athf.entryDate, athf.exitDate)
                                 );
                             });
                     }
@@ -487,15 +473,15 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                 <NullableDropdown
                                     withNewLine={true}
                                     color={
-                                        data.animal.need_icad_duplicate === null || data.animal.need_icad_duplicate === undefined
+                                        data.animal.needIcadDuplicate === null || data.animal.needIcadDuplicate === undefined
                                             ? "warning"
-                                            : data.animal.need_icad_duplicate === "received"
+                                            : data.animal.needIcadDuplicate === "received"
                                             ? "success"
-                                            : data.animal.need_icad_duplicate === "waiting"
+                                            : data.animal.needIcadDuplicate === "waiting"
                                             ? "info"
                                             : "danger"
                                     }
-                                    value={data.animal.need_icad_duplicate}
+                                    value={data.animal.needIcadDuplicate}
                                     values={["no", "waiting", "received"]}
                                     valueDisplayName={(value) =>
                                         value === null || value === undefined
@@ -506,8 +492,8 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             ? "Oui, demandé"
                                             : "Non"
                                     }
-                                    valueActiveCheck={(value) => data.animal?.need_icad_duplicate === value}
-                                    key={"need_icad_duplicate"}
+                                    valueActiveCheck={(value) => data.animal?.needIcadDuplicate === value}
+                                    key={"needIcadDuplicate"}
                                     disabled={!isEditing || data.animal.adopted}
                                     onChange={(newNeedIcadDuplicate) => {
                                         setData((previousData) => {
@@ -515,7 +501,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                 ...previousData,
                                                 animal: {
                                                     ...previousData.animal!,
-                                                    need_icad_duplicate: newNeedIcadDuplicate,
+                                                    needIcadDuplicate: newNeedIcadDuplicate,
                                                 },
                                             };
                                         });
@@ -545,7 +531,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                 <Label>Album créé</Label>
                                 <BooleanNullableDropdown
                                     withNewLine={true}
-                                    value={data.animal.album_created ?? null}
+                                    value={data.animal.albumCreated ?? null}
                                     disabled={!isEditing || data.animal.adopted}
                                     onChange={(newValue) =>
                                         setData((previousData) => {
@@ -553,7 +539,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                 ...previousData,
                                                 animal: {
                                                     ...previousData.animal!,
-                                                    album_created: newValue ?? undefined,
+                                                    albumCreated: newValue ?? undefined,
                                                 },
                                             };
                                         })
@@ -564,7 +550,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                 <Label>Contrat envoyé</Label>
                                 <BooleanNullableDropdown
                                     withNewLine={true}
-                                    value={data.animal.contract_sent ?? null}
+                                    value={data.animal.contractSent ?? null}
                                     disabled={!isEditing || data.animal.adopted}
                                     onChange={(newValue) =>
                                         setData((previousData) => {
@@ -572,7 +558,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                 ...previousData,
                                                 animal: {
                                                     ...previousData.animal!,
-                                                    contract_sent: newValue ?? undefined,
+                                                    contractSent: newValue ?? undefined,
                                                 },
                                             };
                                         })
@@ -623,12 +609,12 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                         color={"primary"}
                                                         disabled={!isEditing}
                                                         value={{
-                                                            id: data.animal.species_id,
-                                                            name: data.animal.species_name,
+                                                            id: data.animal.species?.id,
+                                                            name: data.animal.species?.name,
                                                         }}
                                                         values={data.species}
                                                         valueDisplayName={(aSpecies) => aSpecies.name}
-                                                        valueActiveCheck={(aSpecies) => aSpecies.id === data.animal?.species_id}
+                                                        valueActiveCheck={(aSpecies) => aSpecies.id === data.animal?.species?.id}
                                                         key={"species"}
                                                         onChange={(newSpecies) =>
                                                             setData((previousData) => {
@@ -636,8 +622,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                                     ...previousData,
                                                                     animal: {
                                                                         ...previousData.animal!,
-                                                                        species_id: newSpecies.id,
-                                                                        species_name: newSpecies.name,
+                                                                        species: newSpecies,
                                                                     },
                                                                 };
                                                             })
@@ -719,7 +704,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Signes distinctifs</Label>
                                             <Input
                                                 type="textarea"
-                                                value={data.animal.distinctive_signs || ""}
+                                                value={data.animal.distinctiveSigns || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -727,7 +712,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                distinctive_signs: evt.target.value,
+                                                                distinctiveSigns: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -753,7 +738,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Date de PEC</Label>
                                             <Input
                                                 type="date"
-                                                value={data.animal.entry_date}
+                                                value={data.animal.entryDate}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -761,7 +746,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                entry_date: evt.target.value,
+                                                                entryDate: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -772,7 +757,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Lieu de PEC</Label>
                                             <Input
                                                 type="textarea"
-                                                value={data.animal.place_of_care || ""}
+                                                value={data.animal.placeOfCare || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -780,7 +765,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                place_of_care: evt.target.value,
+                                                                placeOfCare: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -793,7 +778,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Raisons de PEC</Label>
                                             <Input
                                                 type="textarea"
-                                                value={data.animal.reason_for_care || ""}
+                                                value={data.animal.reasonForCare || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -801,7 +786,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                reason_for_care: evt.target.value,
+                                                                reasonForCare: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -812,7 +797,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Informations de PEC</Label>
                                             <Input
                                                 type="textarea"
-                                                value={data.animal.care_infos || ""}
+                                                value={data.animal.careInfos || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -820,7 +805,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                care_infos: evt.target.value,
+                                                                careInfos: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -867,7 +852,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Primo vaccination</Label>
                                             <Input
                                                 type="date"
-                                                value={data.animal.first_vaccination_date}
+                                                value={data.animal.firstVaccinationDate}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -875,7 +860,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                first_vaccination_date: evt.target.value,
+                                                                firstVaccinationDate: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -886,7 +871,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Rappel de vaccin</Label>
                                             <Input
                                                 type="date"
-                                                value={data.animal.second_vaccination_date}
+                                                value={data.animal.secondVaccinationDate}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -894,7 +879,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                second_vaccination_date: evt.target.value,
+                                                                secondVaccinationDate: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -922,13 +907,13 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                 }}
                                             />
                                         </Col>
-                                        {data.animal.species_id === SPECIES_ID.CAT && (
+                                        {data.animal.species?.id === SPECIES_ID.CAT && (
                                             <>
                                                 <Col xs={6} md={3}>
                                                     <Label>Extérieur obligatoire</Label>
                                                     <BooleanNullableDropdown
                                                         withNewLine={true}
-                                                        value={data.animal.need_external_access ?? null}
+                                                        value={data.animal.needExternalAccess ?? null}
                                                         disabled={!isEditing}
                                                         onChange={(newValue) => {
                                                             setData((previousData) => {
@@ -936,7 +921,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                                     ...previousData,
                                                                     animal: {
                                                                         ...previousData.animal!,
-                                                                        need_external_access: newValue ?? undefined,
+                                                                        needExternalAccess: newValue ?? undefined,
                                                                     },
                                                                 };
                                                             });
@@ -947,7 +932,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                     <Label>Négatif FIV</Label>
                                                     <BooleanNullableDropdown
                                                         withNewLine={true}
-                                                        value={data.animal.fiv_negative ?? null}
+                                                        value={data.animal.fivNegative ?? null}
                                                         disabled={!isEditing}
                                                         onChange={(newValue) => {
                                                             setData((previousData) => {
@@ -955,7 +940,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                                     ...previousData,
                                                                     animal: {
                                                                         ...previousData.animal!,
-                                                                        fiv_negative: newValue ?? undefined,
+                                                                        fivNegative: newValue ?? undefined,
                                                                     },
                                                                 };
                                                             });
@@ -966,7 +951,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                     <Label>Négatif FELV</Label>
                                                     <BooleanNullableDropdown
                                                         withNewLine={true}
-                                                        value={data.animal.felv_negative ?? null}
+                                                        value={data.animal.felvNegative ?? null}
                                                         disabled={!isEditing}
                                                         onChange={(newValue) => {
                                                             setData((previousData) => {
@@ -989,7 +974,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Date des anti-parasitaires</Label>
                                             <Input
                                                 type="date"
-                                                value={data.animal.anti_parasitic_date}
+                                                value={data.animal.antiParasiticDate}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -997,7 +982,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                anti_parasitic_date: evt.target.value,
+                                                                antiParasiticDate: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -1010,7 +995,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Particularité de santé</Label>
                                             <Input
                                                 type="textarea"
-                                                value={data.animal.health_issues || ""}
+                                                value={data.animal.healthIssues || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -1018,7 +1003,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                health_issues: evt.target.value,
+                                                                healthIssues: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -1065,7 +1050,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Besoin congénère</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={data.animal.need_friends ?? null}
+                                                value={data.animal.needFriends ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
                                                     setData((previousData) => {
@@ -1073,7 +1058,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                need_friends: newValue ?? undefined,
+                                                                needFriends: newValue ?? undefined,
                                                             },
                                                         };
                                                     });
@@ -1128,7 +1113,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>OK chats</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={data.animal.cats_ok ?? null}
+                                                value={data.animal.catsOk ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
                                                     setData((previousData) => {
@@ -1136,7 +1121,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                cats_ok: newValue ?? undefined,
+                                                                catsOk: newValue ?? undefined,
                                                             },
                                                         };
                                                     });
@@ -1147,7 +1132,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>OK chiens</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={data.animal.dogs_ok ?? null}
+                                                value={data.animal.dogsOk ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
                                                     setData((previousData) => {
@@ -1166,7 +1151,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>OK enfants</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={data.animal.kids_ok ?? null}
+                                                value={data.animal.kidsOk ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
                                                     setData((previousData) => {
@@ -1174,7 +1159,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                kids_ok: newValue ?? undefined,
+                                                                kidsOk: newValue ?? undefined,
                                                             },
                                                         };
                                                     });
@@ -1187,7 +1172,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Particularité</Label>
                                             <Input
                                                 type="textarea"
-                                                value={data.animal.behavior_particularity || ""}
+                                                value={data.animal.behaviorParticularity || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -1195,7 +1180,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                behavior_particularity: evt.target.value,
+                                                                behaviorParticularity: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -1222,7 +1207,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Certificat de cession</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={data.animal.transfer_certificate ?? null}
+                                                value={data.animal.transferCertificate ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
                                                     setData((previousData) => {
@@ -1230,7 +1215,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                transfer_certificate: newValue ?? undefined,
+                                                                transferCertificate: newValue ?? undefined,
                                                             },
                                                         };
                                                     });
@@ -1241,7 +1226,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Date de sortie</Label>
                                             <Input
                                                 type="date"
-                                                value={data.animal.exit_date}
+                                                value={data.animal.exitDate}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -1249,7 +1234,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                exit_date: evt.target.value,
+                                                                exitDate: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -1260,7 +1245,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Raison de sortie</Label>
                                             <Input
                                                 type="textarea"
-                                                value={data.animal.exit_reason || ""}
+                                                value={data.animal.exitReason || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -1268,7 +1253,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                exit_reason: evt.target.value,
+                                                                exitReason: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -1294,7 +1279,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Date de décès</Label>
                                             <Input
                                                 type="date"
-                                                value={data.animal.death_date}
+                                                value={data.animal.deathDate}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -1302,7 +1287,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                death_date: evt.target.value,
+                                                                deathDate: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -1313,7 +1298,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                             <Label>Raison du décès</Label>
                                             <Input
                                                 type="textarea"
-                                                value={data.animal.death_reason || ""}
+                                                value={data.animal.deathReason || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setData((previousData) => {
@@ -1321,7 +1306,7 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                                                             ...previousData,
                                                             animal: {
                                                                 ...previousData.animal!,
-                                                                death_reason: evt.target.value,
+                                                                deathReason: evt.target.value,
                                                             },
                                                         };
                                                     })
@@ -1336,18 +1321,17 @@ const AnimalDetailPage: FC<AnimalDetailPageProps> = ({ props }) => {
                 </Card>
                 <br />
                 <VeterinarianInterventionsHistory
-                    animalId={parseInt(animalId)}
-                    veterinarianInterventions={data.veterinarianInterventions}
+                    animal={data.animal}
+                    veterinarianInterventions={data.animal?.veterinarianInterventions ?? []}
                     notificationSystem={notificationSystem}
                     shouldRefresh={getVeterinarianInterventions}
                     {...props}
                 />
                 <br />
                 <HostFamiliesHistory
-                    animalId={parseInt(animalId)}
-                    animalName={data.animal.name ?? ""}
+                    animal={data.animal}
                     hostFamilies={data.hostFamilies}
-                    animalToHostFamilies={data.animalToHostFamilies}
+                    animalToHostFamilies={data.animal?.hostFamilyRelations ?? []}
                     notificationSystem={notificationSystem}
                     shouldRefresh={() => {
                         getAnimalToHostFamilies()?.then(getAnimal);

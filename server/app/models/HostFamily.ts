@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany, ManyToOne } from "typeorm"
 import { HostFamilyKind } from "./HostFamilyKind"
-import { Animal } from "./Animal"
 import { AnimalHostFamily } from "./AnimalHostFamily"
+import { User } from "./User"
 
 @Entity()
 export class HostFamily {
@@ -24,7 +24,19 @@ export class HostFamily {
     socialNetworkAlias: string
 
     @Column({ nullable: true, default: () => 'NULL' })
+    address: string
+
+    @Column({ nullable: true, default: () => 'NULL' })
+    latitude: number
+
+    @Column({ nullable: true, default: () => 'NULL' })
+    longitude: number
+
+    @Column({ nullable: true, default: () => 'NULL' })
     driverLicense: boolean
+
+    @Column({ nullable: true, default: () => 'NULL' })
+    hasVehicule: boolean
 
     @Column({ nullable: true, default: () => 'NULL' })
     nbChildren: number
@@ -54,13 +66,7 @@ export class HostFamily {
     housingInformations: string
 
     @Column({ nullable: true, default: () => 'NULL' })
-    address: string
-
-    @Column({ nullable: true, default: () => 'NULL' })
-    latitude: number
-
-    @Column({ nullable: true, default: () => 'NULL' })
-    longitude: number
+    canIsolate: string
 
     @Column({ nullable: true, default: () => 'NULL' })
     hostConditions: string
@@ -71,29 +77,21 @@ export class HostFamily {
     @Column({ nullable: true, default: () => 'FALSE' })
     membershipUpToDate: boolean
 
-    @Column({ nullable: true, default: () => 'NULL' })
-    referentId: number
-
     @Column({ nullable: true, default: () => 'FALSE' })
     isTemporary: boolean
 
     @Column({ nullable: true, default: () => 'NULL' })
-    hasVehicule: boolean
-
-    @Column({ nullable: true, default: () => 'NULL' })
-    canIsolate: string
-
-    @Column({ nullable: true, default: () => 'NULL' })
     situation: string
 
-    @ManyToMany(() => HostFamilyKind)
-    @JoinTable({
-        name: "host_family_to_host_family_kinds"
-    })
+    @ManyToMany(() => HostFamilyKind, hostFamily => hostFamily.hostFamilies)
+    @JoinTable()
     hostFamilyKinds: HostFamilyKind[]
 
     @OneToMany(() => AnimalHostFamily, relation => relation.hostFamily)
     animalRelations: AnimalHostFamily[]
+
+    @ManyToOne(() => User, user => user.hostFamilies, { nullable: true })
+    referent: User
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date

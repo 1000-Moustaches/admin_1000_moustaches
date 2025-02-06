@@ -239,12 +239,12 @@ const UserDetailPage: FC<UserDetailPageProps> = ({ props }) => {
                             <Col xs={"auto"}>
                                 <Switch
                                     id={"is_referent"}
-                                    isOn={user.is_referent}
+                                    isOn={user.isReferent}
                                     disabled={!isEditing}
                                     handleToggle={() => {
                                         setUser({
                                             ...user,
-                                            is_referent: !user.is_referent,
+                                            isReferent: !user.isReferent,
                                         });
                                     }}
                                 />

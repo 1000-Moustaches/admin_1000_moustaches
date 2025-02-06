@@ -14,5 +14,12 @@
       "moduleResolution": "node",
       "strictPropertyInitialization": false,
       "useDefineForClassFields": false
-   }
+   },
+   "include": [
+    "app/types/*.d.ts",
+    "**/*"
+  ],
+  "exclude": [
+    "./dist"
+  ]
 } 

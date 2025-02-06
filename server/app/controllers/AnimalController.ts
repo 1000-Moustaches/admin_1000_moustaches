@@ -6,14 +6,24 @@ export class AnimalController {
 
     async getAllAnimals() {
         return await this.animalRepository.find({
-            relations: ['species', 'hostFamilyRelations']
+            relations: {
+                species: true,
+                hostFamilyRelations: false,
+                veterinarianInterventions: false
+            }
         })
     }
 
     async getAnimalById(id: number) {
         return await this.animalRepository.findOne({
             where: { id },
-            relations: ['species', 'hostFamilyRelations']
+            relations: {
+                species: true,
+                hostFamilyRelations: {
+                    hostFamily: true
+                },
+                veterinarianInterventions: true
+            }
         })
     }
 

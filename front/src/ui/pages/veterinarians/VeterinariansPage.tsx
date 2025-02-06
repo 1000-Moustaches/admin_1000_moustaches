@@ -139,7 +139,7 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
     };
 
     const createVeterinarian = () => {
-        navigate(`/veterinarians/new`);
+        navigate("/veterinarians/new");
     };
 
     const toggleMap = () => {
@@ -147,7 +147,7 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
     };
 
     const priceMarkerIcon = (veterinarian: Veterinarian) => {
-        switch (veterinarian.price_level) {
+        switch (veterinarian.priceLevel) {
             case 0:
                 return GreenIcon;
             case 1:
@@ -279,7 +279,7 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
                                                 name: vet.name,
                                                 mail: vet.mail,
                                                 phone: vet.phone,
-                                                price: vet.price_level_text,
+                                                price: vet.priceLevelText,
                                                 veterinarianDetail: (
                                                     <Button title="Voir le détail" color="info" onClick={() => showDetail(vet)}>
                                                         <MdAssignment />
@@ -328,7 +328,7 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
                                                             <div className="text-center">
                                                                 {veterinarian.name}
                                                                 <br />
-                                                                <span title={veterinarian.price_level_tooltip ?? ""}>{veterinarian.price_level_text}</span>
+                                                                <span title={veterinarian.priceLevelTooltip ?? ""}>{veterinarian.priceLevelText}</span>
                                                                 <br />
                                                                 <div className="pt-2">
                                                                     <Button

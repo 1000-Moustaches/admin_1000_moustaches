@@ -10,10 +10,7 @@ class SpeciesDTO {
     }
 
     toEntity(): Species {
-        return {
-            id: this.id,
-            name: this.name
-        };
+        return new Species(this.id, this.name);
     }
 }
 

@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm"
+import { Animal } from "./Animal"
+import { HostFamily } from "./HostFamily"
 
 @Entity()
 export class User {
@@ -16,6 +18,9 @@ export class User {
 
     @Column({ nullable: true, default: () => 'FALSE' })
     isReferent: boolean
+
+    @OneToMany(() => HostFamily, hostFamily => hostFamily.referent)
+    hostFamilies: HostFamily[]
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date

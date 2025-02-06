@@ -55,12 +55,12 @@ namespace FilterType {
             case FilterType.ADOPTED:
                 return animal.adopted === value;
             case FilterType.DEAD:
-                if (value === true) return animal.death_date !== undefined;
-                return animal.death_date === undefined;
+                if (value === true) return animal.deathDate !== undefined;
+                return animal.deathDate === undefined;
             case FilterType.SPECIES:
-                return animal.species_id === value;
+                return animal.species?.id === value;
             case FilterType.REFERENT:
-                if (value instanceof User) return animal.current_host_family_referent_id === value.id;
+                if (value instanceof User) return animal.currentHostFamilyReferentId === value.id;
                 return true;
             case FilterType.NAME:
                 if (typeof value === "string") return animal.name?.toLowerCase().includes(value.toLowerCase()) ?? false;
@@ -210,7 +210,7 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
     }, [data, filters]);
 
     const createAnimal = () => {
-        navigate("animals/new");
+        navigate("/animals/new");
     };
 
     return (
@@ -402,14 +402,14 @@ const AnimalsPage: FC<AnimalsPageProps> = () => {
                             },
                         ]}
                         values={filteredAnimals.map((animal) => {
-                            var hostFamily = data.hostFamilies.find((hf) => hf.id === animal.current_host_family_id);
+                            var hostFamily = data.hostFamilies.find((hf) => hf.id === animal.currentHostFamilyId);
                             return {
                                 name: animal.name,
                                 sexe: data.sexes.find((aSexe) => aSexe.key === animal.sexe)?.value || "",
                                 icad: animal.icad,
                                 birthdate: animal.birthdateObject.readable ?? animal.birthdate,
                                 hostFamily: hostFamily?.displayName || "",
-                                pec_date: animal.entry_dateObject.readable ?? animal.entry_date,
+                                pec_date: animal.entryDateObject.readable ?? animal.entryDate,
                                 animal_detail: (
                                     <Button color="info" onClick={() => showDetail(animal)}>
                                         <MdAssignment />

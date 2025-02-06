@@ -6,14 +6,18 @@ export class HostFamilyKindController {
 
     async getAllHostFamilyKinds() {
         return await this.hostFamilyKindRepository.find({
-            relations: ['hostFamilies']
+            relations: {
+                hostFamilies: false
+            }
         })
     }
 
     async getHostFamilyKindById(id: number) {
         return await this.hostFamilyKindRepository.findOne({
             where: { id },
-            relations: ['hostFamilies']
+            relations: {
+                hostFamilies: false
+            }
         })
     }
 

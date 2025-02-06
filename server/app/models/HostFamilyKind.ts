@@ -9,7 +9,7 @@ export class HostFamilyKind {
     @Column()
     name: string
 
-    @ManyToMany(() => HostFamily)
+    @ManyToMany(() => HostFamily, hostFamily => hostFamily.hostFamilyKinds)
     hostFamilies: HostFamily[]
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

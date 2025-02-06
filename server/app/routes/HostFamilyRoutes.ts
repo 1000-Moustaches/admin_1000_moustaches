@@ -1,15 +1,16 @@
 import { Router } from 'express'
 import { HostFamilyController } from '../controllers/HostFamilyController'
+import { checkIfAuthenticated } from '../auth/auth-middleware'
 
 const router = Router()
 const hostFamilyController = new HostFamilyController()
 
-router.get('/', async (req, res) => {
+router.get('/', checkIfAuthenticated, async (req, res) => {
     const hostFamilies = await hostFamilyController.getAllHostFamilies()
     res.json(hostFamilies)
 })
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', checkIfAuthenticated, async (req, res) => {
     const hostFamily = await hostFamilyController.getHostFamilyById(parseInt(req.params.id))
     if (!hostFamily) {
         return res.status(404).json({ message: 'Host family not found' })
@@ -17,12 +18,12 @@ router.get('/:id', async (req, res) => {
     res.json(hostFamily)
 })
 
-router.post('/', async (req, res) => {
+router.post('/', checkIfAuthenticated, async (req, res) => {
     const newHostFamily = await hostFamilyController.createHostFamily(req.body)
     res.status(201).json(newHostFamily)
 })
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', checkIfAuthenticated, async (req, res) => {
     const updatedHostFamily = await hostFamilyController.updateHostFamily(parseInt(req.params.id), req.body)
     if (!updatedHostFamily) {
         return res.status(404).json({ message: 'Host family not found' })
@@ -30,7 +31,7 @@ router.put('/:id', async (req, res) => {
     res.json(updatedHostFamily)
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', checkIfAuthenticated, async (req, res) => {
     await hostFamilyController.deleteHostFamily(parseInt(req.params.id))
     res.status(204).send()
 })

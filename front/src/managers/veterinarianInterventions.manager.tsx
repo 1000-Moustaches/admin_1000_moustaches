@@ -84,7 +84,7 @@ class VeterinarianInterventionsManager {
             },
         })
             .then((response) => {
-                if (response.status === 200) {
+                if (response.status === 201) {
                     return response.json();
                 }
                 return response.json().then((json) => {
@@ -120,8 +120,8 @@ class VeterinarianInterventionsManager {
                 "Content-Type": "application/json",
             },
         }).then((response) => {
-            if (response.status === 200) {
-                return response.json();
+            if (response.status === 204) {
+                return true;
             }
             return response.json().then((json) => {
                 throw new Error(`Server error - ${json.message}`);

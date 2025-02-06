@@ -17,7 +17,6 @@ import {
 } from "reactstrap";
 import HostFamiliesManager from "../../../managers/hostFamilies.manager";
 import { MdRefresh, MdAssignment, MdOutlineModeEdit, MdSave, MdDelete, MdDirections, MdThumbUp } from "react-icons/md";
-import AnimalsManager from "../../../managers/animals.manager";
 import UsersManager from "../../../managers/users.manager";
 import BooleanNullableDropdown from "../../components/BooleanNullableDropdown";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
@@ -44,10 +43,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
     let { id: paramHostFamilyId } = useParams();
     const hostFamilyId = paramHostFamilyId ?? "new";
     const [hostFamily, setHostFamily] = useState<HostFamily | null>(null);
-    const [animalsToHostFamily, setAnimalsToHostFamily] = useState<AnimalToHostFamily[]>([]);
     const [hostFamilyKinds, setHostFamilyKinds] = useState<HostFamilyKind[]>([]);
-    const [hostFamilyToHostFamilyKind, setHostFamilyToHostFamilyKinds] = useState<HostFamilyKind[]>([]);
-    const [tmpSelectedHostFamilyKinds, setTmpSelectedHostFamilyKinds] = useState<HostFamilyKind[]>([]);
     const [referents, setReferents] = useState<User[]>([]);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
@@ -80,41 +76,6 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                     level: "error",
                 });
             });
-    };
-
-    const getAnimalsToHostFamily = () => {
-        setAnimalsToHostFamily([]);
-        let id = parseInt(hostFamilyId);
-        if (isNaN(id)) {
-            return;
-        }
-        return AnimalsManager.getByHostFamilyId(id)
-            .then(setAnimalsToHostFamily)
-            .catch((err) => {
-                console.error(err);
-                notificationSystem?.addNotification({
-                    message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
-                    level: "error",
-                });
-            });
-    };
-
-    const getHostFamilyToHostFamilyKinds = () => {
-        setHostFamilyToHostFamilyKinds([]);
-        let id = parseInt(hostFamilyId);
-        if (isNaN(id)) {
-            return;
-        }
-        return HostFamilyKindsManager.getByHostFamilyId(id)
-            .then(setHostFamilyToHostFamilyKinds)
-            .catch((err) => {
-                console.error(err);
-                notificationSystem?.addNotification({
-                    message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
-                    level: "error",
-                });
-            })
-            .then(getHostFamilyKinds);
     };
 
     const getHostFamilyKinds = () => {
@@ -153,7 +114,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
 
     const refresh = () => {
         if (hostFamilyId !== "new") {
-            getHostFamily()?.then(getAnimalsToHostFamily).then(getHostFamilyToHostFamilyKinds).then(getReferents);
+            getHostFamily()?.then(getReferents).then(getHostFamilyKinds);
         } else {
             setOpenContactInfo("1");
             setOpenHomeInfo("1");
@@ -213,7 +174,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
     }, [shouldSave, isGeocoding]);
 
     const showDetail = (animalToHostFamily: AnimalToHostFamily) => {
-        navigate(`/animals/${animalToHostFamily.animal_id}`);
+        navigate(`/animals/${animalToHostFamily.animal?.id}`);
     };
 
     const save = () => {
@@ -253,14 +214,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
             }
             // Send new data to API
             HostFamiliesManager.create(hostFamily)
-                .then((createdHostFamily) => {
-                    if (createdHostFamily.id === undefined) {
-                        throw new Error("No ID returned for newly created host family");
-                    }
-                    console.info("Will save tmp selected host family kinds", tmpSelectedHostFamilyKinds);
-                    return Promise.all([saveTmpSelectedHostFamilyKinds(createdHostFamily.id), Promise.resolve(createdHostFamily)]);
-                })
-                .then(([res, updatedHostFamily]) => {
+                .then((updatedHostFamily) => {
                     notificationSystem?.addNotification({
                         message: "Famille d'Accueil créée",
                         level: "success",
@@ -297,16 +251,6 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
             });
     };
 
-    const saveTmpSelectedHostFamilyKinds = (hostFamilyId: number) => {
-        return Promise.all(
-            tmpSelectedHostFamilyKinds.map((hfk) => {
-                return createHostFamilyKindLink(hfk, hostFamilyId);
-            })
-        ).then(() => {
-            setTmpSelectedHostFamilyKinds([]);
-        });
-    };
-
     const deleteHF = () => {
         if (hostFamily === null) {
             return;
@@ -324,78 +268,6 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                 getHostFamily();
                 notificationSystem?.addNotification({
                     message: `Une erreur s'est produite pendant la suppression des données\n${err}`,
-                    level: "error",
-                });
-            });
-    };
-
-    const createHostFamilyKindLink = (hfk: HostFamilyKind, hostFamilyIdOverride?: number) => {
-        if (hostFamilyIdOverride === undefined && hostFamilyId === "new") {
-            // notificationSystem?.addNotification({
-            //     message: `La famille d'accueil doit d'abord être créée pour modifier son type`,
-            //     level: "error",
-            // });
-            setTmpSelectedHostFamilyKinds([...tmpSelectedHostFamilyKinds, hfk]);
-            return;
-        }
-        var id: number;
-        if (hostFamilyIdOverride === undefined) {
-            id = parseInt(hostFamilyId);
-        } else {
-            id = hostFamilyIdOverride;
-        }
-        if (isNaN(id)) {
-            console.info("Host family ID is not a number");
-            return;
-        }
-        HostFamilyKindsManager.createHostFamilyLink(hfk.id, id)
-            .then(() => {
-                console.info("Host family kind link created");
-                if (hostFamilyIdOverride !== undefined) {
-                    return;
-                }
-                getHostFamilyToHostFamilyKinds();
-                notificationSystem?.addNotification({
-                    message: "Famille d'Accueil mis à jour",
-                    level: "success",
-                });
-            })
-            .catch((err) => {
-                console.error(err);
-                getHostFamilyToHostFamilyKinds();
-                notificationSystem?.addNotification({
-                    message: `Une erreur s'est produite pendant la mise à jour des données\n${err}`,
-                    level: "error",
-                });
-            });
-    };
-
-    const deleteHostFamilyKindLink = (hfk: HostFamilyKind) => {
-        if (hostFamilyId === "new") {
-            // notificationSystem?.addNotification({
-            //     message: `La famille d'accueil doit d'abord être créée pour modifier son type`,
-            //     level: "error",
-            // });
-            setTmpSelectedHostFamilyKinds(tmpSelectedHostFamilyKinds.filter((tshfk) => tshfk.id !== hfk.id));
-            return;
-        }
-        let id = parseInt(hostFamilyId);
-        if (isNaN(id)) {
-            return;
-        }
-        HostFamilyKindsManager.deleteHostFamilyLink(hfk.id, id)
-            .then(() => {
-                getHostFamilyToHostFamilyKinds();
-                notificationSystem?.addNotification({
-                    message: "Famille d'Accueil mis à jour",
-                    level: "success",
-                });
-            })
-            .catch((err) => {
-                console.error(err);
-                getHostFamilyToHostFamilyKinds();
-                notificationSystem?.addNotification({
-                    message: `Une erreur s'est produite pendant la mise à jour des données\n${err}`,
                     level: "error",
                 });
             });
@@ -489,16 +361,16 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                 </Row>
                                 <Row>
                                     <Col>
-                                        {hostFamily.on_break ? <RiZzzFill /> : <MdThumbUp />}
+                                        {hostFamily.onBreak ? <RiZzzFill /> : <MdThumbUp />}
                                         <Switch
                                             id="break"
                                             key="break"
-                                            isOn={!hostFamily.on_break}
+                                            isOn={!hostFamily.onBreak}
                                             disabled={!isEditing}
                                             handleToggle={() => {
                                                 setHostFamily({
                                                     ...hostFamily,
-                                                    on_break: !hostFamily.on_break,
+                                                    onBreak: !hostFamily.onBreak,
                                                 });
                                             }}
                                         />
@@ -516,12 +388,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                 <Switch
                                     id="membership"
                                     key="membership"
-                                    isOn={hostFamily.membership_up_to_date}
+                                    isOn={hostFamily.membershipUpToDate}
                                     disabled={!isEditing}
                                     handleToggle={() => {
                                         setHostFamily({
                                             ...hostFamily,
-                                            membership_up_to_date: !hostFamily.membership_up_to_date,
+                                            membershipUpToDate: !hostFamily.membershipUpToDate,
                                         });
                                     }}
                                 />
@@ -532,18 +404,18 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                 <Label>Référent·e</Label>
                             </Col>
                             <Col xs={"auto"}>
-                                <Dropdown
+                                <NullableDropdown
                                     color={"primary"}
                                     disabled={!isEditing}
-                                    value={referents.find((usr) => usr.id === hostFamily.referent_id)}
+                                    value={referents.find((usr) => usr.id === hostFamily.referent?.id)}
                                     values={referents}
-                                    valueDisplayName={(usr) => (usr === undefined ? "" : `${usr?.firstname} ${usr?.name}`)}
-                                    valueActiveCheck={(usr) => usr.id === hostFamily.referent_id}
+                                    valueDisplayName={(usr) => (usr === undefined ? "Aucun·e" : `${usr?.firstname} ${usr?.name}`)}
+                                    valueActiveCheck={(usr) => usr.id === hostFamily.referent?.id}
                                     key={"referents"}
                                     onChange={(newUser) =>
                                         setHostFamily({
                                             ...hostFamily,
-                                            referent_id: newUser.id,
+                                            referent: newUser,
                                         })
                                     }
                                 />
@@ -557,12 +429,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                 <Switch
                                     id="temporary"
                                     key="temporary"
-                                    isOn={hostFamily.is_temporary}
+                                    isOn={hostFamily.isTemporary}
                                     disabled={!isEditing}
                                     handleToggle={() => {
                                         setHostFamily({
                                             ...hostFamily,
-                                            is_temporary: !hostFamily.is_temporary,
+                                            isTemporary: !hostFamily.isTemporary,
                                         });
                                     }}
                                 />
@@ -573,12 +445,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                 <Label>Permis de conduire</Label>
                                 <BooleanNullableDropdown
                                     withNewLine={true}
-                                    value={hostFamily.driver_license ?? null}
+                                    value={hostFamily.driverLicense ?? null}
                                     disabled={!isEditing}
                                     onChange={(newValue) => {
                                         setHostFamily({
                                             ...hostFamily,
-                                            driver_license: newValue ?? undefined,
+                                            driverLicense: newValue ?? undefined,
                                         });
                                     }}
                                 />
@@ -587,12 +459,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                 <Label>Véhiculé·e</Label>
                                 <BooleanNullableDropdown
                                     withNewLine={true}
-                                    value={hostFamily.has_vehicule ?? null}
+                                    value={hostFamily.hasVehicule ?? null}
                                     disabled={!isEditing}
                                     onChange={(newValue) => {
                                         setHostFamily({
                                             ...hostFamily,
-                                            has_vehicule: newValue ?? undefined,
+                                            hasVehicule: newValue ?? undefined,
                                         });
                                     }}
                                 />
@@ -693,12 +565,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                         <Col xs={6}>
                                             <Label>Pseudo</Label>
                                             <Input
-                                                value={hostFamily.social_network_alias || ""}
+                                                value={hostFamily.socialNetworkAlias || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setHostFamily({
                                                         ...hostFamily,
-                                                        social_network_alias: evt.target.value,
+                                                        socialNetworkAlias: evt.target.value,
                                                     })
                                                 }
                                             />
@@ -751,7 +623,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                         <Col xs={4}>
                                             <Label>Nombre d'enfant</Label>
                                             <Input
-                                                value={hostFamily.nb_children?.toString() || ""}
+                                                value={hostFamily.nbChildren?.toString() || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) => {
                                                     let nbChildren: number | undefined = parseInt(evt.target.value);
@@ -760,7 +632,7 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                                     }
                                                     setHostFamily({
                                                         ...hostFamily,
-                                                        nb_children: nbChildren,
+                                                        nbChildren: nbChildren,
                                                     });
                                                 }}
                                             />
@@ -769,12 +641,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                             <Label>Informations enfant(s)</Label>
                                             <Input
                                                 type="textarea"
-                                                value={hostFamily.children_infos || ""}
+                                                value={hostFamily.childrenInfos || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setHostFamily({
                                                         ...hostFamily,
-                                                        children_infos: evt.target.value,
+                                                        childrenInfos: evt.target.value,
                                                     })
                                                 }
                                             />
@@ -785,12 +657,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                             <Label>Informations animaux</Label>
                                             <Input
                                                 type="textarea"
-                                                value={hostFamily.animals_infos || ""}
+                                                value={hostFamily.animalsInfos || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setHostFamily({
                                                         ...hostFamily,
-                                                        animals_infos: evt.target.value,
+                                                        animalsInfos: evt.target.value,
                                                     })
                                                 }
                                             />
@@ -817,12 +689,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                             <Label>Informations sur le logement</Label>
                                             <Input
                                                 type="textarea"
-                                                value={hostFamily.housing_informations || ""}
+                                                value={hostFamily.housingInformations || ""}
                                                 disabled={!isEditing}
                                                 onChange={(evt) =>
                                                     setHostFamily({
                                                         ...hostFamily,
-                                                        housing_informations: evt.target.value,
+                                                        housingInformations: evt.target.value,
                                                     })
                                                 }
                                             />
@@ -856,16 +728,27 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                                                         type="checkbox"
                                                                         id={hfk.id + ""}
                                                                         defaultChecked={
-                                                                            hostFamilyToHostFamilyKind.filter((hfthfk) => hfthfk.id === hfk.id).length > 0 ||
-                                                                            tmpSelectedHostFamilyKinds.filter((tshfk) => tshfk.id === hfk.id).length > 0
+                                                                            (hostFamily.hostFamilyKinds?.filter((hfthfk) => hfthfk.id === hfk.id).length ?? 0) >
+                                                                            0
                                                                         }
                                                                         onChange={(evt) => {
                                                                             if (evt.target.checked === true) {
                                                                                 // Create link
-                                                                                createHostFamilyKindLink(hfk);
+                                                                                const index = hostFamily?.hostFamilyKinds?.indexOf(hfk, 0);
+                                                                                console.log("index", index, hostFamily);
+                                                                                if (index === -1) {
+                                                                                    hostFamily.hostFamilyKinds = [
+                                                                                        ...(hostFamily?.hostFamilyKinds ?? []),
+                                                                                        ...[hfk],
+                                                                                    ];
+                                                                                }
                                                                             } else {
                                                                                 // Delete link
-                                                                                deleteHostFamilyKindLink(hfk);
+                                                                                const index = hostFamily?.hostFamilyKinds?.indexOf(hfk, 0);
+                                                                                if (index !== undefined && index > -1) {
+                                                                                    hostFamily.hostFamilyKinds = hostFamily?.hostFamilyKinds ?? [];
+                                                                                    hostFamily?.hostFamilyKinds?.splice(index, 1);
+                                                                                }
                                                                             }
                                                                         }}
                                                                         disabled={!isEditing}
@@ -884,12 +767,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                             <Label>Peut donner soins véto</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={hostFamily.can_provide_veterinary_care ?? null}
+                                                value={hostFamily.canProvideVeterinaryCare ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
                                                     setHostFamily({
                                                         ...hostFamily,
-                                                        can_provide_veterinary_care: newValue ?? undefined,
+                                                        canProvideVeterinaryCare: newValue ?? undefined,
                                                     });
                                                 }}
                                             />
@@ -898,12 +781,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                             <Label>Peut sociabiliser</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={hostFamily.can_provide_sociabilisation ?? null}
+                                                value={hostFamily.canProvideSociabilisation ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
                                                     setHostFamily({
                                                         ...hostFamily,
-                                                        can_provide_sociabilisation: newValue ?? undefined,
+                                                        canProvideSociabilisation: newValue ?? undefined,
                                                     });
                                                 }}
                                             />
@@ -912,12 +795,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                             <Label>Peut accueillir des animaux handicapés</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={hostFamily.can_host_disable_animal ?? null}
+                                                value={hostFamily.canHostDisableAnimal ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
                                                     setHostFamily({
                                                         ...hostFamily,
-                                                        can_host_disable_animal: newValue ?? undefined,
+                                                        canHostDisableAnimal: newValue ?? undefined,
                                                     });
                                                 }}
                                             />
@@ -926,12 +809,12 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                             <Label>Peut donner des soins de nuit</Label>
                                             <BooleanNullableDropdown
                                                 withNewLine={true}
-                                                value={hostFamily.can_provide_night_care ?? null}
+                                                value={hostFamily.canProvideNightCare ?? null}
                                                 disabled={!isEditing}
                                                 onChange={(newValue) => {
                                                     setHostFamily({
                                                         ...hostFamily,
-                                                        can_provide_night_care: newValue ?? undefined,
+                                                        canProvideNightCare: newValue ?? undefined,
                                                     });
                                                 }}
                                             />
@@ -940,10 +823,8 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                             <Label>Peut isoler</Label>
                                             <NullableDropdown
                                                 withNewLine={true}
-                                                color={
-                                                    hostFamily.can_isolate === undefined ? "warning" : hostFamily.can_isolate === true ? "success" : "danger"
-                                                }
-                                                value={hostFamily.can_isolate}
+                                                color={hostFamily.canIsolate === undefined ? "warning" : hostFamily.canIsolate === true ? "success" : "danger"}
+                                                value={hostFamily.canIsolate}
                                                 values={["no", "yes_short", "yes_long"]}
                                                 valueDisplayName={(value) =>
                                                     value === null || value === undefined
@@ -954,13 +835,13 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                                         ? "Oui, ok long terme"
                                                         : "Non"
                                                 }
-                                                valueActiveCheck={(value) => hostFamily.can_isolate === value}
+                                                valueActiveCheck={(value) => hostFamily.canIsolate === value}
                                                 key={"can_isolate"}
                                                 disabled={!isEditing}
                                                 onChange={(newCanIsolate) => {
                                                     setHostFamily({
                                                         ...hostFamily,
-                                                        can_isolate: newCanIsolate,
+                                                        canIsolate: newCanIsolate,
                                                     });
                                                 }}
                                             />
@@ -972,11 +853,11 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                             <Input
                                                 type="textarea"
                                                 disabled={!isEditing}
-                                                value={hostFamily.host_conditions || ""}
+                                                value={hostFamily.hostConditions || ""}
                                                 onChange={(evt) => {
                                                     setHostFamily({
                                                         ...hostFamily,
-                                                        host_conditions: evt.target.value,
+                                                        hostConditions: evt.target.value,
                                                     });
                                                 }}
                                             />
@@ -1006,11 +887,11 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {animalsToHostFamily.map((animalToHostFamily, index) => (
+                                    {hostFamily.animalToHostFamilies?.map((animalToHostFamily, index) => (
                                         <tr>
-                                            <th scope="row">{animalToHostFamily.animal_name}</th>
-                                            <td>{animalToHostFamily.entry_dateObject?.readable}</td>
-                                            <td>{animalToHostFamily.exit_dateObject?.readable}</td>
+                                            <th scope="row">{animalToHostFamily.animal?.name}</th>
+                                            <td>{animalToHostFamily.entryDateObject?.readable}</td>
+                                            <td>{animalToHostFamily.exitDateObject?.readable}</td>
                                             <td>
                                                 <Button color="info" onClick={() => showDetail(animalToHostFamily)}>
                                                     <MdAssignment />

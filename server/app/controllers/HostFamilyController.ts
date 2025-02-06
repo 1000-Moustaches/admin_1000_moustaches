@@ -6,14 +6,26 @@ export class HostFamilyController {
 
     async getAllHostFamilies() {
         return await this.hostFamilyRepository.find({
-            relations: ['hostFamilyKinds', 'animals']
+            relations: {
+                hostFamilyKinds: false,
+                animalRelations: false,
+                referent: true
+            }
         })
     }
 
     async getHostFamilyById(id: number) {
         return await this.hostFamilyRepository.findOne({
             where: { id },
-            relations: ['hostFamilyKinds', 'animals']
+            relations: {
+                hostFamilyKinds: true,
+                animalRelations: {
+                    animal: {
+                        species: true
+                    }
+                },
+                referent: true
+            }
         })
     }
 

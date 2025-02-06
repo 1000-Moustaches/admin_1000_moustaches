@@ -131,12 +131,13 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
             // Send new data to API
             VeterinariansManager.create(veterinarian)
                 .then((updatedVeterinarian) => {
+                    console.log("vet created", updatedVeterinarian);
                     notificationSystem?.addNotification({
                         message: "Vétérinaire créé",
                         level: "success",
                     });
                     navigate(`/veterinarians/${updatedVeterinarian.id}`);
-                    setVeterinarian(updatedVeterinarian);
+                    // setVeterinarian(updatedVeterinarian);
                 })
                 .catch((err) => {
                     console.error(err);
@@ -148,6 +149,7 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
             return;
         }
 
+        console.log("Will send priceLevel", veterinarian.priceLevel);
         // Send new data to API
         VeterinariansManager.update(veterinarian)
             .then(() => {
@@ -332,12 +334,13 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
                                     </Col>
                                     <Col xs={6}>
                                         <PriceLevelDropdown
-                                            value={veterinarian.price_level}
+                                            value={veterinarian.priceLevel}
                                             disabled={!isEditing}
                                             onChange={(newValue) => {
+                                                console.log("new priceLevel", newValue);
                                                 setVeterinarian({
                                                     ...veterinarian,
-                                                    price_level: newValue,
+                                                    priceLevel: newValue,
                                                 });
                                             }}
                                         />
@@ -348,12 +351,12 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
                                 <Label>Méthode de confirmation de rendez-vous</Label>
                                 <Input
                                     type="textarea"
-                                    value={veterinarian.appointment_confirmation_procedure}
+                                    value={veterinarian.appointmentConfirmationProcedure}
                                     disabled={!isEditing}
                                     onChange={(evt) =>
                                         setVeterinarian({
                                             ...veterinarian,
-                                            appointment_confirmation_procedure: evt.target.value,
+                                            appointmentConfirmationProcedure: evt.target.value,
                                         })
                                     }
                                 />
@@ -364,12 +367,12 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
                                 <Label>Date de paiement</Label>
                                 <Input
                                     type="textarea"
-                                    value={veterinarian.invoice_payment_date}
+                                    value={veterinarian.invoicePaymentDate}
                                     disabled={!isEditing}
                                     onChange={(evt) =>
                                         setVeterinarian({
                                             ...veterinarian,
-                                            invoice_payment_date: evt.target.value,
+                                            invoicePaymentDate: evt.target.value,
                                         })
                                     }
                                 />
@@ -378,12 +381,12 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
                                 <Label>Moyen de paiement</Label>
                                 <Input
                                     type="textarea"
-                                    value={veterinarian.payment_method}
+                                    value={veterinarian.paymentMethod}
                                     disabled={!isEditing}
                                     onChange={(evt) =>
                                         setVeterinarian({
                                             ...veterinarian,
-                                            payment_method: evt.target.value,
+                                            paymentMethod: evt.target.value,
                                         })
                                     }
                                 />

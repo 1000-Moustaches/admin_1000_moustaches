@@ -1,36 +1,24 @@
 import DateObject from "./DateObject";
 
 class VeterinarianIntervention {
-    id: number;
-    veterinarian_id?: number;
+    id?: number;
+    veterinarianId?: number;
     date?: string;
     description?: string;
-    animal_id?: number;
+    animalId?: number;
 
     dateObject: DateObject;
 
     static copy(vetInter: VeterinarianIntervention): VeterinarianIntervention {
-        return new VeterinarianIntervention(
-            vetInter.id,
-            vetInter.veterinarian_id,
-            vetInter.date,
-            vetInter.description,
-            vetInter.animal_id
-        );
+        return new VeterinarianIntervention(vetInter.id, vetInter.veterinarianId, vetInter.date, vetInter.description, vetInter.animalId);
     }
 
-    constructor(
-        id: number = -1,
-        veterinarian_id: number = -1,
-        date?: string,
-        description: string = "",
-        animal_id: number = -1
-    ) {
+    constructor(id?: number, veterinarianId?: number, date?: string, description: string = "", animalId: number = -1) {
         this.id = id;
-        this.veterinarian_id = veterinarian_id;
+        this.veterinarianId = veterinarianId;
         this.date = date?.substring(0, 10);
         this.description = description;
-        this.animal_id = animal_id;
+        this.animalId = animalId;
 
         this.dateObject = new DateObject();
         this.setDate(this.date);

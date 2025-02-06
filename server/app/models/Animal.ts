@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable, OneToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne } from "typeorm"
 import { Species } from "./Species"
-import { HostFamily } from "./HostFamily"
 import { AnimalHostFamily } from "./AnimalHostFamily"
+import { VeterinarianIntervention } from "./VeterinarianIntervention"
+import { User } from "./User"
 
 @Entity()
 export class Animal {
@@ -11,8 +12,17 @@ export class Animal {
     @Column()
     name: string
 
+    @ManyToOne(() => Species, species => species.animals)
+    species: Species
+
     @Column()
     icad: string
+
+    @Column({ nullable: true, default: () => 'NULL' })
+    sexe: string
+
+    @Column({ nullable: true, default: () => 'NULL' })
+    race: string
 
     @Column({ nullable: true, default: () => 'NULL' })
     birthdate: Date
@@ -48,12 +58,6 @@ export class Animal {
     deathReason: string
 
     @Column({ nullable: true, default: () => 'NULL' })
-    sexe: string
-
-    @Column({ nullable: true, default: () => 'NULL' })
-    race: string
-
-    @Column({ nullable: true, default: () => 'NULL' })
     sterilised: boolean
 
     @Column({ nullable: true, default: () => 'NULL' })
@@ -74,6 +78,24 @@ export class Animal {
     @Column({ nullable: true, default: () => 'NULL' })
     behaviour: string
 
+    @Column({ nullable: true, default: () => 'NULL'})
+    needFriends: boolean
+
+    @Column({ nullable: true, default: () => 'NULL' })
+    posture: string
+
+    @Column({ nullable: true, default: () => 'NULL'})
+    catsOk: boolean
+
+    @Column({ nullable: true, default: () => 'NULL'})
+    dogsOk: boolean
+
+    @Column({ nullable: true, default: () => 'NULL'})
+    kidsOk: boolean
+
+    @Column({ nullable: true, default: () => 'NULL'})
+    behaviorParticularity: string
+
     @Column({ nullable: true, default: () => 'NULL' })
     adopted: boolean
 
@@ -93,10 +115,10 @@ export class Animal {
     antiParasiticDate: Date
 
     @Column({ nullable: true, default: () => 'NULL' })
-    reserved: boolean
+    transferCertificate: boolean
 
     @Column({ nullable: true, default: () => 'NULL' })
-    transferCertificate: boolean
+    reserved: boolean
 
     @Column({ nullable: true, default: () => 'NULL' })
     needIcadDuplicate: string
@@ -107,11 +129,11 @@ export class Animal {
     @Column({ nullable: true, default: () => 'NULL' })
     albumCreated: boolean
 
-    @ManyToOne(() => Species, species => species.animals)
-    species: Species
-
     @OneToMany(() => AnimalHostFamily, relation => relation.animal)
     hostFamilyRelations: AnimalHostFamily[]
+
+    @OneToMany(() => VeterinarianIntervention, intervention => intervention.animal)
+    veterinarianInterventions: VeterinarianIntervention[]
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date

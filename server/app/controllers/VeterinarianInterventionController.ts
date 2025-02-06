@@ -6,14 +6,20 @@ export class VeterinarianInterventionController {
 
     async getAllInterventions() {
         return await this.interventionRepository.find({
-            relations: ['veterinarian', 'animal']
+            relations: {
+                veterinarian: true,
+                animal: true
+            }
         })
     }
 
     async getInterventionById(id: number) {
         return await this.interventionRepository.findOne({
             where: { id },
-            relations: ['veterinarian', 'animal']
+            relations: {
+                veterinarian: true,
+                animal: true
+            }
         })
     }
 

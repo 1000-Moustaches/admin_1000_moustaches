@@ -10,15 +10,15 @@ class UsersManager {
     static dateFields = [];
 
     static createUser = (): User => {
-        return new User();
+        return new User(-1, "", "", "", false);
     };
 
     static format = (user: any): User => {
         return new UserDTO(user).toEntity();
     };
 
-    static formatForServer = (user: User): User => {
-        return user;
+    static formatForServer = (user: User) => {
+        return new UserDTO(user);
     };
 
     static getAll = (): Promise<User[]> => {
@@ -44,7 +44,7 @@ class UsersManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((users) => users.filter((usr: User) => usr.is_referent).map(UsersManager.format));
+            .then((users) => users.filter((usr: User) => usr.isReferent).map(UsersManager.format));
     };
 
     static getById = (id: number): Promise<User> => {
@@ -72,7 +72,7 @@ class UsersManager {
             },
         })
             .then((response) => {
-                if (response.status === 200) {
+                if (response.status === 201) {
                     return response.json();
                 }
                 return response.json().then((json) => {
@@ -108,8 +108,8 @@ class UsersManager {
                 "Content-Type": "application/json",
             },
         }).then((response) => {
-            if (response.status === 200) {
-                return response.json();
+            if (response.status === 204) {
+                return true;
             }
             return response.json().then((json) => {
                 throw new Error(`Server error - ${json.message}`);

@@ -2,7 +2,7 @@ import Animal from "../logic/entities/Animal";
 import Species from "../logic/entities/Species";
 import AnimalToHostFamily from "../logic/entities/AnimalToHostFamily";
 import AnimalDTO from "../logic/dto/AnimalDTO";
-import AnimalToHostFamilyDTO from "../logic/dto/AnimalToHostFamilyDTO";
+import HostFamilyRelationDTO from "../logic/dto/AnimalToHostFamilyDTO";
 import SpeciesDTO from "../logic/dto/SpeciesDTO";
 import fetchWithAuth from "../middleware/fetch-middleware";
 
@@ -14,19 +14,24 @@ export interface Sexe {
 }
 
 class AnimalsManager {
-    static createAnimal = (): Animal => {
+    static createAnimal = () => {
         return new Animal();
     };
 
-    static format = (animal: any): Animal => {
+    static format = (animal: any) => {
         return new AnimalDTO(animal).toEntity();
     };
 
-    static formatForServer = (animal: Animal): Animal => {
-        if (animal.death_date === "") {
-            animal.death_date = undefined;
+    static formatForServer = (animal: Animal) => {
+        if (animal.deathDate === "") {
+            animal.deathDate = undefined;
         }
-        return animal;
+
+        const dto = new AnimalDTO(animal);
+        const { hostFamilyRelations, ...rest } = dto;
+        return {
+            ...rest,
+        };
     };
 
     static getAll = (): Promise<Animal[]> => {
@@ -55,13 +60,8 @@ class AnimalsManager {
             .then((animal) => new AnimalDTO(animal).toEntity());
     };
 
-    static getByHostFamilyId = (
-        hostFamilyId: number
-    ): Promise<AnimalToHostFamily[]> => {
-        return fetchWithAuth(
-            `${API_URL}/animalsToHostFamilies/withHostFamilyId/${hostFamilyId}`,
-            { method: "GET" }
-        )
+    static getByHostFamilyId = (hostFamilyId: number): Promise<AnimalToHostFamily[]> => {
+        return fetchWithAuth(`${API_URL}/animalsToHostFamilies/withHostFamilyId/${hostFamilyId}`, { method: "GET" })
             .then((response) => {
                 if (response.status === 200) {
                     return response.json();
@@ -70,11 +70,7 @@ class AnimalsManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((athfs) =>
-                athfs.map((athf: any) =>
-                    new AnimalToHostFamilyDTO(athf).toEntity()
-                )
-            );
+            .then((athfs) => athfs.map((athf: any) => new HostFamilyRelationDTO(athf).toEntity()));
     };
 
     static getSpecies = (): Promise<Species[]> => {
@@ -87,11 +83,7 @@ class AnimalsManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((species) =>
-                species.map((species: any) =>
-                    new SpeciesDTO(species).toEntity()
-                )
-            );
+            .then((species) => species.map((species: any) => new SpeciesDTO(species).toEntity()));
     };
 
     static getSexes = (): Promise<Sexe[]> => {
@@ -104,6 +96,8 @@ class AnimalsManager {
     static create = (animal: Animal): Promise<Animal> => {
         const animalToUpload = this.formatForServer(animal);
 
+        console.log("AnimalToUpload", JSON.stringify(animalToUpload));
+
         return fetchWithAuth(`${API_URL}/animals`, {
             method: "POST",
             body: JSON.stringify(animalToUpload),
@@ -112,7 +106,7 @@ class AnimalsManager {
             },
         })
             .then((response) => {
-                if (response.status === 200) {
+                if (response.status === 201) {
                     return response.json();
                 }
                 return response.json().then((json) => {
@@ -124,6 +118,8 @@ class AnimalsManager {
 
     static update = (animal: Animal): Promise<Animal> => {
         const animalToUpload = this.formatForServer(animal);
+
+        console.log("AnimalToUpload", JSON.stringify(animalToUpload));
 
         return fetchWithAuth(`${API_URL}/animals/${animalToUpload.id}`, {
             method: "PUT",
@@ -143,15 +139,15 @@ class AnimalsManager {
             .then((animal) => new AnimalDTO(animal).toEntity());
     };
 
-    static delete = (animal: Animal): Promise<string> => {
+    static delete = (animal: Animal) => {
         return fetchWithAuth(`${API_URL}/animals/${animal.id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
             },
         }).then((response) => {
-            if (response.status === 200) {
-                return response.json();
+            if (response.status === 204) {
+                return true;
             }
             return response.json().then((json) => {
                 throw new Error(`Server error - ${json.message}`);

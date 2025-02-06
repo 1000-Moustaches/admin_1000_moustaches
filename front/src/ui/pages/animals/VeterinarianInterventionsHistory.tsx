@@ -5,16 +5,17 @@ import VeterinarianInterventionsManager from "../../../managers/veterinarianInte
 import VeterinarianInterventionModal from "./VeterinarianInterventionModal";
 import VeterinarianIntervention from "../../../logic/entities/VeterinarianIntervention";
 import NotificationSystem from "react-notification-system";
+import Animal from "../../../logic/entities/Animal";
 
 interface VeterinarianInterventionsHistoryProps {
-    animalId: number;
+    animal: Animal;
     veterinarianInterventions: VeterinarianIntervention[];
     notificationSystem?: NotificationSystem;
     shouldRefresh: () => void;
 }
 
 const VeterinarianInterventionsHistory: FC<VeterinarianInterventionsHistoryProps> = ({
-    animalId,
+    animal,
     veterinarianInterventions,
     notificationSystem,
     shouldRefresh,
@@ -55,7 +56,7 @@ const VeterinarianInterventionsHistory: FC<VeterinarianInterventionsHistoryProps
                             <Button
                                 color="primary"
                                 onClick={() => {
-                                    if (isNaN(animalId)) {
+                                    if (!animal.id) {
                                         notificationSystem?.addNotification({
                                             message: "Sauvegardez d'abord l'animal avant d'enregistrer une intervention vétérinaire",
                                             level: "warning",
@@ -114,7 +115,7 @@ const VeterinarianInterventionsHistory: FC<VeterinarianInterventionsHistoryProps
 
             {modalVeterinarianIntervention !== null && (
                 <VeterinarianInterventionModal
-                    animalId={animalId}
+                    animal={animal}
                     veterinarianIntervention={modalVeterinarianIntervention}
                     show={modalVeterinarianIntervention !== null}
                     handleClose={(shouldReload) => {

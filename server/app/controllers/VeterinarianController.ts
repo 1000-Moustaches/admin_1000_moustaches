@@ -6,14 +6,18 @@ export class VeterinarianController {
 
     async getAllVeterinarians() {
         return await this.veterinarianRepository.find({
-            relations: ['interventions']
+            relations: {
+                interventions: true
+            }
         })
     }
 
     async getVeterinarianById(id: number) {
         return await this.veterinarianRepository.findOne({
             where: { id },
-            relations: ['interventions']
+            relations: {
+                interventions: true
+            }
         })
     }
 

@@ -12,6 +12,10 @@ export class UserController {
         return await this.userRepository.findOneBy({ id })
     }
 
+    async getUserByEmail(email: string) {
+        return await this.userRepository.findOneBy({ email })
+    }
+
     async createUser(userData: Partial<User>) {
         const user = this.userRepository.create(userData)
         return await this.userRepository.save(user)

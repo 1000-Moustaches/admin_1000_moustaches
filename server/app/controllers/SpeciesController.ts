@@ -5,11 +5,20 @@ export class SpeciesController {
     private speciesRepository = AppDataSource.getRepository(Species)
 
     async getAllSpecies() {
-        return await this.speciesRepository.find()
+        return await this.speciesRepository.find({
+            relations: {
+                animals: false
+            }
+        })
     }
 
     async getSpeciesById(id: number) {
-        return await this.speciesRepository.findOneBy({ id })
+        return await this.speciesRepository.findOne({
+            where: { id },
+            relations: {
+                animals: false
+            }
+        })
     }
 
     async createSpecies(speciesData: Partial<Species>) {

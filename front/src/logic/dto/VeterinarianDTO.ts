@@ -7,11 +7,11 @@ class VeterinarianDTO {
     phone: string;
     mail: string;
     website: string;
-    price_level: number;
-    emergencies: number;
-    appointment_confirmation_procedure: string;
-    invoice_payment_date: string;
-    payment_method: string;
+    priceLevel: number;
+    emergencies: boolean;
+    appointmentConfirmationProcedure: string;
+    invoicePaymentDate: string;
+    paymentMethod: string;
     latitude: number;
     longitude: number;
 
@@ -22,12 +22,12 @@ class VeterinarianDTO {
         this.phone = vet.phone;
         this.mail = vet.mail;
         this.website = vet.website;
-        this.price_level = vet.price_level;
+        this.priceLevel = vet.priceLevel;
         this.emergencies = vet.emergencies;
-        this.appointment_confirmation_procedure =
-            vet.appointment_confirmation_procedure;
-        this.invoice_payment_date = vet.invoice_payment_date;
-        this.payment_method = vet.payment_method;
+        this.appointmentConfirmationProcedure =
+            vet.appointmentConfirmationProcedure;
+        this.invoicePaymentDate = vet.invoicePaymentDate;
+        this.paymentMethod = vet.paymentMethod;
         this.latitude = vet.latitude;
         this.longitude = vet.longitude;
     }
@@ -41,29 +41,29 @@ class VeterinarianDTO {
             this.address,
             this.latitude,
             this.longitude,
-            this.emergencies === 1,
-            this.appointment_confirmation_procedure,
-            this.invoice_payment_date,
-            this.payment_method,
-            this.price_level
+            this.emergencies,
+            this.appointmentConfirmationProcedure,
+            this.invoicePaymentDate,
+            this.paymentMethod,
+            this.priceLevel
         );
 
-        switch (vet.price_level) {
+        switch (this.priceLevel) {
             case 0:
-                vet.price_level_text = "€";
-                vet.price_level_tooltip = "Pas cher";
+                vet.priceLevelText = "€";
+                vet.priceLevelTooltip = "Pas cher";
                 break;
             case 1:
-                vet.price_level_text = "€€";
-                vet.price_level_tooltip = "Cher";
+                vet.priceLevelText = "€€";
+                vet.priceLevelTooltip = "Cher";
                 break;
             case 2:
-                vet.price_level_text = "€€€";
-                vet.price_level_tooltip = "Trop cher";
+                vet.priceLevelText = "€€€";
+                vet.priceLevelTooltip = "Trop cher";
                 break;
             default:
-                vet.price_level_text = null;
-                vet.price_level_tooltip = "Ne sait pas";
+                vet.priceLevelText = null;
+                vet.priceLevelTooltip = "Ne sait pas";
                 break;
         }
         return vet;

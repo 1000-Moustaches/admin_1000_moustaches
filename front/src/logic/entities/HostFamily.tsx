@@ -1,4 +1,6 @@
+import AnimalToHostFamily from "./AnimalToHostFamily";
 import HostFamilyKind from "./HostFamilyKind";
+import User from "./User";
 
 class HostFamily {
     id?: number;
@@ -6,63 +8,65 @@ class HostFamily {
     firstname?: string;
     phone?: string;
     mail?: string;
-    social_network_alias?: string;
+    socialNetworkAlias?: string;
     address?: string;
     latitude?: number;
     longitude?: number;
-    driver_license?: boolean;
-    has_vehicule?: boolean;
-    nb_children?: number;
-    children_infos?: string;
-    animals_infos?: string;
-    can_provide_veterinary_care?: boolean;
-    can_provide_sociabilisation?: boolean;
-    can_host_disable_animal?: boolean;
-    can_provide_night_care?: boolean;
+    driverLicense?: boolean;
+    hasVehicule?: boolean;
+    nbChildren?: number;
+    childrenInfos?: string;
+    animalsInfos?: string;
+    canProvideVeterinaryCare?: boolean;
+    canProvideSociabilisation?: boolean;
+    canHostDisableAnimal?: boolean;
+    canProvideNightCare?: boolean;
     observations?: string;
-    housing_informations?: string;
-    can_isolate?: boolean;
-    host_conditions?: string;
-    on_break?: boolean;
-    membership_up_to_date?: boolean;
-    referent_id?: number;
-    is_temporary?: boolean;
+    housingInformations?: string;
+    canIsolate?: boolean;
+    hostConditions?: string;
+    onBreak?: boolean;
+    membershipUpToDate?: boolean;
+    isTemporary?: boolean;
     situation?: string;
 
-    displayName: string;
+    referent?: User;
+    hostFamilyKinds?: HostFamilyKind[];
+    animalToHostFamilies?: AnimalToHostFamily[];
 
-    kinds: HostFamilyKind[] = [];
+    displayName: string;
 
     static copy(hf: HostFamily): HostFamily {
         return new HostFamily(
             hf.id,
             hf.name,
             hf.firstname,
-            hf.on_break,
-            hf.membership_up_to_date,
+            hf.onBreak,
+            hf.membershipUpToDate,
             hf.phone,
             hf.mail,
-            hf.social_network_alias,
+            hf.socialNetworkAlias,
             hf.address,
             hf.latitude,
             hf.longitude,
-            hf.driver_license,
-            hf.has_vehicule,
-            hf.nb_children,
-            hf.children_infos,
-            hf.animals_infos,
-            hf.can_provide_veterinary_care,
-            hf.can_provide_sociabilisation,
-            hf.can_host_disable_animal,
-            hf.can_provide_night_care,
+            hf.driverLicense,
+            hf.hasVehicule,
+            hf.nbChildren,
+            hf.childrenInfos,
+            hf.animalsInfos,
+            hf.canProvideVeterinaryCare,
+            hf.canProvideSociabilisation,
+            hf.canHostDisableAnimal,
+            hf.canProvideNightCare,
             hf.observations,
-            hf.housing_informations,
-            hf.can_isolate,
-            hf.host_conditions,
-            hf.referent_id,
-            hf.is_temporary,
+            hf.housingInformations,
+            hf.canIsolate,
+            hf.hostConditions,
+            hf.isTemporary,
             hf.situation,
-            hf.kinds
+            hf.referent,
+            hf.hostFamilyKinds,
+            hf.animalToHostFamilies
         );
     }
 
@@ -70,63 +74,65 @@ class HostFamily {
         id?: number,
         name?: string,
         firstname?: string,
-        on_break?: boolean,
-        membership_up_to_date?: boolean,
+        onBreak?: boolean,
+        membershipUpToDate?: boolean,
         phone?: string,
         mail?: string,
-        social_network_alias?: string,
+        socialNetworkAlias?: string,
         address?: string,
         latitude?: number,
         longitude?: number,
-        driver_license?: boolean,
-        has_vehicule?: boolean,
-        nb_children?: number,
-        children_infos?: string,
-        animals_infos?: string,
-        can_provide_veterinary_care?: boolean,
-        can_provide_sociabilisation?: boolean,
-        can_host_disable_animal?: boolean,
-        can_provide_night_care?: boolean,
+        driverLicense?: boolean,
+        hasVehicule?: boolean,
+        nbChildren?: number,
+        childrenInfos?: string,
+        animalsInfos?: string,
+        canProvideVeterinaryCare?: boolean,
+        canProvideSociabilisation?: boolean,
+        canHostDisableAnimal?: boolean,
+        canProvideNightCare?: boolean,
         observations?: string,
-        housing_informations?: string,
-        can_isolate?: boolean,
-        host_conditions?: string,
-        referent_id?: number,
-        is_temporary?: boolean,
+        housingInformations?: string,
+        canIsolate?: boolean,
+        hostConditions?: string,
+        isTemporary?: boolean,
         situation?: string,
-        kinds?: HostFamilyKind[]
+        referent?: User,
+        hostFamilyKinds?: HostFamilyKind[],
+        animalToHostFamilies?: AnimalToHostFamily[]
     ) {
         this.id = id;
         this.name = name;
         this.firstname = firstname;
         this.phone = phone;
         this.mail = mail;
-        this.social_network_alias = social_network_alias;
+        this.socialNetworkAlias = socialNetworkAlias;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.driver_license = driver_license;
-        this.has_vehicule = has_vehicule;
-        this.nb_children = nb_children;
-        this.children_infos = children_infos;
-        this.animals_infos = animals_infos;
-        this.can_provide_veterinary_care = can_provide_veterinary_care;
-        this.can_provide_sociabilisation = can_provide_sociabilisation;
-        this.can_host_disable_animal = can_host_disable_animal;
-        this.can_provide_night_care = can_provide_night_care;
+        this.driverLicense = driverLicense;
+        this.hasVehicule = hasVehicule;
+        this.nbChildren = nbChildren;
+        this.childrenInfos = childrenInfos;
+        this.animalsInfos = animalsInfos;
+        this.canProvideVeterinaryCare = canProvideVeterinaryCare;
+        this.canProvideSociabilisation = canProvideSociabilisation;
+        this.canHostDisableAnimal = canHostDisableAnimal;
+        this.canProvideNightCare = canProvideNightCare;
         this.observations = observations;
-        this.housing_informations = housing_informations;
-        this.can_isolate = can_isolate;
-        this.host_conditions = host_conditions;
-        this.on_break = on_break;
-        this.membership_up_to_date = membership_up_to_date;
-        this.referent_id = referent_id;
-        this.is_temporary = is_temporary;
+        this.housingInformations = housingInformations;
+        this.canIsolate = canIsolate;
+        this.hostConditions = hostConditions;
+        this.onBreak = onBreak;
+        this.membershipUpToDate = membershipUpToDate;
+        this.isTemporary = isTemporary;
         this.situation = situation;
 
-        this.displayName = this.firstname + " " + this.name;
+        this.referent = referent;
+        this.hostFamilyKinds = hostFamilyKinds ?? [];
+        this.animalToHostFamilies = animalToHostFamilies ?? [];
 
-        this.kinds = kinds ?? [];
+        this.displayName = this.firstname + " " + this.name;
     }
 }
 
