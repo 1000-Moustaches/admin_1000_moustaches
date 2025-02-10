@@ -30,5 +30,6 @@ export const AppDataSource = new DataSource({
     ],
     subscribers: [],
     migrations: ["dist/migrations/*.js"],
-    migrationsTableName: "migrations"
+    migrationsTableName: "migrations",
+    migrationsRun: true
 }) 
