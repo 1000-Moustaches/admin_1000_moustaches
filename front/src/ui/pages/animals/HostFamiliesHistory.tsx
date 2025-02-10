@@ -8,35 +8,27 @@ import AnimalToHostFamily from "../../../logic/entities/AnimalToHostFamily";
 import HostFamily from "../../../logic/entities/HostFamily";
 import NotificationSystem from "react-notification-system";
 import { useNavigate } from "react-router-dom";
+import Animal from "../../../logic/entities/Animal";
 
 interface HostFamiliesHistoryProps {
-    animalId: number;
-    animalName: string;
+    animal: Animal;
     hostFamilies: HostFamily[];
     animalToHostFamilies: AnimalToHostFamily[];
     notificationSystem?: NotificationSystem;
     shouldRefresh: () => void;
 }
 
-const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
-    animalId,
-    animalName,
-    hostFamilies,
-    animalToHostFamilies,
-    notificationSystem,
-    shouldRefresh,
-    ...props
-}) => {
+const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({ animal, hostFamilies, animalToHostFamilies, notificationSystem, shouldRefresh, ...props }) => {
     const navigate = useNavigate();
 
     const [modalAnimalToHostFamily, setModalAnimalToHostFamily] = useState<AnimalToHostFamily | null>(null);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
     const [animalToHostFamilyToDelete, setAnimalToHostFamilyToDelete] = useState<AnimalToHostFamily | null>(null);
 
-    const [currentAnimalToHostFamily] = animalToHostFamilies.filter((athf) => athf.exit_date !== null);
+    const [currentAnimalToHostFamily] = animalToHostFamilies.filter((athf) => athf.exitDate !== null);
 
     const showDetail = (animalToHostFamily: AnimalToHostFamily) => {
-        navigate(`/hostFamilies/${animalToHostFamily.host_family_id}`);
+        navigate(`/hostFamilies/${animalToHostFamily.hostFamily?.id}`);
     };
 
     const deleteAnimalToHostFamily = () => {
@@ -74,14 +66,14 @@ const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
                             <Button
                                 color="primary"
                                 onClick={() => {
-                                    if (isNaN(animalId)) {
+                                    if (!animal.id) {
                                         notificationSystem?.addNotification({
                                             message: "Sauvegardez d'abord l'animal avant de lui attribuer une famille d'accueil",
                                             level: "warning",
                                         });
                                         return;
                                     }
-                                    setModalAnimalToHostFamily(AnimalsToHostFamiliesManager.createAnimalToHostFamily(animalId, animalName));
+                                    setModalAnimalToHostFamily(AnimalsToHostFamiliesManager.createAnimalToHostFamily(animal, undefined));
                                 }}
                             >
                                 <MdAddBox />
@@ -102,11 +94,11 @@ const HostFamiliesHistory: FC<HostFamiliesHistoryProps> = ({
                         </thead>
                         <tbody>
                             {animalToHostFamilies.map((animalToHostFamily, index) => {
-                                var hostFamily = hostFamilies.find((hf) => hf.id === animalToHostFamily.host_family_id);
+                                var hostFamily = hostFamilies.find((hf) => hf.id === animalToHostFamily.hostFamily?.id);
                                 return (
                                     <tr>
                                         <th scope="row">{hostFamily?.displayName}</th>
-                                        <td>{animalToHostFamily.entry_dateObject.readable ?? animalToHostFamily.entry_date}</td>
+                                        <td>{animalToHostFamily.entryDateObject.readable ?? animalToHostFamily.entryDate}</td>
                                         <td>
                                             <Button color="info" onClick={() => showDetail(animalToHostFamily)}>
                                                 <MdAssignment />

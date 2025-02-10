@@ -1,3 +1,4 @@
+import VeterinarianDTO from "../dto/VeterinarianDTO";
 import DateObject from "./DateObject";
 
 class Veterinarian {
@@ -9,15 +10,15 @@ class Veterinarian {
     latitude?: number;
     longitude?: number;
     emergencies?: boolean;
-    appointment_confirmation_procedure?: string;
-    invoice_payment_date?: string;
-    payment_method?: string;
-    price_level?: number;
+    appointmentConfirmationProcedure?: string;
+    invoicePaymentDate?: string;
+    paymentMethod?: string;
+    priceLevel?: number;
 
-    price_level_text?: string | null;
-    price_level_tooltip?: string | null;
+    priceLevelText?: string | null;
+    priceLevelTooltip?: string | null;
 
-    invoice_payment_dateObject: DateObject;
+    invoicePaymentDateObject: DateObject;
 
     static copy(vet: Veterinarian): Veterinarian {
         return new Veterinarian(
@@ -29,10 +30,10 @@ class Veterinarian {
             vet.latitude,
             vet.longitude,
             vet.emergencies,
-            vet.appointment_confirmation_procedure,
-            vet.invoice_payment_date,
-            vet.payment_method,
-            vet.price_level
+            vet.appointmentConfirmationProcedure,
+            vet.invoicePaymentDate,
+            vet.paymentMethod,
+            vet.priceLevel
         );
     }
 
@@ -45,10 +46,10 @@ class Veterinarian {
         latitude?: number,
         longitude?: number,
         emergencies?: boolean,
-        appointment_confirmation_procedure?: string,
-        invoice_payment_date?: string,
-        payment_method?: string,
-        price_level?: number
+        appointmentConfirmationProcedure?: string,
+        invoicePaymentDate?: string,
+        paymentMethod?: string,
+        priceLevel?: number
     ) {
         this.id = id;
         this.name = name;
@@ -58,19 +59,18 @@ class Veterinarian {
         this.latitude = latitude;
         this.longitude = longitude;
         this.emergencies = emergencies;
-        this.appointment_confirmation_procedure =
-            appointment_confirmation_procedure;
-        this.invoice_payment_date = invoice_payment_date?.substring(0, 10);
-        this.payment_method = payment_method;
-        this.price_level = price_level;
+        this.appointmentConfirmationProcedure = appointmentConfirmationProcedure;
+        this.invoicePaymentDate = invoicePaymentDate?.substring(0, 10);
+        this.paymentMethod = paymentMethod;
+        this.priceLevel = priceLevel;
 
-        this.invoice_payment_dateObject = new DateObject();
-        this.setInvoicePaymentDate(this.invoice_payment_date);
+        this.invoicePaymentDateObject = new DateObject();
+        this.setInvoicePaymentDate(this.invoicePaymentDate);
     }
 
     setInvoicePaymentDate = (date?: string) => {
-        this.invoice_payment_date = date;
-        this.invoice_payment_dateObject.setDate(date);
+        this.invoicePaymentDate = date;
+        this.invoicePaymentDateObject.setDate(date);
     };
 }
 

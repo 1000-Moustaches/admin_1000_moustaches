@@ -1,15 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import {
-    Button,
-    Col,
-    Input,
-    Label,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader,
-    Row,
-} from "reactstrap";
+import { Button, Col, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row } from "reactstrap";
 import NullableDropdown from "../../components/NullableDropdown";
 import AnimalsToHostFamiliesManager from "../../../managers/animalsToHostFamilies.manager";
 import AnimalToHostFamily from "../../../logic/entities/AnimalToHostFamily";
@@ -34,9 +24,8 @@ const AnimalToHostFamilyModal: FC<AnimalToHostFamilyModalProps> = ({
     notificationSystem,
     ...props
 }) => {
-    const [animalToHostFamily, setAnimalToHostFamily] =
-        useState<AnimalToHostFamily>(athf);
-    const modification = athf.host_family_id !== undefined;
+    const [animalToHostFamily, setAnimalToHostFamily] = useState<AnimalToHostFamily>(athf);
+    const modification = !!athf.hostFamily;
 
     useEffect(() => {}, []);
 
@@ -91,35 +80,17 @@ const AnimalToHostFamilyModal: FC<AnimalToHostFamilyModalProps> = ({
                             withSearch={true}
                             withSort={true}
                             color={"primary"}
-                            value={hostFamilies.find(
-                                (hf) =>
-                                    hf.id === animalToHostFamily.host_family_id
-                            )}
-                            values={[
-                                ...hostFamilies.filter(
-                                    (hf) =>
-                                        hf.id !==
-                                        currentAnimalToHostFamily?.host_family_id
-                                ),
-                                undefined,
-                            ]}
-                            valueDisplayName={(hf) =>
-                                hf === undefined
-                                    ? "-"
-                                    : `${hf.firstname} ${hf.name}`
-                            }
+                            value={hostFamilies.find((hf) => hf.id === animalToHostFamily.hostFamily?.id)}
+                            values={[...hostFamilies.filter((hf) => hf.id !== currentAnimalToHostFamily?.hostFamily?.id), undefined]}
+                            valueDisplayName={(hf) => (hf === undefined ? "-" : `${hf.firstname} ${hf.name}`)}
                             valueActiveCheck={(hf) =>
-                                hf === undefined
-                                    ? animalToHostFamily.host_family_id ===
-                                      undefined
-                                    : hf.id ===
-                                      animalToHostFamily.host_family_id
+                                hf === undefined ? animalToHostFamily.hostFamily?.id === undefined : hf.id === animalToHostFamily.hostFamily?.id
                             }
                             key={"hostFamily"}
                             onChange={(newHf) =>
                                 setAnimalToHostFamily({
                                     ...animalToHostFamily,
-                                    host_family_id: newHf.id,
+                                    hostFamily: newHf,
                                 })
                             }
                         />
@@ -128,11 +99,11 @@ const AnimalToHostFamilyModal: FC<AnimalToHostFamilyModalProps> = ({
                         <Label>Date d'entrée</Label>
                         <Input
                             type="date"
-                            value={animalToHostFamily.entry_date}
+                            value={animalToHostFamily.entryDate}
                             onChange={(evt) =>
                                 setAnimalToHostFamily({
                                     ...animalToHostFamily,
-                                    entry_date: evt.target.value,
+                                    entryDate: evt.target.value,
                                 })
                             }
                         />
@@ -143,11 +114,7 @@ const AnimalToHostFamilyModal: FC<AnimalToHostFamilyModalProps> = ({
                 <Button color="danger" onClick={() => handleClose(false)}>
                     Annuler
                 </Button>
-                <Button
-                    color="primary"
-                    onClick={() => save()}
-                    disabled={animalToHostFamily.host_family_id === undefined}
-                >
+                <Button color="primary" onClick={() => save()} disabled={!animalToHostFamily.hostFamily}>
                     Sauvegarder
                 </Button>
             </ModalFooter>

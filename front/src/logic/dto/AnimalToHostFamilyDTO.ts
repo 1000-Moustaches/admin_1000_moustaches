@@ -1,23 +1,33 @@
+import Animal from "../entities/Animal";
 import AnimalToHostFamily from "../entities/AnimalToHostFamily";
+import HostFamily from "../entities/HostFamily";
+import AnimalDTO from "./AnimalDTO";
+import HostFamilyDTO from "./HostFamilyDTO";
 
-class AnimalToHostFamilyDTO {
-    animal_id: number;
-    animal_name: string;
-    host_family_id: number;
-    entry_date: string;
-    exit_date: string;
+class HostFamilyRelationDTO {
+    id: number;
+    animal?: AnimalDTO;
+    hostFamily?: HostFamilyDTO;
+    entryDate: string;
+    exitDate: string;
 
-    constructor(animalToHostFamily: any) {
-        this.animal_id = animalToHostFamily.animal_id;
-        this.animal_name = animalToHostFamily.animal_name;
-        this.host_family_id = animalToHostFamily.host_family_id;
-        this.entry_date = animalToHostFamily.entry_date?.substring(0, 10);
-        this.exit_date = animalToHostFamily.exit_date?.substring(0, 10);
+    constructor(animalToHostFamily: any, animal?: AnimalDTO, hostFamily?: HostFamilyDTO) {
+        this.id = animalToHostFamily.id;
+        this.animal = animal;
+        if (this.animal === undefined && animalToHostFamily.animal !== undefined) {
+            this.animal = new AnimalDTO(animalToHostFamily.animal);
+        }
+        this.hostFamily = hostFamily
+        if (this.hostFamily === undefined && animalToHostFamily.hostFamily !== undefined) {
+            this.hostFamily = new HostFamilyDTO(animalToHostFamily.hostFamily)
+        }
+        this.entryDate = animalToHostFamily.entryDate?.substring(0, 10);
+        this.exitDate = animalToHostFamily.exitDate?.substring(0, 10);
     }
 
-    toEntity(): AnimalToHostFamily {
-        return new AnimalToHostFamily(this.animal_id, this.animal_name, this.host_family_id, this.entry_date, this.exit_date);
+    toEntity(animal?: Animal, hostFamily?: HostFamily): AnimalToHostFamily {
+        return new AnimalToHostFamily(this.id, animal ?? this.animal?.toEntity(), hostFamily ?? this.hostFamily?.toEntity(), this.entryDate, this.exitDate);
     }
 }
 
-export default AnimalToHostFamilyDTO;
+export default HostFamilyRelationDTO;

@@ -1,10 +1,8 @@
-import AnimalToHostFamilyDTO from "../logic/dto/AnimalToHostFamilyDTO";
+import HostFamilyRelationDTO from "../logic/dto/AnimalToHostFamilyDTO";
 import HostFamilyDTO from "../logic/dto/HostFamilyDTO";
 import AnimalToHostFamily from "../logic/entities/AnimalToHostFamily";
 import HostFamily from "../logic/entities/HostFamily";
-import HostFamilyKind from "../logic/entities/HostFamilyKind";
 import fetchWithAuth from "../middleware/fetch-middleware";
-import HostFamilyKindsManager from "./hostFamilyKinds.manager";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -13,50 +11,46 @@ class HostFamiliesManager {
         return new HostFamily();
     };
 
-    static format = (hostFamily: any, hostFamilyKinds: HostFamilyKind[]): HostFamily => {
+    static format = (hostFamily: any): HostFamily => {
         let hfDTO = new HostFamilyDTO(hostFamily);
 
-        return hfDTO.toEntity(hostFamilyKinds);
+        return hfDTO.toEntity();
     };
 
     static formatForServer = (hostFamily: HostFamily) => {
-        return hostFamily;
+        const dto = new HostFamilyDTO(hostFamily);
+        const { animalRelations, ...rest } = dto;
+        return {
+            ...rest,
+        };
     };
 
     static getAll = () => {
-        let hostFamilyKinds: HostFamilyKind[] = [];
-        return HostFamilyKindsManager.getAll().then((kinds) => {
-            hostFamilyKinds = kinds;
-            return fetchWithAuth(`${API_URL}/hostFamilies`, { method: "GET" })
-                .then((response) => {
-                    if (response.status === 200) {
-                        return response.json();
-                    }
-                    return response.json().then((json) => {
-                        throw new Error(`Server error - ${json.message}`);
-                    });
-                })
-                .then((hostFamilies) => hostFamilies.map((hf: any) => HostFamiliesManager.format(hf, hostFamilyKinds)) as HostFamily[]);
-        });
+        return fetchWithAuth(`${API_URL}/host-families`, { method: "GET" })
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                }
+                return response.json().then((json) => {
+                    throw new Error(`Server error - ${json.message}`);
+                });
+            })
+            .then((hostFamilies) => hostFamilies.map((hf: any) => HostFamiliesManager.format(hf)) as HostFamily[]);
     };
 
     static getById = (id: number) => {
-        let hostFamilyKinds: HostFamilyKind[] = [];
-        return HostFamilyKindsManager.getAll().then((kinds) => {
-            hostFamilyKinds = kinds;
-            return fetchWithAuth(`${API_URL}/hostFamilies/${id}`, {
-                method: "GET",
+        return fetchWithAuth(`${API_URL}/host-families/${id}`, {
+            method: "GET",
+        })
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                }
+                return response.json().then((json) => {
+                    throw new Error(`Server error - ${json.message}`);
+                });
             })
-                .then((response) => {
-                    if (response.status === 200) {
-                        return response.json();
-                    }
-                    return response.json().then((json) => {
-                        throw new Error(`Server error - ${json.message}`);
-                    });
-                })
-                .then((hf: any) => HostFamiliesManager.format(hf, hostFamilyKinds));
-        });
+            .then((hf: any) => HostFamiliesManager.format(hf));
     };
 
     static getByAnimalId = (id: number): Promise<AnimalToHostFamily[]> => {
@@ -71,13 +65,12 @@ class HostFamiliesManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((athfs) => athfs.map((athf: any) => new AnimalToHostFamilyDTO(athf).toEntity()));
+            .then((athfs) => athfs.map((athf: any) => new HostFamilyRelationDTO(athf).toEntity()));
     };
 
     static create = (hostFamily: HostFamily): Promise<HostFamily> => {
         const hostFamilyToUpload = this.formatForServer(hostFamily);
-
-        return fetchWithAuth(`${API_URL}/hostFamilies`, {
+        return fetchWithAuth(`${API_URL}/host-families`, {
             method: "POST",
             body: JSON.stringify(hostFamilyToUpload),
             headers: {
@@ -85,20 +78,19 @@ class HostFamiliesManager {
             },
         })
             .then((response) => {
-                if (response.status === 200) {
+                if (response.status === 201) {
                     return response.json();
                 }
                 return response.json().then((json) => {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((hf: any) => HostFamiliesManager.format(hf, hostFamily.kinds));
+            .then((hf: any) => HostFamiliesManager.format(hf));
     };
 
     static update = (hostFamily: HostFamily): Promise<HostFamily> => {
         const hostFamilyToUpload = this.formatForServer(hostFamily);
-
-        return fetchWithAuth(`${API_URL}/hostFamilies/${hostFamily.id}`, {
+        return fetchWithAuth(`${API_URL}/host-families/${hostFamily.id}`, {
             method: "PUT",
             body: JSON.stringify(hostFamilyToUpload),
             headers: {
@@ -113,18 +105,18 @@ class HostFamiliesManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((hf: any) => HostFamiliesManager.format(hf, hostFamily.kinds));
+            .then((hf: any) => HostFamiliesManager.format(hf));
     };
 
     static delete = (hostFamily: HostFamily) => {
-        return fetchWithAuth(`${API_URL}/hostFamilies/${hostFamily.id}`, {
+        return fetchWithAuth(`${API_URL}/host-families/${hostFamily.id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
             },
         }).then((response) => {
-            if (response.status === 200) {
-                return response.json();
+            if (response.status === 204) {
+                return true;
             }
             return response.json().then((json) => {
                 throw new Error(`Server error - ${json.message}`);

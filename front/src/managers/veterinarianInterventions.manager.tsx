@@ -13,8 +13,8 @@ class VeterinarianInterventionsManager {
         return new VeterinarianInterventionDTO(vetInter).toEntity();
     };
 
-    static formatForServer = (vetInter: VeterinarianIntervention): VeterinarianIntervention => {
-        return vetInter;
+    static formatForServer = (vetInter: VeterinarianIntervention) => {
+        return new VeterinarianInterventionDTO(vetInter);
     };
 
     static getAll = () => {
@@ -75,7 +75,6 @@ class VeterinarianInterventionsManager {
 
     static create = (vetInter: VeterinarianIntervention) => {
         const vetInterToUpload = this.formatForServer(vetInter);
-
         return fetchWithAuth(`${API_URL}/veterinarianInterventions`, {
             method: "POST",
             body: JSON.stringify(vetInterToUpload),
@@ -84,7 +83,7 @@ class VeterinarianInterventionsManager {
             },
         })
             .then((response) => {
-                if (response.status === 200) {
+                if (response.status === 201) {
                     return response.json();
                 }
                 return response.json().then((json) => {
@@ -95,9 +94,10 @@ class VeterinarianInterventionsManager {
     };
 
     static update = (vetInter: VeterinarianIntervention) => {
+        const vetInterToUpload = this.formatForServer(vetInter);
         return fetchWithAuth(`${API_URL}/veterinarianInterventions/${vetInter.id}`, {
             method: "PUT",
-            body: JSON.stringify(vetInter),
+            body: JSON.stringify(vetInterToUpload),
             headers: {
                 "Content-Type": "application/json",
             },
@@ -120,8 +120,8 @@ class VeterinarianInterventionsManager {
                 "Content-Type": "application/json",
             },
         }).then((response) => {
-            if (response.status === 200) {
-                return response.json();
+            if (response.status === 204) {
+                return true;
             }
             return response.json().then((json) => {
                 throw new Error(`Server error - ${json.message}`);

@@ -1,144 +1,151 @@
 import Animal from "../entities/Animal";
+import Species from "../entities/Species";
+import AnimalToHostFamilyDTO from "./AnimalToHostFamilyDTO";
+import SpeciesDTO from "./SpeciesDTO";
 
 class AnimalDTO {
     id: number;
     name: string;
-    species_id: number;
+    species?: SpeciesDTO;
     icad: string;
     sexe?: string;
     race?: string;
     birthdate?: string;
-    entry_date?: string;
-    distinctive_signs?: string;
-    reason_for_care?: string;
-    place_of_care?: string;
-    care_infos?: string;
-    exit_date?: string;
-    exit_reason?: string;
-    exit_infos?: string;
-    death_date?: string;
-    death_reason?: string;
+    entryDate?: string;
+    distinctiveSigns?: string;
+    reasonForCare?: string;
+    placeOfCare?: string;
+    careInfos?: string;
+    exitDate?: string;
+    exitReason?: string;
+    exitInfos?: string;
+    deathDate?: string;
+    deathReason?: string;
     sterilised?: boolean;
-    first_vaccination_date?: string;
-    second_vaccination_date?: string;
-    fiv_negative?: boolean;
-    felv_negative?: boolean;
-    health_issues?: string;
+    firstVaccinationDate?: string;
+    secondVaccinationDate?: string;
+    fivNegative?: boolean;
+    felvNegative?: boolean;
+    healthIssues?: string;
     behaviour?: string;
-    need_friends?: boolean;
+    needFriends?: boolean;
     posture?: string;
-    cats_ok?: boolean;
-    dogs_ok?: boolean;
-    kids_ok?: boolean;
-    behavior_particularity?: string;
+    catsOk?: boolean;
+    dogsOk?: boolean;
+    kidsOk?: boolean;
+    behaviorParticularity?: string;
     adopted?: boolean;
     broadcastable?: boolean;
     bookable?: boolean;
-    need_external_access?: boolean;
+    needExternalAccess?: boolean;
     transferor?: string;
-    anti_parasitic_date?: string;
-    transfer_certificate?: boolean;
+    antiParasiticDate?: string;
+    transferCertificate?: boolean;
     reserved?: boolean;
-    need_icad_duplicate?: string;
-    current_host_family_id?: string;
-    current_host_family_referent_id?: string;
-    contract_sent?: boolean;
-    album_created?: boolean;
+    needIcadDuplicate?: string;
+    currentHostFamilyId?: string;
+    currentHostFamilyReferentId?: string;
+    contractSent?: boolean;
+    albumCreated?: boolean;
+    hostFamilyRelations?: AnimalToHostFamilyDTO[];
 
     constructor(
         animal: any
     ) {
         this.id = animal.id;
         this.name = animal.name;
-        this.species_id = animal.species_id;
+        this.species = !!animal.species ? new SpeciesDTO(animal.species) : undefined;
         this.icad = animal.icad;
         this.sexe = animal.sexe;
         this.race = animal.race;
         this.birthdate = animal.birthdate?.substring(0, 10);
-        this.entry_date = animal.entry_date?.substring(0, 10);
-        this.distinctive_signs = animal.distinctive_signs;
-        this.reason_for_care = animal.reason_for_care;
-        this.place_of_care = animal.place_of_care;
-        this.care_infos = animal.care_infos;
-        this.exit_date = animal.exit_date?.substring(0, 10);
-        this.exit_reason = animal.exit_reason;
-        this.exit_infos = animal.exit_infos;
-        this.death_date = animal.death_date?.substring(0, 10);
-        this.death_reason = animal.death_reason;
-        this.sterilised = animal.sterilised === null ? undefined : animal.sterilised === 1;
-        this.first_vaccination_date = animal.first_vaccination_date?.substring(0, 10);
-        this.second_vaccination_date = animal.second_vaccination_date?.substring(0, 10);
-        this.fiv_negative = animal.fiv_negative === null ? undefined : animal.fiv_negative === 1;
-        this.felv_negative = animal.felv_negative === null ? undefined : animal.felv_negative === 1;
-        this.health_issues = animal.health_issues;
+        this.entryDate = animal.entryDate?.substring(0, 10);
+        this.distinctiveSigns = animal.distinctiveSigns;
+        this.reasonForCare = animal.reasonForCare;
+        this.placeOfCare = animal.placeOfCare;
+        this.careInfos = animal.careInfos;
+        this.exitDate = animal.exitDate?.substring(0, 10);
+        this.exitReason = animal.exitReason;
+        this.exitInfos = animal.exitInfos;
+        this.deathDate = animal.deathDate?.substring(0, 10);
+        this.deathReason = animal.deathReason;
+        this.sterilised = animal.sterilised;
+        this.firstVaccinationDate = animal.firstVaccinationDate?.substring(0, 10);
+        this.secondVaccinationDate = animal.secondVaccinationDate?.substring(0, 10);
+        this.fivNegative = animal.fivNegative;
+        this.felvNegative = animal.felvNegative;
+        this.healthIssues = animal.healthIssues;
         this.behaviour = animal.behaviour;
-        this.need_friends = animal.need_friends === null ? undefined : animal.need_friends === 1;
+        this.needFriends = animal.needFriends;
         this.posture = animal.posture;
-        this.cats_ok = animal.cats_ok === null ? undefined : animal.cats_ok === 1;
-        this.dogs_ok = animal.dogs_ok === null ? undefined : animal.dogs_ok === 1;
-        this.kids_ok = animal.kids_ok === null ? undefined : animal.kids_ok === 1;
-        this.behavior_particularity = animal.behavior_particularity;
-        this.adopted = animal.adopted === null ? undefined : animal.adopted === 1;
-        this.broadcastable = animal.broadcastable === null ? undefined : animal.broadcastable === 1;
-        this.bookable = animal.bookable === null ? undefined : animal.bookable === 1;
-        this.need_external_access = animal.need_external_access === null ? undefined : animal.need_external_access === 1;
+        this.catsOk = animal.catsOk
+        this.dogsOk = animal.dogsOk;
+        this.kidsOk = animal.kidsOk;
+        this.behaviorParticularity = animal.behaviorParticularity;
+        this.adopted = animal.adopted;
+        this.broadcastable = animal.broadcastable;
+        this.bookable = animal.bookable;
+        this.needExternalAccess = animal.needExternalAccess;
         this.transferor = animal.transferor;
-        this.anti_parasitic_date = animal.anti_parasitic_date?.substring(0, 10);
-        this.transfer_certificate = animal.transfer_certificate === null ? undefined : animal.transfer_certificate === 1;
-        this.reserved = animal.reserved === null ? undefined : animal.reserved === 1;
-        this.need_icad_duplicate = animal.need_icad_duplicate;
-        this.current_host_family_id = animal.current_host_family_id;
-        this.current_host_family_referent_id = animal.current_host_family_referent_id;
-        this.contract_sent = animal.contract_sent === null ? undefined : animal.contract_sent === 1;
-        this.album_created = animal.album_created === null ? undefined : animal.album_created === 1;
+        this.antiParasiticDate = animal.antiParasiticDate?.substring(0, 10);
+        this.transferCertificate = animal.transferCertificate;
+        this.reserved = animal.reserved;
+        this.needIcadDuplicate = animal.needIcadDuplicate;
+        this.currentHostFamilyId = animal.currentHostFamilyId;
+        this.currentHostFamilyReferentId = animal.currentHostFamilyReferentId;
+        this.contractSent = animal.contractSent;
+        this.albumCreated = animal.albumCreated;
+        this.hostFamilyRelations = animal.hostFamilyRelations?.map((hostFamilyRelation: any) => new AnimalToHostFamilyDTO(hostFamilyRelation, this));
     }
 
     toEntity(): Animal {
         let animal = new Animal(
             this.id,
             this.name,
-            this.species_id,
-            this.entry_date,
+            this.species?.toEntity(),
+            this.entryDate,
             this.icad,
             this.sexe,
             this.race,
             this.birthdate,
-            this.distinctive_signs,
-            this.reason_for_care,
-            this.place_of_care,
-            this.care_infos,
-            this.exit_date,
-            this.exit_reason,
-            this.exit_infos,
-            this.death_date,
-            this.death_reason,
+            this.distinctiveSigns,
+            this.reasonForCare,
+            this.placeOfCare,
+            this.careInfos,
+            this.exitDate,
+            this.exitReason,
+            this.exitInfos,
+            this.deathDate,
+            this.deathReason,
             this.sterilised,
-            this.first_vaccination_date,
-            this.second_vaccination_date,
-            this.fiv_negative,
-            this.felv_negative,
-            this.health_issues,
+            this.firstVaccinationDate,
+            this.secondVaccinationDate,
+            this.fivNegative,
+            this.felvNegative,
+            this.healthIssues,
             this.behaviour,
-            this.need_friends,
+            this.needFriends,
             this.posture,
-            this.cats_ok,
-            this.dogs_ok,
-            this.kids_ok,
-            this.behavior_particularity,
+            this.catsOk,
+            this.dogsOk,
+            this.kidsOk,
+            this.behaviorParticularity,
             this.adopted,
             this.broadcastable,
             this.bookable,
-            this.need_external_access,
+            this.needExternalAccess,
             this.transferor,
-            this.anti_parasitic_date,
-            this.transfer_certificate,
+            this.antiParasiticDate,
+            this.transferCertificate,
             this.reserved,
-            this.need_icad_duplicate,
-            this.current_host_family_id,
-            this.current_host_family_referent_id !== undefined ? parseInt(this.current_host_family_referent_id) : undefined,
-            this.contract_sent,
-            this.album_created
+            this.needIcadDuplicate,
+            this.currentHostFamilyId,
+            this.currentHostFamilyReferentId !== undefined ? parseInt(this.currentHostFamilyReferentId) : undefined,
+            this.contractSent,
+            this.albumCreated
         );
+
+        animal.hostFamilyRelations = this.hostFamilyRelations?.map((hostFamilyRelation) => hostFamilyRelation.toEntity(animal, undefined));
 
         return animal;
     }

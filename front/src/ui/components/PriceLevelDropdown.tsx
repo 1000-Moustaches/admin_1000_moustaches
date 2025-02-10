@@ -7,11 +7,7 @@ interface PriceLevelDropdownProps {
     [key: string]: any;
 }
 
-const PriceLevelDropdown: FC<PriceLevelDropdownProps> = ({
-    value,
-    onChange,
-    ...props
-}) => {
+const PriceLevelDropdown: FC<PriceLevelDropdownProps> = ({ value, onChange, ...props }) => {
     let valueColor = (value: number | undefined): string => {
         switch (value) {
             case 0:

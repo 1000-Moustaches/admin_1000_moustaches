@@ -5,14 +5,14 @@ class VeterinarianInterventionDTO {
     veterinarian_id: number;
     date: string;
     description: string;
-    animal_id: number;
+    animalId: number;
 
     constructor(vetInter: any) {
         this.id = vetInter.id;
         this.veterinarian_id = vetInter.veterinarian_id;
         this.date = vetInter.date?.substring(0, 10);
         this.description = vetInter.description;
-        this.animal_id = vetInter.animal_id;
+        this.animalId = vetInter.animalId;
     }
 
     toEntity() {
@@ -21,7 +21,7 @@ class VeterinarianInterventionDTO {
             this.veterinarian_id,
             this.date,
             this.description,
-            this.animal_id
+            this.animalId
         );
     }
 }

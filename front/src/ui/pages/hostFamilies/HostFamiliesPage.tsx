@@ -71,17 +71,17 @@ namespace FilterType {
         if (value === null || value === undefined) return true;
         switch (filter) {
             case FilterType.MEMBERSHIP_LATE:
-                return value === true ? hostFamily.membership_up_to_date === false : true;
+                return value === true ? hostFamily.membershipUpToDate === false : true;
             case FilterType.HAS_A_VEHICULE:
-                return value === true ? hostFamily.has_vehicule === value : true;
+                return value === true ? hostFamily.hasVehicule === value : true;
             case FilterType.ON_A_BREAK:
-                return hostFamily.on_break === value;
+                return hostFamily.onBreak === value;
             case FilterType.TEMPORARY:
-                return hostFamily.is_temporary === value;
+                return hostFamily.isTemporary === value;
             case FilterType.REFERENT:
-                return hostFamily.referent_id === value;
+                return hostFamily.referent?.id === value;
             case FilterType.TYPE:
-                return hostFamily.kinds.map((hfk) => hfk.id).includes(value);
+                return hostFamily.hostFamilyKinds?.map((hfk) => hfk.id).includes(value) ?? false;
         }
     }
 }
@@ -418,7 +418,7 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
                                         ]}
                                         values={filteredHostFamilies.map((hostFamily) => {
                                             return {
-                                                status: hostFamily.on_break ? <RiZzzFill /> : <MdOutlineThumbUp />,
+                                                status: hostFamily.onBreak ? <RiZzzFill /> : <MdOutlineThumbUp />,
                                                 name: hostFamily.displayName,
                                                 phone: hostFamily.phone,
                                                 situation: hostFamily.situation,
@@ -458,7 +458,7 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
                                                 return hf.latitude !== null && hf.longitude !== null;
                                             })
                                             .map((hostFamily) => {
-                                                var hostFamilyKind = (hostFamily.kinds?.length ?? 0) > 0 ? hostFamily.kinds[0] : null;
+                                                var hostFamilyKind = (hostFamily.hostFamilyKinds?.length ?? 0) > 0 ? hostFamily.hostFamilyKinds![0] : null;
                                                 return (
                                                     <Marker
                                                         title={hostFamily.displayName}

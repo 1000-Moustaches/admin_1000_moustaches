@@ -5,14 +5,14 @@ class UserDTO {
     name: string;
     firstname: string;
     email: string;
-    is_referent: number;
+    isReferent: boolean;
 
     constructor(user: any) {
         this.id = user.id;
         this.name = user.name;
         this.firstname = user.firstname;
         this.email = user.email;
-        this.is_referent = user.is_referent;
+        this.isReferent = user.isReferent;
     }
 
     toEntity(): User {
@@ -21,7 +21,7 @@ class UserDTO {
             this.name,
             this.firstname,
             this.email,
-            this.is_referent === 1
+            this.isReferent
         );
     }
 }

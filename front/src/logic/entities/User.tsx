@@ -1,23 +1,17 @@
 class User {
-    id: number;
-    name: string;
-    firstname: string;
-    email: string;
-    is_referent: boolean;
-    displayName: string;
+    id?: number;
+    name?: string;
+    firstname?: string;
+    email?: string;
+    isReferent?: boolean;
+    displayName?: string;
 
-    constructor(
-        id: number = -1,
-        name: string = "",
-        firstname: string = "",
-        email: string = "",
-        is_referent: boolean = false
-    ) {
+    constructor(id?: number, name?: string, firstname?: string, email?: string, is_referent?: boolean) {
         this.id = id;
         this.name = name;
         this.firstname = firstname;
         this.email = email;
-        this.is_referent = is_referent;
+        this.isReferent = is_referent;
         this.displayName = name + " " + firstname;
     }
 }

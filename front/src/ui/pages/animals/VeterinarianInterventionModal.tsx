@@ -8,9 +8,10 @@ import VeterinariansManager from "../../../managers/veterinarians.manager";
 import VeterinarianIntervention from "../../../logic/entities/VeterinarianIntervention";
 import Veterinarian from "../../../logic/entities/Veterinarian";
 import NotificationSystem from "react-notification-system";
+import Animal from "../../../logic/entities/Animal";
 
 interface VeterinarianInterventionModalProps {
-    animalId: number;
+    animal: Animal;
     veterinarianIntervention: VeterinarianIntervention;
     show: boolean;
     handleClose: (close: boolean) => void;
@@ -18,7 +19,7 @@ interface VeterinarianInterventionModalProps {
 }
 
 const VeterinarianInterventionModal: FC<VeterinarianInterventionModalProps> = ({
-    animalId,
+    animal,
     veterinarianIntervention: vetInter,
     show,
     handleClose,
@@ -53,7 +54,7 @@ const VeterinarianInterventionModal: FC<VeterinarianInterventionModalProps> = ({
             // Send new data to API
             VeterinarianInterventionsManager.create({
                 ...veterinarianIntervention,
-                animal_id: animalId,
+                animalId: animal.id,
             })
                 .then((_) => {
                     notificationSystem?.addNotification({
@@ -156,17 +157,17 @@ const VeterinarianInterventionModal: FC<VeterinarianInterventionModalProps> = ({
                             color={"primary"}
                             disabled={!isEditing}
                             value={{
-                                id: veterinarianIntervention.veterinarian_id,
-                                name: veterinarians.find((vet) => vet.id === veterinarianIntervention.veterinarian_id)?.name || "",
+                                id: veterinarianIntervention.veterinarianId,
+                                name: veterinarians.find((vet) => vet.id === veterinarianIntervention.veterinarianId)?.name || "",
                             }}
                             values={veterinarians}
                             valueDisplayName={(vet) => vet.name}
-                            valueActiveCheck={(vet) => vet.id === veterinarianIntervention.veterinarian_id}
+                            valueActiveCheck={(vet) => vet.id === veterinarianIntervention.veterinarianId}
                             key={"veterinarian"}
                             onChange={(newVet) =>
                                 setVeterinarianIntervention({
                                     ...veterinarianIntervention,
-                                    veterinarian_id: newVet.id,
+                                    veterinarianId: newVet.id,
                                 })
                             }
                         />

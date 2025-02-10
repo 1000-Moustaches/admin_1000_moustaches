@@ -1,5 +1,7 @@
+import HostFamilyKindDTO from "../logic/dto/HostFamilyKindDTO";
 import HostFamilyKind from "../logic/entities/HostFamilyKind";
 import fetchWithAuth from "../middleware/fetch-middleware";
+import HostFamiliesManager from "./hostFamilies.manager";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -9,11 +11,11 @@ class HostFamilyKindsManager {
     };
 
     static formatForServer = (hostFamily: HostFamilyKind) => {
-        return hostFamily;
+        return new HostFamilyKindDTO(hostFamily);
     };
 
     static getAll = (): Promise<HostFamilyKind[]> => {
-        return fetchWithAuth(`${API_URL}/hostFamilyKinds`, { method: "GET" })
+        return fetchWithAuth(`${API_URL}/host-family-kinds`, { method: "GET" })
             .then((response) => {
                 if (response.status === 200) {
                     return response.json();
@@ -22,13 +24,11 @@ class HostFamilyKindsManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((hostFamilyKinds) =>
-                hostFamilyKinds.map(HostFamilyKindsManager.format)
-            );
+            .then((hostFamilyKinds) => hostFamilyKinds.map(HostFamilyKindsManager.format));
     };
 
     static getById = (id: number): Promise<HostFamilyKind> => {
-        return fetchWithAuth(`${API_URL}/hostFamilyKinds/${id}`, {
+        return fetchWithAuth(`${API_URL}/host-family-kinds/${id}`, {
             method: "GET",
         })
             .then((response) => {
@@ -43,12 +43,9 @@ class HostFamilyKindsManager {
     };
 
     static getByHostFamilyId = (id: number): Promise<HostFamilyKind[]> => {
-        return fetchWithAuth(
-            `${API_URL}/hostFamilyToHostFamilyKinds/withHostFamilyId/${id}`,
-            {
-                method: "GET",
-            }
-        )
+        return fetchWithAuth(`${API_URL}/host-family-kinds/${id}`, {
+            method: "GET",
+        })
             .then((response) => {
                 if (response.status === 200) {
                     return response.json();
@@ -57,54 +54,8 @@ class HostFamilyKindsManager {
                     throw new Error(`Server error - ${json.message}`);
                 });
             })
-            .then((hostFamilyKinds) =>
-                hostFamilyKinds.map(HostFamilyKindsManager.format)
-            );
-    };
-
-    static createHostFamilyLink = (
-        hostFamilyKindId: number,
-        hostFamilyId: number
-    ) => {
-        return fetchWithAuth(`${API_URL}/hostFamilyToHostFamilyKinds`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                host_family_id: hostFamilyId,
-                host_family_kind_id: hostFamilyKindId,
-            }),
-        }).then((response) => {
-            if (response.status === 200) {
-                return response.json();
-            }
-            return response.json().then((json) => {
-                throw new Error(`Server error - ${json.message}`);
-            });
-        });
-    };
-
-    static deleteHostFamilyLink = (
-        hostFamilyKindId: number,
-        hostFamilyId: number
-    ) => {
-        return fetchWithAuth(
-            `${API_URL}/hostFamilyToHostFamilyKinds/hostFamilyKind/${hostFamilyKindId}/hostFamily/${hostFamilyId}`,
-            {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        ).then((response) => {
-            if (response.status === 200) {
-                return response.json();
-            }
-            return response.json().then((json) => {
-                throw new Error(`Server error - ${json.message}`);
-            });
-        });
+            .then(HostFamiliesManager.format)
+            .then((hf) => hf.hostFamilyKinds ?? []);
     };
 }
 

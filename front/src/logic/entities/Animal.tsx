@@ -1,213 +1,221 @@
+import AnimalToHostFamily from "./AnimalToHostFamily";
 import DateObject from "./DateObject";
 import Species from "./Species";
+import VeterinarianIntervention from "./VeterinarianIntervention";
 
 class Animal {
     id?: number;
     name?: string;
-    species_id?: number;
+    species?: Species;
     icad?: string;
     sexe?: string;
     race?: string;
     birthdate?: string;
-    entry_date?: string;
-    distinctive_signs?: string;
-    reason_for_care?: string;
-    place_of_care?: string;
-    care_infos?: string;
-    exit_date?: string;
-    exit_reason?: string;
-    exit_infos?: string;
-    death_date?: string;
-    death_reason?: string;
+    entryDate?: string;
+    distinctiveSigns?: string;
+    reasonForCare?: string;
+    placeOfCare?: string;
+    careInfos?: string;
+    exitDate?: string;
+    exitReason?: string;
+    exitInfos?: string;
+    deathDate?: string;
+    deathReason?: string;
     sterilised?: boolean;
-    first_vaccination_date?: string;
-    second_vaccination_date?: string;
-    fiv_negative?: boolean;
-    felv_negative?: boolean;
-    health_issues?: string;
+    firstVaccinationDate?: string;
+    secondVaccinationDate?: string;
+    fivNegative?: boolean;
+    felvNegative?: boolean;
+    healthIssues?: string;
     behaviour?: string;
-    need_friends?: boolean;
+    needFriends?: boolean;
     posture?: string;
-    cats_ok?: boolean;
-    dogs_ok?: boolean;
-    kids_ok?: boolean;
-    behavior_particularity?: string;
+    catsOk?: boolean;
+    dogsOk?: boolean;
+    kidsOk?: boolean;
+    behaviorParticularity?: string;
     adopted?: boolean;
     broadcastable?: boolean;
     bookable?: boolean;
-    need_external_access?: boolean;
+    needExternalAccess?: boolean;
     transferor?: string;
-    anti_parasitic_date?: string;
-    transfer_certificate?: boolean;
+    antiParasiticDate?: string;
+    transferCertificate?: boolean;
     reserved?: boolean;
-    need_icad_duplicate?: string;
-    current_host_family_id?: string;
-    current_host_family_referent_id?: number;
-    contract_sent?: boolean;
-    album_created?: boolean;
+    needIcadDuplicate?: string;
+    currentHostFamilyId?: string;
+    currentHostFamilyReferentId?: number;
+    contractSent?: boolean;
+    albumCreated?: boolean;
+    hostFamilyRelations?: AnimalToHostFamily[];
+    veterinarianInterventions?: VeterinarianIntervention[];
 
     birthdateObject: DateObject;
-    entry_dateObject: DateObject;
-    exit_dateObject: DateObject;
-    death_dateObject: DateObject;
-    first_vaccination_dateObject: DateObject;
-    second_vaccination_dateObject: DateObject;
-    anti_parasitic_dateObject: DateObject;
-
-    species_name?: string;
+    entryDateObject: DateObject;
+    exitDateObject: DateObject;
+    deathDateObject: DateObject;
+    firstVaccinationDateObject: DateObject;
+    secondVaccinationDateObject: DateObject;
+    antiParasiticDateObject: DateObject;
 
     static copy(animal: Animal): Animal {
         return new Animal(
             animal.id,
             animal.name,
-            animal.species_id,
-            animal.entry_date,
+            animal.species,
+            animal.entryDate,
             animal.icad,
             animal.sexe,
             animal.race,
             animal.birthdate,
-            animal.distinctive_signs,
-            animal.reason_for_care,
-            animal.place_of_care,
-            animal.care_infos,
-            animal.exit_date,
-            animal.exit_reason,
-            animal.exit_infos,
-            animal.death_date,
-            animal.death_reason,
+            animal.distinctiveSigns,
+            animal.reasonForCare,
+            animal.placeOfCare,
+            animal.careInfos,
+            animal.exitDate,
+            animal.exitReason,
+            animal.exitInfos,
+            animal.deathDate,
+            animal.deathReason,
             animal.sterilised,
-            animal.first_vaccination_date,
-            animal.second_vaccination_date,
-            animal.fiv_negative,
-            animal.felv_negative,
-            animal.health_issues,
+            animal.firstVaccinationDate,
+            animal.secondVaccinationDate,
+            animal.fivNegative,
+            animal.felvNegative,
+            animal.healthIssues,
             animal.behaviour,
-            animal.need_friends,
+            animal.needFriends,
             animal.posture,
-            animal.cats_ok,
-            animal.dogs_ok,
-            animal.kids_ok,
-            animal.behavior_particularity,
+            animal.catsOk,
+            animal.dogsOk,
+            animal.kidsOk,
+            animal.behaviorParticularity,
             animal.adopted,
             animal.broadcastable,
             animal.bookable,
-            animal.need_external_access,
+            animal.needExternalAccess,
             animal.transferor,
-            animal.anti_parasitic_date,
-            animal.transfer_certificate,
+            animal.antiParasiticDate,
+            animal.transferCertificate,
             animal.reserved,
-            animal.need_icad_duplicate,
-            animal.current_host_family_id,
-            animal.current_host_family_referent_id,
-            animal.contract_sent,
-            animal.album_created
+            animal.needIcadDuplicate,
+            animal.currentHostFamilyId,
+            animal.currentHostFamilyReferentId,
+            animal.contractSent,
+            animal.albumCreated,
+            animal.hostFamilyRelations,
+            animal.veterinarianInterventions
         );
     }
 
     constructor(
         id?: number,
         name?: string,
-        species_id?: number,
-        entry_date?: string,
+        species?: Species,
+        entryDate?: string,
         icad?: string,
         sexe?: string,
         race?: string,
         birthdate?: string,
-        distinctive_signs?: string,
-        reason_for_care?: string,
-        place_of_care?: string,
-        care_infos?: string,
-        exit_date?: string,
-        exit_reason?: string,
-        exit_infos?: string,
-        death_date?: string,
-        death_reason?: string,
+        distinctiveSigns?: string,
+        reasonForCare?: string,
+        placeOfCare?: string,
+        careInfos?: string,
+        exitDate?: string,
+        exitReason?: string,
+        exitInfos?: string,
+        deathDate?: string,
+        deathReason?: string,
         sterilised?: boolean,
-        first_vaccination_date?: string,
-        second_vaccination_date?: string,
-        fiv_negative?: boolean,
-        felv_negative?: boolean,
-        health_issues?: string,
+        firstVaccinationDate?: string,
+        secondVaccinationDate?: string,
+        fivNegative?: boolean,
+        felvNegative?: boolean,
+        healthIssues?: string,
         behaviour?: string,
-        need_friends?: boolean,
+        needFriends?: boolean,
         posture?: string,
-        cats_ok?: boolean,
-        dogs_ok?: boolean,
-        kids_ok?: boolean,
-        behavior_particularity?: string,
+        catsOk?: boolean,
+        dogsOk?: boolean,
+        kidsOk?: boolean,
+        behaviorParticularity?: string,
         adopted?: boolean,
         broadcastable?: boolean,
         bookable?: boolean,
-        need_external_access?: boolean,
+        needExternalAccess?: boolean,
         transferor?: string,
-        anti_parasitic_date?: string,
-        transfer_certificate?: boolean,
+        antiParasiticDate?: string,
+        transferCertificate?: boolean,
         reserved?: boolean,
-        need_icad_duplicate?: string,
-        current_host_family_id?: string,
-        current_host_family_referent_id?: number,
-        contract_sent?: boolean,
-        album_created?: boolean
+        needIcadDuplicate?: string,
+        currentHostFamilyId?: string,
+        currentHostFamilyReferentId?: number,
+        contractSent?: boolean,
+        albumCreated?: boolean,
+        hostFamilyRelations?: AnimalToHostFamily[],
+        veterinarianInterventions?: VeterinarianIntervention[]
     ) {
         this.id = id;
         this.name = name;
-        this.species_id = species_id;
+        this.species = species;
         this.icad = icad;
         this.sexe = sexe;
         this.race = race;
         this.birthdate = birthdate;
-        this.entry_date = entry_date;
-        this.distinctive_signs = distinctive_signs;
-        this.reason_for_care = reason_for_care;
-        this.place_of_care = place_of_care;
-        this.care_infos = care_infos;
-        this.exit_date = exit_date;
-        this.exit_reason = exit_reason;
-        this.exit_infos = exit_infos;
-        this.death_date = death_date;
-        this.death_reason = death_reason;
+        this.entryDate = entryDate;
+        this.distinctiveSigns = distinctiveSigns;
+        this.reasonForCare = reasonForCare;
+        this.placeOfCare = placeOfCare;
+        this.careInfos = careInfos;
+        this.exitDate = exitDate;
+        this.exitReason = exitReason;
+        this.exitInfos = exitInfos;
+        this.deathDate = deathDate;
+        this.deathReason = deathReason;
         this.sterilised = sterilised;
-        this.first_vaccination_date = first_vaccination_date;
-        this.second_vaccination_date = second_vaccination_date;
-        this.fiv_negative = fiv_negative;
-        this.felv_negative = felv_negative;
-        this.health_issues = health_issues;
+        this.firstVaccinationDate = firstVaccinationDate;
+        this.secondVaccinationDate = secondVaccinationDate;
+        this.fivNegative = fivNegative;
+        this.felvNegative = felvNegative;
+        this.healthIssues = healthIssues;
         this.behaviour = behaviour;
-        this.need_friends = need_friends;
+        this.needFriends = needFriends;
         this.posture = posture;
-        this.cats_ok = cats_ok;
-        this.dogs_ok = dogs_ok;
-        this.kids_ok = kids_ok;
-        this.behavior_particularity = behavior_particularity;
+        this.catsOk = catsOk;
+        this.dogsOk = dogsOk;
+        this.kidsOk = kidsOk;
+        this.behaviorParticularity = behaviorParticularity;
         this.adopted = adopted;
         this.broadcastable = broadcastable;
         this.bookable = bookable;
-        this.need_external_access = need_external_access;
+        this.needExternalAccess = needExternalAccess;
         this.transferor = transferor;
-        this.anti_parasitic_date = anti_parasitic_date;
-        this.transfer_certificate = transfer_certificate;
+        this.antiParasiticDate = antiParasiticDate;
+        this.transferCertificate = transferCertificate;
         this.reserved = reserved;
-        this.need_icad_duplicate = need_icad_duplicate;
-        this.current_host_family_id = current_host_family_id;
-        this.current_host_family_referent_id = current_host_family_referent_id;
-        this.contract_sent = contract_sent;
-        this.album_created = album_created;
+        this.needIcadDuplicate = needIcadDuplicate;
+        this.currentHostFamilyId = currentHostFamilyId;
+        this.currentHostFamilyReferentId = currentHostFamilyReferentId;
+        this.contractSent = contractSent;
+        this.albumCreated = albumCreated;
+        this.hostFamilyRelations = hostFamilyRelations;
+        this.veterinarianInterventions = veterinarianInterventions;
 
         this.birthdateObject = new DateObject();
-        this.entry_dateObject = new DateObject();
-        this.exit_dateObject = new DateObject();
-        this.death_dateObject = new DateObject();
-        this.first_vaccination_dateObject = new DateObject();
-        this.second_vaccination_dateObject = new DateObject();
-        this.anti_parasitic_dateObject = new DateObject();
+        this.entryDateObject = new DateObject();
+        this.exitDateObject = new DateObject();
+        this.deathDateObject = new DateObject();
+        this.firstVaccinationDateObject = new DateObject();
+        this.secondVaccinationDateObject = new DateObject();
+        this.antiParasiticDateObject = new DateObject();
 
         this.setBirthdate(this.birthdate);
-        this.setEntryDate(this.entry_date);
-        this.setExitDate(this.exit_date);
-        this.setDeathDate(this.death_date);
-        this.setFirstVaccinationDate(this.first_vaccination_date);
-        this.setSecondVaccinationDate(this.second_vaccination_date);
-        this.setAntiParasiticDate(this.anti_parasitic_date);
+        this.setEntryDate(this.entryDate);
+        this.setExitDate(this.exitDate);
+        this.setDeathDate(this.deathDate);
+        this.setFirstVaccinationDate(this.firstVaccinationDate);
+        this.setSecondVaccinationDate(this.secondVaccinationDate);
+        this.setAntiParasiticDate(this.antiParasiticDate);
     }
 
     setBirthdate = (date?: string) => {
@@ -216,38 +224,37 @@ class Animal {
     };
 
     setEntryDate = (date?: string) => {
-        this.entry_date = date;
-        this.entry_dateObject.setDate(date);
+        this.entryDate = date;
+        this.entryDateObject.setDate(date);
     };
 
     setExitDate = (date?: string) => {
-        this.exit_date = date;
-        this.exit_dateObject.setDate(date);
+        this.exitDate = date;
+        this.exitDateObject.setDate(date);
     };
 
     setDeathDate = (date?: string) => {
-        this.death_date = date;
-        this.death_dateObject.setDate(date);
+        this.deathDate = date;
+        this.deathDateObject.setDate(date);
     };
 
     setFirstVaccinationDate = (date?: string) => {
-        this.first_vaccination_date = date;
-        this.first_vaccination_dateObject.setDate(date);
+        this.firstVaccinationDate = date;
+        this.firstVaccinationDateObject.setDate(date);
     };
 
     setSecondVaccinationDate = (date?: string) => {
-        this.second_vaccination_date = date;
-        this.second_vaccination_dateObject.setDate(date);
+        this.secondVaccinationDate = date;
+        this.secondVaccinationDateObject.setDate(date);
     };
 
     setAntiParasiticDate = (date?: string) => {
-        this.anti_parasitic_date = date;
-        this.anti_parasitic_dateObject.setDate(date);
+        this.antiParasiticDate = date;
+        this.antiParasiticDateObject.setDate(date);
     };
 
     setSpecies = (species: Species) => {
-        this.species_id = species.id;
-        this.species_name = species.name;
+        this.species = species;
     };
 }
 
