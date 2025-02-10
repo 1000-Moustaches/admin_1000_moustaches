@@ -62,8 +62,6 @@ class UsersManager {
 
     static create = (user: User): Promise<User> => {
         const userToUpload = this.formatForServer(user);
-
-        console.info("Will call post on users");
         return fetchWithAuth(`${API_URL}/users`, {
             method: "POST",
             body: JSON.stringify(userToUpload),
@@ -83,9 +81,10 @@ class UsersManager {
     };
 
     static update = (user: User): Promise<User> => {
+        const userToUpload = this.formatForServer(user);
         return fetchWithAuth(`${API_URL}/users/${user.id}`, {
             method: "PUT",
-            body: JSON.stringify(user),
+            body: JSON.stringify(userToUpload),
             headers: {
                 "Content-Type": "application/json",
             },

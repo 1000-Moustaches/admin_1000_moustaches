@@ -63,7 +63,6 @@ class AnimalsToHostFamiliesManager {
 
     static create = (animalToHostFamily: AnimalToHostFamily) => {
         const animalToHostFamilyToUpload = this.formatForServer(animalToHostFamily);
-
         return fetchWithAuth(`${API_URL}/animal-host-families`, {
             method: "POST",
             body: JSON.stringify(animalToHostFamilyToUpload),
@@ -84,7 +83,6 @@ class AnimalsToHostFamiliesManager {
 
     static update = (animalToHostFamily: AnimalToHostFamily) => {
         const animalToHostFamilyToUpload = this.formatForServer(animalToHostFamily);
-
         return fetchWithAuth(`${API_URL}/animal-host-families/${animalToHostFamily.id}`, {
             method: "PUT",
             body: JSON.stringify(animalToHostFamilyToUpload),

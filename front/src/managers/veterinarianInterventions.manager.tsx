@@ -13,8 +13,8 @@ class VeterinarianInterventionsManager {
         return new VeterinarianInterventionDTO(vetInter).toEntity();
     };
 
-    static formatForServer = (vetInter: VeterinarianIntervention): VeterinarianIntervention => {
-        return vetInter;
+    static formatForServer = (vetInter: VeterinarianIntervention) => {
+        return new VeterinarianInterventionDTO(vetInter);
     };
 
     static getAll = () => {
@@ -75,7 +75,6 @@ class VeterinarianInterventionsManager {
 
     static create = (vetInter: VeterinarianIntervention) => {
         const vetInterToUpload = this.formatForServer(vetInter);
-
         return fetchWithAuth(`${API_URL}/veterinarianInterventions`, {
             method: "POST",
             body: JSON.stringify(vetInterToUpload),
@@ -95,9 +94,10 @@ class VeterinarianInterventionsManager {
     };
 
     static update = (vetInter: VeterinarianIntervention) => {
+        const vetInterToUpload = this.formatForServer(vetInter);
         return fetchWithAuth(`${API_URL}/veterinarianInterventions/${vetInter.id}`, {
             method: "PUT",
-            body: JSON.stringify(vetInter),
+            body: JSON.stringify(vetInterToUpload),
             headers: {
                 "Content-Type": "application/json",
             },

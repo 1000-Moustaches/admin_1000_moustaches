@@ -735,7 +735,6 @@ const HostFamilyDetailPage: FC<HostFamilyDetailPageProps> = ({ props }) => {
                                                                             if (evt.target.checked === true) {
                                                                                 // Create link
                                                                                 const index = hostFamily?.hostFamilyKinds?.indexOf(hfk, 0);
-                                                                                console.log("index", index, hostFamily);
                                                                                 if (index === -1) {
                                                                                     hostFamily.hostFamilyKinds = [
                                                                                         ...(hostFamily?.hostFamilyKinds ?? []),

@@ -19,7 +19,6 @@ class HostFamiliesManager {
 
     static formatForServer = (hostFamily: HostFamily) => {
         const dto = new HostFamilyDTO(hostFamily);
-        console.log("HF", hostFamily, dto);
         const { animalRelations, ...rest } = dto;
         return {
             ...rest,
@@ -71,7 +70,6 @@ class HostFamiliesManager {
 
     static create = (hostFamily: HostFamily): Promise<HostFamily> => {
         const hostFamilyToUpload = this.formatForServer(hostFamily);
-
         return fetchWithAuth(`${API_URL}/host-families`, {
             method: "POST",
             body: JSON.stringify(hostFamilyToUpload),
@@ -92,7 +90,6 @@ class HostFamiliesManager {
 
     static update = (hostFamily: HostFamily): Promise<HostFamily> => {
         const hostFamilyToUpload = this.formatForServer(hostFamily);
-
         return fetchWithAuth(`${API_URL}/host-families/${hostFamily.id}`, {
             method: "PUT",
             body: JSON.stringify(hostFamilyToUpload),

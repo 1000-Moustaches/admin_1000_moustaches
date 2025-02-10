@@ -49,7 +49,6 @@ class VeterinariansManager {
 
     static create = (veterinarian: Veterinarian): Promise<Veterinarian> => {
         const veterinarianToUpload = this.formatForServer(veterinarian);
-
         return fetchWithAuth(`${API_URL}/veterinarians`, {
             method: "POST",
             body: JSON.stringify(veterinarianToUpload),
@@ -69,9 +68,7 @@ class VeterinariansManager {
     };
 
     static update = (vet: Veterinarian): Promise<Veterinarian> => {
-        console.log("Will send priceLevel", vet.priceLevel);
         const veterinarianToUpload = this.formatForServer(vet);
-        console.log(vet, veterinarianToUpload);
         return fetchWithAuth(`${API_URL}/veterinarians/${vet.id}`, {
             method: "PUT",
             body: JSON.stringify(veterinarianToUpload),

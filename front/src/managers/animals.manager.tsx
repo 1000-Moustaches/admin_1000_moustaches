@@ -95,9 +95,6 @@ class AnimalsManager {
 
     static create = (animal: Animal): Promise<Animal> => {
         const animalToUpload = this.formatForServer(animal);
-
-        console.log("AnimalToUpload", JSON.stringify(animalToUpload));
-
         return fetchWithAuth(`${API_URL}/animals`, {
             method: "POST",
             body: JSON.stringify(animalToUpload),
@@ -118,9 +115,6 @@ class AnimalsManager {
 
     static update = (animal: Animal): Promise<Animal> => {
         const animalToUpload = this.formatForServer(animal);
-
-        console.log("AnimalToUpload", JSON.stringify(animalToUpload));
-
         return fetchWithAuth(`${API_URL}/animals/${animalToUpload.id}`, {
             method: "PUT",
             body: JSON.stringify(animalToUpload),

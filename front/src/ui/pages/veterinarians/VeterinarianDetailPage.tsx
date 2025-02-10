@@ -131,7 +131,6 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
             // Send new data to API
             VeterinariansManager.create(veterinarian)
                 .then((updatedVeterinarian) => {
-                    console.log("vet created", updatedVeterinarian);
                     notificationSystem?.addNotification({
                         message: "Vétérinaire créé",
                         level: "success",
@@ -149,7 +148,6 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
             return;
         }
 
-        console.log("Will send priceLevel", veterinarian.priceLevel);
         // Send new data to API
         VeterinariansManager.update(veterinarian)
             .then(() => {
@@ -337,7 +335,6 @@ const VeterinarianDetailPage: FC<VeterinarianDetailPageProps> = ({ props }) => {
                                             value={veterinarian.priceLevel}
                                             disabled={!isEditing}
                                             onChange={(newValue) => {
-                                                console.log("new priceLevel", newValue);
                                                 setVeterinarian({
                                                     ...veterinarian,
                                                     priceLevel: newValue,
