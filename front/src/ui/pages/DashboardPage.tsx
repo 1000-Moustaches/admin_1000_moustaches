@@ -12,47 +12,10 @@ type PagePermissions = {
 }
 
 const DashboardPage: FC = () => {
-    const [permissionPets, setPermissionPets] = useState<Permissions | undefined>(undefined);
-    const [canReadPets, setCanReadPets] = useState(false)
-    const [pagePermissions, setPagePermissions] = useState<PagePermissions>({});
 
     const handleAnimalsClick = (): void => {
         window.location.href = "/animals";
     };
-
-    const getAllPermissions = () => {
-        return PermissionsManager.getAll()
-            .then((permissions) => {
-                // console.log(permissions.find((permission)=> permission.ressource_name === "pets"));
-                const petPermission = permissions.find((permission) => permission.ressource_name === "pets");
-                const vetPermission = permissions.find((permission) => permission.ressource_name === "vets");
-                // console.log("petPermission",petPermission)
-                // if (petPermission?.can_read){
-                //     setCanReadPets(false)
-                // }
-
-                console.log(pagePermissions); // {}
-
-                setPagePermissions({
-                    ...pagePermissions,
-                    petPermission: permissions.find((permission) => permission.ressource_name === "pets")
-                })
-
-                console.log(pagePermissions); // {canReadPets: X, canReadVets: X}
-            })
-                
-            .catch((err) => {
-                console.error(err);
-                // notificationSystem?.addNotification({
-                //     message: `Une erreur s'est produite pendant la récupération des données\n${err}`,
-                //     level: "error",
-                // });
-            });
-        };
-
-    useEffect(() => {
-        getAllPermissions()
-        }, []);
 
     return (
         <Page

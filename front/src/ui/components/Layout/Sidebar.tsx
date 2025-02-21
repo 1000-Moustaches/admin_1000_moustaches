@@ -6,6 +6,7 @@ import { NavLink } from "react-router-dom";
 import { Nav, Navbar, NavItem, NavLink as BSNavLink } from "reactstrap";
 import bn from "../../../utils/bemnames";
 import { WebsiteCarbonBadge } from "react-websitecarbon-badge";
+import useGetPermissions from "../../../hooks/useGetPermissions";
 
 interface SidebarItem {
     to: string;
@@ -39,7 +40,12 @@ const navItems: SidebarItem[] = [
 
 const bem = bn.create("sidebar");
 
+
 const Sidebar: React.FC = () => {
+
+    const petsPermission = useGetPermissions("pets")
+    console.log("petPermisison", petsPermission)
+
     return (
         <aside className={bem.b()}>
             <div className={bem.e("background")} />
