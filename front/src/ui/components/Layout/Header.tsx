@@ -5,14 +5,20 @@ import UsersManager from "../../../managers/users.manager";
 import bn from "../../../utils/bemnames";
 import { UserCard } from "../Card";
 
+interface User {
+    firstname?: string;
+    name?: string;
+    email?: string;
+}
+
 const bem = bn.create("header");
 
-const Header = ({ ...props }) => {
-    let [loggedUser, setLoggedUser] = useState({});
-    let [isOpenUserCardPopover, setIsOpenUserCardPopover] = useState(false);
+const Header: React.FC = () => {
+    const [loggedUser, setLoggedUser] = useState<User>({});
+    const [isOpenUserCardPopover, setIsOpenUserCardPopover] = useState<boolean>(false);
 
     useEffect(() => {
-        var loggedUserStr = sessionStorage.getItem("User");
+        const loggedUserStr = sessionStorage.getItem("User");
         if (loggedUserStr) {
             setLoggedUser(JSON.parse(loggedUserStr));
             return;
@@ -20,27 +26,27 @@ const Header = ({ ...props }) => {
         UsersManager.getLoggedUser().then((loggedUser) => {
             if (loggedUser === null || loggedUser === undefined) {
                 console.error("User not found");
+                return;
             }
             sessionStorage.setItem("User", JSON.stringify(loggedUser));
             setLoggedUser(loggedUser);
         });
     }, []);
 
-    let logout = () => {
+    const logout = (): void => {
         sessionStorage.removeItem("Auth Token");
         sessionStorage.removeItem("User");
-        window.location = "/login";
+        window.location.href = "/login";
     };
 
-    let toggleUserCardPopover = () => {
+    const toggleUserCardPopover = (): void => {
         setIsOpenUserCardPopover(!isOpenUserCardPopover);
     };
 
-    let handleSidebarControlButton = (event) => {
+    const handleSidebarControlButton = (event: React.MouseEvent): void => {
         event.preventDefault();
         event.stopPropagation();
-
-        document.querySelector(".cr-sidebar").classList.toggle("cr-sidebar--open");
+        document.querySelector(".cr-sidebar")?.classList.toggle("cr-sidebar--open");
     };
 
     return (
