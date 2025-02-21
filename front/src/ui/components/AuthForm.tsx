@@ -1,13 +1,20 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
-import { useState, FC, ReactElement, ReactNode } from "react";
+import { useState, FC, ReactElement, ReactNode, useEffect } from "react";
 import { Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import logo from "../../assets/img/logo/Logo1000Moustaches.png";
 import UsersManager from "../../managers/users.manager";
 import SourceLink from "./SourceLink";
+import PermissionsManager from "../../managers/permissions.manager";
+import Permissions from "../../logic/entities/Permissions";
 
 import NotificationSystem from "react-notification-system";
 import { auth } from "../../firebase-config";
 import { NOTIFICATION_SYSTEM_STYLE } from "../../utils/constants";
+
+
+type PagePermissions = {
+    permission?: Permissions
+}
 
 interface InputProps {
     name: string;
@@ -50,6 +57,8 @@ const AuthForm: FC<AuthFormProps> = ({
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
+    const [pagePermissions, setPagePermissions] = useState<PagePermissions>({});
+
     const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
     let isLogin = () => {
@@ -70,6 +79,19 @@ const AuthForm: FC<AuthFormProps> = ({
         }
     };
 
+    const savePermissions = () => {
+        return PermissionsManager.getAll()
+            .then((permissions) => {
+
+                console.log("récupération des permissions",pagePermissions); // {}
+
+
+                console.log(pagePermissions); // {canReadPets: X, canReadVets: X}
+                sessionStorage.setItem("permissions",JSON.stringify(permissions))
+            })
+     };
+
+    
     let handleForgotPassword = () => {
         sendPasswordResetEmail(auth, username)
             .then((response) => {
@@ -101,6 +123,9 @@ const AuthForm: FC<AuthFormProps> = ({
                 })
                 .then((token) => {
                     sessionStorage.setItem("Auth Token", token);
+                    return savePermissions()
+                })
+                .then(() => {
                     window.location.href = "/";
                 })
                 .catch((error) => {

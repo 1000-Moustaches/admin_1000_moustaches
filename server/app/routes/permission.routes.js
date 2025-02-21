@@ -1,12 +1,12 @@
 module.exports = (app) => {
     const permission = require("../controllers/permission.controller.js");
-    const { checkIfAuthenticated } = require("../auth/auth-middleware.js");
+    const { checkIfAuthenticated, getAuthUser } = require("../auth/auth-middleware.js");
   
     var router = require("express").Router();
   
     // Select a permission
-    router.get("/", checkIfAuthenticated, permission.getCurrentUserPermissions);
+    router.get("/", checkIfAuthenticated, getAuthUser,permission.getCurrentUserPermissions);
   
-    app.use("/permission", router);
+    app.use("/permissions", router);
   };
   
