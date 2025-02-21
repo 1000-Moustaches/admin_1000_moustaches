@@ -10,11 +10,11 @@ import Permissions from "../../logic/entities/Permissions";
 import NotificationSystem from "react-notification-system";
 import { auth } from "../../firebase-config";
 import { NOTIFICATION_SYSTEM_STYLE } from "../../utils/constants";
-
+import AuthManager from "../../managers/auth.manager";
 
 type PagePermissions = {
-    permission?: Permissions
-}
+    permission?: Permissions;
+};
 
 interface InputProps {
     name: string;
@@ -79,19 +79,6 @@ const AuthForm: FC<AuthFormProps> = ({
         }
     };
 
-    const savePermissions = () => {
-        return PermissionsManager.getAll()
-            .then((permissions) => {
-
-                console.log("récupération des permissions",pagePermissions); // {}
-
-
-                console.log(pagePermissions); // {canReadPets: X, canReadVets: X}
-                sessionStorage.setItem("permissions",JSON.stringify(permissions))
-            })
-     };
-
-    
     let handleForgotPassword = () => {
         sendPasswordResetEmail(auth, username)
             .then((response) => {
@@ -113,23 +100,16 @@ const AuthForm: FC<AuthFormProps> = ({
 
     let handleSubmit = () => {
         if (isLogin()) {
-            signInWithEmailAndPassword(auth, username, password)
-                .then((response) => {
+            AuthManager.login(username, password)
+                .then(() => {
                     notificationSystem?.addNotification({
                         message: "Connexion réussie.\nBienvenue",
                         level: "success",
                     });
-                    return response.user.getIdToken();
-                })
-                .then((token) => {
-                    sessionStorage.setItem("Auth Token", token);
-                    return savePermissions()
-                })
-                .then(() => {
                     window.location.href = "/";
                 })
                 .catch((error) => {
-                    console.error("Error for signup");
+                    console.error("Error for login");
                     console.error(error);
                     notificationSystem?.addNotification({
                         message:
