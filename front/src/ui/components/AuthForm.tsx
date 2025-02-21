@@ -8,6 +8,7 @@ import SourceLink from "./SourceLink";
 import NotificationSystem from "react-notification-system";
 import { auth } from "../../firebase-config";
 import { NOTIFICATION_SYSTEM_STYLE } from "../../utils/constants";
+import AuthManager from "../../managers/auth.manager";
 
 interface InputProps {
     name: string;
@@ -91,20 +92,16 @@ const AuthForm: FC<AuthFormProps> = ({
 
     let handleSubmit = () => {
         if (isLogin()) {
-            signInWithEmailAndPassword(auth, username, password)
-                .then((response) => {
+            AuthManager.login(username, password)
+                .then((token) => {
                     notificationSystem?.addNotification({
                         message: "Connexion réussie.\nBienvenue",
                         level: "success",
                     });
-                    return response.user.getIdToken();
-                })
-                .then((token) => {
-                    sessionStorage.setItem("Auth Token", token);
                     window.location.href = "/";
                 })
                 .catch((error) => {
-                    console.error("Error for signup");
+                    console.error("Error for login");
                     console.error(error);
                     notificationSystem?.addNotification({
                         message:

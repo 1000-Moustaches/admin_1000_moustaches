@@ -8,6 +8,7 @@ import Page, { CustomBreadcrumbItem } from "../../components/Page";
 import NotificationSystem from "react-notification-system";
 import User from "../../../logic/entities/User";
 import { useNavigate, useParams } from "react-router-dom";
+import { useLoggedUser, setLoggedUser } from "../../../hooks/useLoggedUser";
 
 interface UserDetailPageProps {
     [key: string]: any;
@@ -21,6 +22,8 @@ const UserDetailPage: FC<UserDetailPageProps> = ({ props }) => {
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
     const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
     const [shouldSave, setShouldSave] = useState<boolean>(false);
+
+    const { loggedUser } = useLoggedUser();
 
     const navigate = useNavigate();
 
@@ -107,9 +110,8 @@ const UserDetailPage: FC<UserDetailPageProps> = ({ props }) => {
                     level: "success",
                 });
 
-                var currentUser = JSON.parse(sessionStorage.getItem("User") ?? "");
-                if (userId == currentUser.id) {
-                    sessionStorage.setItem("User", JSON.stringify(user));
+                if (parseInt(userId) === loggedUser?.id) {
+                    setLoggedUser(user);
                 }
             })
             .catch((err) => {

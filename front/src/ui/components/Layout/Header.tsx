@@ -1,41 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { MdClearAll, MdExitToApp } from "react-icons/md";
 import { Button, ListGroup, ListGroupItem, Nav, Navbar, NavItem, NavLink, Popover, PopoverBody } from "reactstrap";
-import UsersManager from "../../../managers/users.manager";
+import AuthManager from "../../../managers/auth.manager";
 import bn from "../../../utils/bemnames";
 import { UserCard } from "../Card";
-
-interface User {
-    firstname?: string;
-    name?: string;
-    email?: string;
-}
+import { useLoggedUser } from "../../../hooks/useLoggedUser";
 
 const bem = bn.create("header");
 
 const Header: React.FC = () => {
-    const [loggedUser, setLoggedUser] = useState<User>({});
+    const { loggedUser, setLoggedUser } = useLoggedUser();
     const [isOpenUserCardPopover, setIsOpenUserCardPopover] = useState<boolean>(false);
 
-    useEffect(() => {
-        const loggedUserStr = sessionStorage.getItem("User");
-        if (loggedUserStr) {
-            setLoggedUser(JSON.parse(loggedUserStr));
-            return;
-        }
-        UsersManager.getLoggedUser().then((loggedUser) => {
-            if (loggedUser === null || loggedUser === undefined) {
-                console.error("User not found");
-                return;
-            }
-            sessionStorage.setItem("User", JSON.stringify(loggedUser));
-            setLoggedUser(loggedUser);
-        });
-    }, []);
-
-    const logout = (): void => {
-        sessionStorage.removeItem("Auth Token");
-        sessionStorage.removeItem("User");
+    const logout = async (): Promise<void> => {
+        await AuthManager.logout();
+        setLoggedUser(null);
         window.location.href = "/login";
     };
 
@@ -60,9 +39,7 @@ const Header: React.FC = () => {
             <Nav navbar className={bem.e("nav-right")}>
                 <NavItem>
                     <NavLink id="Popover2">
-                        <Button onClick={toggleUserCardPopover}>
-                            {loggedUser?.firstname} {loggedUser?.name}
-                        </Button>
+                        <Button onClick={toggleUserCardPopover}>{loggedUser?.displayName || loggedUser?.email}</Button>
                     </NavLink>
                     <Popover
                         placement="bottom-end"
@@ -73,7 +50,7 @@ const Header: React.FC = () => {
                         style={{ minWidth: 250 }}
                     >
                         <PopoverBody className="p-0 border-light">
-                            <UserCard title={loggedUser?.email} className="border-light bg-gradient-theme-top">
+                            <UserCard title={loggedUser?.email || ""} className="border-light bg-gradient-theme-top">
                                 <ListGroup flush>
                                     <ListGroupItem tag="button" action className="border-light" onClick={logout}>
                                         <MdExitToApp /> Déconnexion

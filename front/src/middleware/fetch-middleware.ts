@@ -1,3 +1,5 @@
+import AuthManager from "../managers/auth.manager";
+
 function fetchWithAuth(url: string, options: RequestInit): Promise<Response> {
     let token = sessionStorage.getItem("Auth Token");
 
@@ -14,8 +16,7 @@ function fetchWithAuth(url: string, options: RequestInit): Promise<Response> {
         .then((response) => {
             if (response.status === 401) {
                 console.warn("Token expired, logging out");
-                sessionStorage.removeItem("Auth Token");
-                sessionStorage.removeItem("User");
+                AuthManager.logout();
                 window.location.href = "/login";
                 window.location.reload();
             }
