@@ -17,6 +17,8 @@ class AuthManager {
         try {
             const response = await signInWithEmailAndPassword(auth, email, password);
             const token = await response.user.getIdToken();
+            // Store auth token in sessionStorage
+            sessionStorage.setItem("Auth Token", token);
 
             // Fetch the current user from the database
             const currentUser = await UsersManager.getLoggedUser();
@@ -24,8 +26,6 @@ class AuthManager {
                 sessionStorage.removeItem("Auth Token");
                 throw new Error("User not found in database");
             }
-            // Store auth token in sessionStorage
-            sessionStorage.setItem("Auth Token", token);
             // Store user in sessionStorage
             setLoggedUser(currentUser);
             // Save permissions
