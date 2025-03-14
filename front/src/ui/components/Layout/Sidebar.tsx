@@ -13,22 +13,37 @@ interface SidebarItem {
     name: string;
     exact: boolean;
     Icon: React.ComponentType<{ className?: string; size?: number }>;
+    ressourceName?: string;
+    visibility?: boolean;
 }
 
 const navItems: SidebarItem[] = [
-    { to: "/", name: "Dashboard", exact: true, Icon: MdDashboard },
-    { to: "/animals", name: "Animaux", exact: false, Icon: MdPets },
+    {
+        to: "/",
+        name: "Dashboard",
+        exact: true,
+        Icon: MdDashboard,
+    },
+    {
+        to: "/animals",
+        name: "Animaux",
+        exact: false,
+        Icon: MdPets,
+        ressourceName: "pet_list",
+    },
     {
         to: "/veterinarians",
         name: "Vétérinaires",
         exact: false,
         Icon: MdHealthAndSafety,
+        ressourceName: "vet_list",
     },
     {
         to: "/hostFamilies",
         name: "Familles d'Accueil",
         exact: false,
         Icon: MdHomeFilled,
+        ressourceName: "hf_list",
     },
     {
         to: "/users",
@@ -40,11 +55,16 @@ const navItems: SidebarItem[] = [
 
 const bem = bn.create("sidebar");
 
-
 const Sidebar: React.FC = () => {
+    //TODO:
+    // - faire la boucle qui récupère les permissions en fonction des ressourcesName de Item
+    // - faire la boucle qui récupère les booléens pour la visibilité des boutons de la sidebar
+    let array: string[] = ["pets"];
+    let test: string[] = navItems.map((item) => item.name);
+    const pagePermissions = useGetPermissions(array);
 
-    const petsPermission = useGetPermissions("pets")
-    console.log("petPermisison", petsPermission)
+    pagePermissions.find((perm) => perm?.ressource_name == "pets")?.can_read;
+    pagePermissions["pets"].can_read;
 
     return (
         <aside className={bem.b()}>
