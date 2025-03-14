@@ -11,16 +11,19 @@ const getAuthToken = (req, res, next) => {
   next();
 };
 
+// Check if authenticated user (from Firebase) exist in database
 const getAuthUser = (req, res, next) => {
   return Users.findByEmail(req.authEmail, (err, data) => {
     if (err) {
       return res.status(401).send({ error: "You are not authorized to make this request" });
     }
+    // Add database user in req 
     req.authUser = data;
     return next();
   });
 };
 
+// Verify authToken validity with Firebase
 const checkIfAuthenticated = (req, res, next) => {
   getAuthToken(req, res, async () => {
     try {

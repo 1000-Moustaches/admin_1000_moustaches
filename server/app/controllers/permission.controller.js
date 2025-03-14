@@ -1,7 +1,7 @@
 const Permission = require("../models/permission.model.js");
 
 
-// Find a single Animals with a id
+
 exports.getCurrentUserPermissions = (req, res) => {
   if (req.authUser === null) {
     return res.status(401).send({ error: "You are not authorized to make this request" });
