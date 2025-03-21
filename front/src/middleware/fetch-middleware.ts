@@ -10,18 +10,17 @@ function fetchWithAuth(url: string, options: RequestInit): Promise<Response> {
     }
     options.headers = {
         ...options.headers,
-        Authorization: `Bearer ${token}`
-    }
-    return fetch(url, options)
-        .then((response) => {
-            if (response.status === 401) {
-                console.warn("Token expired, logging out");
-                AuthManager.logout();
-                window.location.href = "/login";
-                window.location.reload();
-            }
-            return response;
-        })
+        Authorization: `Bearer ${token}`,
+    };
+    return fetch(url, options).then((response) => {
+        if (response.status === 401) {
+            console.warn("Token expired, logging out");
+            sessionStorage.clear();
+            window.location.href = "/login";
+            window.location.reload();
+        }
+        return response;
+    });
 }
 
 export default fetchWithAuth;
