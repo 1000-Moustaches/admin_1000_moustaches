@@ -30,11 +30,11 @@ const DashboardPage: FC = () => {
             ]}
         >
             <Row>
-                <Col>
-                    <PresentAnimals></PresentAnimals>
+                <Col sm={{ size: 4 }}>
+                    <PresentAnimals />
                 </Col>
-                <Col>
-                    <PresentAnimals></PresentAnimals>
+                <Col sm={{ size: 4 }}>
+                    <PresentAnimals />
                 </Col>
             </Row>
         </Page>
