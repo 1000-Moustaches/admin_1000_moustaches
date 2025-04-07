@@ -4,7 +4,7 @@ import Page, { CustomBreadcrumbItem } from "../components/Page";
 import logo from "../../assets/img/logo/Logo1000Moustaches.png";
 import PermissionsManager from "../../managers/permissions.manager";
 import Permissions from "../../logic/entities/Permissions";
-import { PresentAnimals } from "../components/Card/index";
+import AnimalsNonAdopted from "../components/Card/Dashboard/AnimalsNonAdopted";
 
 type PagePermissions = {
     canReadPets?: boolean;
@@ -31,10 +31,7 @@ const DashboardPage: FC = () => {
         >
             <Row>
                 <Col sm={{ size: 4 }}>
-                    <PresentAnimals />
-                </Col>
-                <Col sm={{ size: 4 }}>
-                    <PresentAnimals />
+                    <AnimalsNonAdopted />
                 </Col>
             </Row>
         </Page>

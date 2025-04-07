@@ -8,7 +8,7 @@ const CountAnimalsNonAdopted = function () {
 CountAnimalsNonAdopted.getAll=(result)=> {
     sql.connect((connection) =>
         connection.query(
-          `select id,name, ifnull(speciesCount.animalCount,0) as animalCount from species
+          `select id,name, ifnull(speciesCount.animalCount,0) as count from species
             left join (select a.species_id, count(*) as animalCount from animals a 
                             where  a.adopted = false
                             group by a.species_id) as speciesCount
@@ -35,7 +35,7 @@ CountAnimalsNonAdopted.getAll=(result)=> {
         )
       );
       function getSum(total, item) {
-        return total + item.animalCount;
+        return total + item.count;
       }
 }
 
