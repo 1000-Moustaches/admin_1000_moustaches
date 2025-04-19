@@ -1,0 +1,13 @@
+import { Router } from 'express'
+import { AnimalsCountController } from '../controllers/AnimalsCountController'
+import { checkIfAuthenticated } from '../auth/auth-middleware'
+
+const router = Router()
+const animalsCountController = new AnimalsCountController()
+
+router.get('/', checkIfAuthenticated, async (req, res) => {
+  const animalsCount = await animalsCountController.getCountAnimalsNonAdopted()
+  res.json(animalsCount)
+})
+
+export default router

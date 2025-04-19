@@ -8,6 +8,8 @@ import veterinarianInterventionRoutes from './VeterinarianInterventionRoutes'
 import speciesRoutes from './SpeciesRoutes'
 import userRoutes from './UserRoutes'
 import permissionRoutes from './PermissionRoutes'
+import countAnimalsAdoptedRoutes from './CountAnimalsAdopted'
+import countAnimalsNonAdoptedRoutes from './CountAnimalsNonAdopted'
 
 const router = Router()
 
@@ -20,5 +22,7 @@ router.use('/veterinarian-interventions', veterinarianInterventionRoutes)
 router.use('/species', speciesRoutes)
 router.use('/users', userRoutes)
 router.use('/permissions', permissionRoutes)
+router.use('/count-animals-adopted', countAnimalsAdoptedRoutes)
+router.use('/count-animals-non-adopted', countAnimalsNonAdoptedRoutes)
 
 export default router 

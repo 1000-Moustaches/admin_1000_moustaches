@@ -22,7 +22,7 @@
         "react-component-queries": "^2.3.0",
         "react-d3-map": "^0.8.3",
         "react-dom": "^17",
-        "react-icons": "^4.4.0",
+        "react-icons": "5.4.0",
         "react-leaflet": "^3",
         "react-loading-icons": "1.1.0",
         "react-notification-system": "^0.2.17",

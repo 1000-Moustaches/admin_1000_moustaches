@@ -34,11 +34,13 @@
 //             boxShadow: 0,
 //         },
 
-import { Style } from 'react-notification-system';
+import { Style } from "react-notification-system";
 
 export const SPECIES_ID = {
     CAT: 1,
     DOG: 2,
+    RABBIT: 3,
+    OTHER: 4,
 } as const;
 
 export const HOST_FAMILY_KIND_ID = {
