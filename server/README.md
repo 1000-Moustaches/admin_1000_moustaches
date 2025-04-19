@@ -27,17 +27,13 @@ Deploys the functions to your configured Firebase project.
 
 ### `npm run logs`
 
-Fetches and displays logs from the deployed Firebase functions.
-
-### `npm run dev`
-
 Runs the application using `ts-node-dev`. This provides automatic restarts when code changes are detected, speeding up development. Note: This typically doesn't use the Firebase emulator environment unless configured separately.
 
 ### TypeORM Migrations & Schema
 
 These scripts utilize TypeORM for database schema management. Ensure your database connection is configured in `app/config/database.ts`.
 
-### `npm run migration:generate -- -n MigrationName`
+### `npm run migration:generate --name=MigrationName`
 
 Generates a new migration file based on changes detected between your entities and the current database schema. Replace `MigrationName` with a descriptive name for your migration (e.g., `AddUserEmail`).
 
