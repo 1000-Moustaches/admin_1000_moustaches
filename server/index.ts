@@ -1,3 +1,12 @@
+import * as dotenv from 'dotenv';
+import path from 'path';
+
+if (process.env.NODE_ENV !== 'production') {
+  // Load environment variables from .env file in the server directory
+  // Usefull for windows local development
+  dotenv.config({ path: path.resolve(__dirname, '../.env') });
+}
+
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -14,8 +23,8 @@ app.use(express.json())
 
 // Logging middleware
 app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
-    next()
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
+  next()
 })
 
 // Routes
@@ -23,12 +32,12 @@ app.use('/', routes)
 
 // Initialize TypeORM
 AppDataSource.initialize()
-    .then(() => {
-        console.log("Database connected successfully")
-    })
-    .catch((error) => {
-        console.error("Error during Data Source initialization:", error)
-    })
+  .then(() => {
+    console.log("Database connected successfully")
+  })
+  .catch((error) => {
+    console.error("Error during Data Source initialization:", error)
+  })
 
 // Export for Firebase Functions
 export const api = functions.https.onRequest(app)
