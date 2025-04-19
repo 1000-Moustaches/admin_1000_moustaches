@@ -1,30 +1,34 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm"
-import { Animal } from "./Animal"
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from "typeorm"
 import { HostFamily } from "./HostFamily"
+import { Team } from "./Team"
 
 @Entity()
 export class User {
-    @PrimaryGeneratedColumn()
-    id: number
+  @PrimaryGeneratedColumn()
+  id: number
 
-    @Column({ nullable: true, default: () => 'NULL' })
-    name: string
+  @Column({ nullable: true, default: () => 'NULL' })
+  name: string
 
-    @Column({ nullable: true, default: () => 'NULL' })
-    firstname: string
+  @Column({ nullable: true, default: () => 'NULL' })
+  firstname: string
 
-    @Column({ nullable: true, default: () => 'NULL' })
-    email: string
+  @Column({ nullable: true, default: () => 'NULL' })
+  email: string
 
-    @Column({ nullable: true, default: () => 'FALSE' })
-    isReferent: boolean
+  @Column({ nullable: true, default: () => 'FALSE' })
+  isReferent: boolean
 
-    @OneToMany(() => HostFamily, hostFamily => hostFamily.referent)
-    hostFamilies: HostFamily[]
+  @OneToMany(() => HostFamily, hostFamily => hostFamily.referent)
+  hostFamilies: HostFamily[]
 
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt: Date
+  @ManyToMany(() => Team, team => team.users)
+  @JoinTable()
+  teams: Team[]
 
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    updatedAt: Date
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date
 } 

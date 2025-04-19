@@ -1,13 +1,20 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
-import { useState, FC, ReactElement, ReactNode } from "react";
+import { useState, FC, ReactElement, ReactNode, useEffect } from "react";
 import { Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import logo from "../../assets/img/logo/Logo1000Moustaches.png";
 import UsersManager from "../../managers/users.manager";
 import SourceLink from "./SourceLink";
+import PermissionsManager from "../../managers/permissions.manager";
+import Permissions from "../../logic/entities/Permissions";
 
 import NotificationSystem from "react-notification-system";
 import { auth } from "../../firebase-config";
 import { NOTIFICATION_SYSTEM_STYLE } from "../../utils/constants";
+import AuthManager from "../../managers/auth.manager";
+
+type PagePermissions = {
+    permission?: Permissions;
+};
 
 interface InputProps {
     name: string;
@@ -50,6 +57,8 @@ const AuthForm: FC<AuthFormProps> = ({
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
+    const [pagePermissions, setPagePermissions] = useState<PagePermissions>({});
+
     const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
 
     let isLogin = () => {
@@ -91,20 +100,16 @@ const AuthForm: FC<AuthFormProps> = ({
 
     let handleSubmit = () => {
         if (isLogin()) {
-            signInWithEmailAndPassword(auth, username, password)
-                .then((response) => {
+            AuthManager.login(username, password)
+                .then(() => {
                     notificationSystem?.addNotification({
                         message: "Connexion réussie.\nBienvenue",
                         level: "success",
                     });
-                    return response.user.getIdToken();
-                })
-                .then((token) => {
-                    sessionStorage.setItem("Auth Token", token);
                     window.location.href = "/";
                 })
                 .catch((error) => {
-                    console.error("Error for signup");
+                    console.error("Error for login");
                     console.error(error);
                     notificationSystem?.addNotification({
                         message:

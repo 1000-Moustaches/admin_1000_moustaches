@@ -15,6 +15,7 @@ export const getAuthToken = (req: Request, res: Response, next: NextFunction) =>
   next();
 };
 
+// Check if authenticated user (from Firebase) exist in database
 export const getAuthUser = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.authEmail) {
     return res
@@ -28,10 +29,12 @@ export const getAuthUser = async (req: Request, res: Response, next: NextFunctio
       .status(404)
       .send({ error: "User not found" });
   }
+  // Add database user in req
   req.authUser = user;
   next();
 };
 
+// Verify authToken validity with Firebase
 export const checkIfAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   getAuthToken(req, res, async () => {
     try {

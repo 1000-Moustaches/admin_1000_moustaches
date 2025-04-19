@@ -7,6 +7,8 @@ import veterinarianRoutes from './VeterinarianRoutes'
 import veterinarianInterventionRoutes from './VeterinarianInterventionRoutes'
 import speciesRoutes from './SpeciesRoutes'
 import userRoutes from './UserRoutes'
+import permissionRoutes from './PermissionRoutes'
+
 const router = Router()
 
 router.use('/animals', animalRoutes)
@@ -17,5 +19,6 @@ router.use('/veterinarians', veterinarianRoutes)
 router.use('/veterinarian-interventions', veterinarianInterventionRoutes)
 router.use('/species', speciesRoutes)
 router.use('/users', userRoutes)
+router.use('/permissions', permissionRoutes)
 
 export default router 

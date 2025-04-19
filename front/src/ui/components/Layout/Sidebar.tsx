@@ -6,40 +6,61 @@ import { NavLink } from "react-router-dom";
 import { Nav, Navbar, NavItem, NavLink as BSNavLink } from "reactstrap";
 import bn from "../../../utils/bemnames";
 import { WebsiteCarbonBadge } from "react-websitecarbon-badge";
+import useGetPermissions from "../../../hooks/useGetPermissions";
 
 interface SidebarItem {
     to: string;
     name: string;
     exact: boolean;
     Icon: React.ComponentType<{ className?: string; size?: number }>;
+    ressourceName?: string;
 }
 
 const navItems: SidebarItem[] = [
-    { to: "/", name: "Dashboard", exact: true, Icon: MdDashboard },
-    { to: "/animals", name: "Animaux", exact: false, Icon: MdPets },
+    {
+        to: "/",
+        name: "Dashboard",
+        exact: true,
+        Icon: MdDashboard,
+    },
+    {
+        to: "/animals",
+        name: "Animaux",
+        exact: false,
+        Icon: MdPets,
+        ressourceName: "pet_list",
+    },
     {
         to: "/veterinarians",
         name: "Vétérinaires",
         exact: false,
         Icon: MdHealthAndSafety,
+        ressourceName: "vet_list",
     },
     {
         to: "/hostFamilies",
         name: "Familles d'Accueil",
         exact: false,
         Icon: MdHomeFilled,
+        ressourceName: "hf_list",
     },
     {
         to: "/users",
         name: "Utilisateur·ice·s",
         exact: false,
         Icon: MdPeople,
+        ressourceName: "user_list",
     },
 ];
 
 const bem = bn.create("sidebar");
 
 const Sidebar: React.FC = () => {
+    const permissionsName: string[] = navItems
+        .map((item) => item?.ressourceName) //Récupère toutes les ressourceName de navItems et si il n'y en a pas met undefined
+        .filter((name) => name !== undefined); //Filtre pour ne pas avoir dans les résultats les undefined.
+    const pagePermissions = useGetPermissions(permissionsName);
+
     return (
         <aside className={bem.b()}>
             <div className={bem.e("background")} />
@@ -50,14 +71,24 @@ const Sidebar: React.FC = () => {
                     </SourceLink>
                 </Navbar>
                 <Nav vertical>
-                    {navItems.map(({ to, name, exact, Icon }, index) => (
-                        <NavItem key={index} className={bem.e("nav-item")}>
-                            <BSNavLink id={`navItem-${name}-${index}`} className="text-uppercase" tag={NavLink} to={to} end={exact}>
-                                <Icon className={bem.e("nav-item-icon")} />
-                                <span>{name}</span>
-                            </BSNavLink>
-                        </NavItem>
-                    ))}
+                    {navItems.map((navItem, index) => {
+                        if (navItem.ressourceName === undefined || (navItem.ressourceName !== undefined && pagePermissions[navItem.ressourceName]?.can_read)) {
+                            return (
+                                <NavItem key={index} className={bem.e("nav-item")}>
+                                    <BSNavLink
+                                        id={`navItem-${navItem.name}-${index}`}
+                                        className="text-uppercase"
+                                        tag={NavLink}
+                                        to={navItem.to}
+                                        end={navItem.exact}
+                                    >
+                                        <navItem.Icon className={bem.e("nav-item-icon")} />
+                                        <span>{navItem.name}</span>
+                                    </BSNavLink>
+                                </NavItem>
+                            );
+                        }
+                    })}
                 </Nav>
                 <WebsiteCarbonBadge lang="fr" url="https://admin-1000-moustaches.web.app/hostFamilies" />
             </div>
