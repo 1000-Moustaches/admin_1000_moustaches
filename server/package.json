@@ -10,7 +10,7 @@
     "build": "tsc",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
-    "start": "TS_NODE=true npm run serve",
+    "start": "cross-env TS_NODE=true npm run serve",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js",
@@ -49,6 +49,7 @@
     "firebase-tools": "^13.9.0",
     "nodemon": "^2.0.20",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "cross-env": "^7.0.3"
   }
 }
