@@ -1,18 +1,18 @@
 import SpeciesCounts, { CountBySpecies as CountBySpecies } from "../entities/SpeciesCounts";
 
 class SpeciesCountsDTO {
-    total: number;
-    species: CountBySpeciesDTO[];
+    total: number | undefined;
+    species: CountBySpeciesDTO[] | undefined;
 
     constructor(animalsCount: any) {
-        this.total = animalsCount.Total;
-        this.species = animalsCount.Species;
+        this.total = animalsCount.total;
+        this.species = animalsCount.species;
     }
 
     toEntity(): SpeciesCounts {
         return {
-            total: this.total,
-            species: this.species.map((species) => new CountBySpecies(species.id, species.name, species.count)),
+            total: this.total ?? 0,
+            species: this.species?.map((species) => new CountBySpecies(species.id, species.name, species.count)) ?? [],
         };
     }
 }
