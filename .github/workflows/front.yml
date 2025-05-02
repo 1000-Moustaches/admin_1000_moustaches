@@ -1,0 +1,74 @@
+name: Front CICD
+
+on:
+  push:
+    branches:
+      - main
+      - feature/CI
+    paths:
+      - "front/**"
+      - ".github/workflows/front.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./front
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "front/package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the app
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: "front-build"
+          path: front/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dowload build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: "front-build"
+          path: front/dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Decode google credentials
+        run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 -d > /tmp/google-credentials.json
+
+      - name: Deploy on firebase hosting
+        working-directory: ./front
+        run: firebase deploy --only hosting --token "$(cat /tmp/google-credentials.json)"
+        env:
+          NODE_ENV: production
+
+      - name: Remove credentials file
+        if: success() || failure()
+        run: rm /tmp/google-credentials.json
