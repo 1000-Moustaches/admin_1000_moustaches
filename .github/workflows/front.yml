@@ -61,16 +61,19 @@ jobs:
           node-version: "20"
 
       - name: Decode google credentials
-        run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 -d > /tmp/google-credentials.json
+        run: |
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 -d > /tmp/google-credentials.json
+          export GOOGLE_APPLICATION_CREDENTIALS="/tmp/google-credentials.json"
 
       - name: Install firebase CLI
         run: npm install -g firebase-tools
 
       - name: Deploy on firebase hosting
         working-directory: ./front
-        run: firebase deploy --only hosting --token "$(cat /tmp/google-credentials.json)"
+        run: firebase deploy --only hosting
         env:
           NODE_ENV: production
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/google-credentials.json
 
       - name: Remove credentials file
         if: success() || failure()
