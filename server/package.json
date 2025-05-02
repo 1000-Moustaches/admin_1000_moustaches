@@ -7,13 +7,15 @@
     "node": "20"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "cp .env.local .env && tsc",
+    "build:prod": "cp .env.production .env && tsc",
     "watch": "tsc -w",
     "serve": "firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "cross-env TS_NODE=true && npm run serve",
+    "start:dev": "cross-env TS_NODE=true && cp .env.local .env && npm run serve",
     "dev": "concurrently \"npm:watch\" \"npm:serve\"",
-    "deploy": "firebase deploy --only functions",
+    "deploy": "rm -rf dist && export NODE_ENV=production && npm run build:prod && firebase deploy --only functions",
     "logs": "firebase functions:log",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js",
     "migration:generate": "npm run typeorm -- migration:generate -d app/config/database.ts ./migrations/$npm_config_name",

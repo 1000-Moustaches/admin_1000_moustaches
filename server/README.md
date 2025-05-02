@@ -4,31 +4,51 @@ In the project directory, you can run:
 
 ### `npm run dev`
 
-Runs the app in the development mode.\
+Runs the app in the development mode. Concurrently watches TypeScript files for changes and starts Firebase emulators for functions.
 
 ### `npm run build`
 
-Compiles the TypeScript code into JavaScript in the `dist` directory.
+Copies the local environment variables and compiles the TypeScript code into JavaScript in the `dist` directory.
+
+### `npm run build:prod`
+
+Copies the production environment variables and compiles the TypeScript code into JavaScript in the `dist` directory.
+
+### `npm run watch`
+
+Runs TypeScript compiler in watch mode to automatically recompile when files change.
 
 ### `npm run serve`
 
-Builds the project and starts the Firebase emulators for functions. This is the command run by `npm start`.
+Starts the Firebase emulators for functions.
 
 ### `npm run shell`
 
 Builds the project and opens the Firebase functions shell for interactive testing and debugging.
 
+### `npm run start`
+
+Sets the TypeScript Node environment and starts Firebase emulators for functions.
+
+### `npm run start:dev`
+
+Sets the TypeScript Node environment, copies local environment variables, and starts Firebase emulators for functions.
+
 ### `npm run deploy`
 
-Deploys the functions to your configured Firebase project.
+Removes the dist directory, sets production environment, builds the project with production variables, and deploys the functions to your configured Firebase project.
 
 ### `npm run logs`
 
-Runs the application using `ts-node-dev`. This provides automatic restarts when code changes are detected, speeding up development. Note: This typically doesn't use the Firebase emulator environment unless configured separately.
+Fetches and displays Firebase functions logs.
 
 ### TypeORM Migrations & Schema
 
 These scripts utilize TypeORM for database schema management. Ensure your database connection is configured in `app/config/database.ts`.
+
+### `npm run typeorm`
+
+Runs the TypeORM CLI with specified arguments.
 
 ### `npm run migration:generate --name=MigrationName`
 
