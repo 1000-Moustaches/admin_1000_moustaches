@@ -51,9 +51,10 @@
     },
     "scripts": {
         "start": "cross-env NODE_PATH=./src vite",
+        "start:dev": "cross-env NODE_PATH=./src vite",
         "build": "NODE_PATH=./src tsc && vite build && cp _headers dist/_headers",
         "serve": "NODE_PATH=./src vite preview",
-        "deploy": "npm run build && firebase deploy --only hosting"
+        "deploy": "export NODE_ENV=production && npm run build && firebase deploy --only hosting"
     },
     "eslintConfig": {
         "extends": [
