@@ -58,7 +58,7 @@ const bem = bn.create("sidebar");
 const Sidebar: React.FC = () => {
     const permissionsName: string[] = navItems
         .map((item) => item?.ressourceName) //Récupère toutes les ressourceName de navItems et si il n'y en a pas met undefined
-        .filter((name) => name !== undefined); //Filtre pour ne pas avoir dans les résultats les undefined.
+        .filter((name) => name !== undefined) as string[]; //Filtre pour ne pas avoir dans les résultats les undefined.
     const pagePermissions = useGetPermissions(permissionsName);
 
     return (
