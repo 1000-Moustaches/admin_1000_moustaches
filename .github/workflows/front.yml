@@ -15,6 +15,7 @@ jobs:
     defaults:
       run:
         working-directory: ./front
+    environment: production
 
     steps:
       - name: Checkout code

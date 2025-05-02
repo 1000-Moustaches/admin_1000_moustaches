@@ -27,5 +27,15 @@
         "npm --prefix \"$RESOURCE_DIR\" ci"
       ]
     }
-  ]
+  ],
+  "artifactRegistry": {
+    "location": "us-central1",
+    "repository": "gcf-artifacts",
+    "cleanup": {
+      "policy": {
+        "keepDays": 30,
+        "keepVersionsPerFunction": 5
+      }
+    }
+  }
 }
