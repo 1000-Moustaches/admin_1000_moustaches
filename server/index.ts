@@ -12,7 +12,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import { AppDataSource } from './app/config/database'
 import routes from './app/routes'
-import * as functions from 'firebase-functions'
+const { onRequest } = require("firebase-functions/v2/https");
 
 const app = express()
 
@@ -43,4 +43,4 @@ if (!isCI) {
 }
 
 // Export for Firebase Functions
-export const api = functions.https.onRequest(app)
+export const api = onRequest(app)
