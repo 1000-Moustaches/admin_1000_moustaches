@@ -1,5 +1,5 @@
-import "reflect-metadata"
-import { DataSource } from "typeorm"
+import "reflect-metadata";
+import { DataSource } from "typeorm";
 
 export const AppDataSource = new DataSource({
   type: "mysql",
@@ -13,10 +13,8 @@ export const AppDataSource = new DataSource({
   subscribers: [],
   migrationsTableName: "migrations",
   migrationsRun: true,
-  entities: [
-    "dist/app/models/*.js"
-  ],
+  entities: ["dist/app/models/*.js"],
   migrations: ["dist/migrations/*.js"],
   connectTimeout: 60000,
   poolSize: 3,
-}) 
+});

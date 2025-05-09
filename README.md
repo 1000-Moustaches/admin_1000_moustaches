@@ -56,9 +56,12 @@ Information about [conventionalcommits](https://www.conventionalcommits.org/en/v
 
 ## Installation
 
+- lancer la bdd
+  - builder l'image docker en exécutant la commande depuis le dossier docker/database :
+    `docker build --build-arg DB_ROOT_PASSWORD=$(grep DB_ROOT_PASSWORD ../../server/.env | cut -d '=' -f2) --build-arg DB_NAME=$(grep DB_NAME ../../server/.env | cut -d '=' -f2) --build-arg DB_USER=$(grep DB_USER ../../server/.env | cut -d '=' -f2) --build-arg DB_PASSWORD=$(grep DB_PASSWORD ../../server/.env | cut -d '=' -f2) -t mysql-docker .`
+    - lancer le conteneur dans docker desktop
 - installer le server en local : `cd server && npm i`
 - installer le front en local : `cd front && npm i`
-- créer une db locale (et la lancer) puis renseigner les informations de connexion dans le fichier .env.development
 
 ## Développement local
 
