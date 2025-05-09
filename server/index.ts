@@ -12,7 +12,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import { AppDataSource } from './app/config/database'
 import routes from './app/routes'
-import * as functions from 'firebase-functions'
+const { onRequest } = require("firebase-functions/v2/https");
 
 const app = express()
 
@@ -30,14 +30,17 @@ app.use((req, res, next) => {
 // Routes
 app.use('/', routes)
 
-// Initialize TypeORM
-AppDataSource.initialize()
-  .then(() => {
-    console.log("Database connected successfully")
-  })
-  .catch((error) => {
-    console.error("Error during Data Source initialization:", error)
-  })
+// Initialize TypeORM only when not in CI/CD
+const isCI = process.env.CI === 'true';
+if (!isCI) {
+  AppDataSource.initialize()
+    .then(() => {
+      console.log("Database connected successfully")
+    })
+    .catch((error) => {
+      console.error("Error during Data Source initialization:", error)
+    })
+}
 
 // Export for Firebase Functions
-export const api = functions.https.onRequest(app)
+export const api = onRequest(app)

@@ -17,4 +17,6 @@ export const AppDataSource = new DataSource({
     "dist/app/models/*.js"
   ],
   migrations: ["dist/migrations/*.js"],
+  connectTimeout: 60000,
+  poolSize: 3,
 }) 

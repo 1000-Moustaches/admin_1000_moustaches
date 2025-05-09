@@ -65,7 +65,23 @@ Information about [conventionalcommits](https://www.conventionalcommits.org/en/v
 - lancer le server avec firebase emulator : `cd server && npm start`
 - lancer le front : `cd front && npm start`
 
-## Déploiement
+## Roles Google Cloud
 
-- déploiement du front : `cd front && npm run deploy`
-- déploiement du server : `cd server && npm run deploy`
+For the CICD to work, you need to add a json file in the CICD secrets.
+This file is generated on Google Cloud.
+You have to add a service account with these roles :
+- Administrateur Firebase Hosting
+- Administrateur d'extension Firebase
+- Editeur d'extensions Firebase
+- Dévelopeur d'extensions Firebase
+- Administrateur des objets Storage
+- Administrateur Cloud Function
+- Administrateur Logging
+- Utilisateur du compte de service
+
+When the account is created, create a key as JSON.
+
+Encode the JSON file with base 64
+`base64 -b -i key.json -o key-base64.json`
+
+Upload the content of the key-base64.json file in a secret on the CICD (as GOOGLE_APPLICATION_CREDENTIALS)
