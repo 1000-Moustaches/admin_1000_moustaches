@@ -21,7 +21,8 @@
         "node_modules",
         ".git",
         "firebase-debug.log",
-        "firebase-debug.*.log"
+        "firebase-debug.*.log",
+        "fixtures"
       ],
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" ci"
