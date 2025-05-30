@@ -43,7 +43,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Milo",
       icad: "ICAD000001",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Chartreux",
       birthdate: new Date("2020-09-20"),
       entryDate: new Date("2024-03-15"),
@@ -59,7 +59,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Luna",
       icad: "ICAD000002",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Siamois",
       birthdate: new Date("2019-11-12"),
       entryDate: new Date("2024-01-10"),
@@ -75,7 +75,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Oscar",
       icad: "ICAD000003",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Golden Retriever",
       birthdate: new Date("2018-04-05"),
       entryDate: new Date("2024-03-01"),
@@ -91,7 +91,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Choupette",
       icad: "ICAD000004",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Persan",
       birthdate: new Date("2021-02-14"),
       entryDate: new Date("2024-02-01"),
@@ -107,7 +107,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Noisette",
       icad: "ICAD000005",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Lapin bélier",
       birthdate: new Date("2022-01-10"),
       entryDate: new Date("2024-02-20"),
@@ -123,7 +123,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Bella",
       icad: "ICAD000006",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Labrador",
       birthdate: new Date("2017-06-01"),
       entryDate: new Date("2024-04-05"),
@@ -139,7 +139,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Simba",
       icad: "ICAD000007",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Maine Coon",
       birthdate: new Date("2020-08-09"),
       entryDate: new Date("2024-04-02"),
@@ -155,7 +155,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Nala",
       icad: "ICAD000008",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Chinchilla",
       birthdate: new Date("2022-05-01"),
       entryDate: new Date("2024-03-01"),
@@ -171,7 +171,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Rex",
       icad: "ICAD000009",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Husky",
       birthdate: new Date("2019-12-25"),
       entryDate: new Date("2024-02-22"),
@@ -187,7 +187,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Caramel",
       icad: "ICAD000010",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Lapin nain",
       birthdate: new Date("2023-04-10"),
       entryDate: new Date("2024-04-05"),
@@ -203,7 +203,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Lili",
       icad: "ICAD000011",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Bleu Russe",
       birthdate: new Date("2020-06-10"),
       entryDate: new Date("2024-04-08"),
@@ -219,7 +219,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Gizmo",
       icad: "ICAD000012",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Rat domestique",
       birthdate: new Date("2023-02-01"),
       entryDate: new Date("2024-04-10"),
@@ -235,7 +235,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Shadow",
       icad: "ICAD000013",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Chat Européen",
       birthdate: new Date("2016-03-01"),
       entryDate: new Date("2024-04-01"),
@@ -251,7 +251,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Daisy",
       icad: "ICAD000014",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Beagle",
       birthdate: new Date("2021-09-18"),
       entryDate: new Date("2024-04-05"),
@@ -267,7 +267,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Flocon",
       icad: "ICAD000015",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Lapin angora",
       birthdate: new Date("2022-08-20"),
       entryDate: new Date("2024-02-12"),
@@ -283,7 +283,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Gribouille",
       icad: "ICAD000016",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Chat Européen",
       birthdate: new Date("2021-05-13"),
       entryDate: new Date("2024-01-25"),
@@ -299,7 +299,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Tango",
       icad: "ICAD000017",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Bouledogue",
       birthdate: new Date("2019-07-22"),
       entryDate: new Date("2024-04-03"),
@@ -315,7 +315,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Moka",
       icad: "ICAD000018",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Cochon d’Inde",
       birthdate: new Date("2023-10-01"),
       entryDate: new Date("2024-02-28"),
@@ -331,7 +331,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Pixel",
       icad: "ICAD000019",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Abyssin",
       birthdate: new Date("2022-06-15"),
       entryDate: new Date("2024-03-20"),
@@ -347,7 +347,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Litchie",
       icad: "ICAD000020",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Ragdoll",
       birthdate: new Date("2020-05-02"),
       entryDate: new Date("2024-04-07"),
@@ -363,7 +363,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Tigrou",
       icad: "ICAD000021",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Chat tigré",
       birthdate: new Date("2021-11-11"),
       entryDate: new Date("2024-04-10"),
@@ -379,7 +379,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Chanel",
       icad: "ICAD000022",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Sphynx",
       birthdate: new Date("2019-09-25"),
       entryDate: new Date("2024-01-20"),
@@ -395,7 +395,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Félix",
       icad: "ICAD000023",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Chat noir",
       birthdate: new Date("2018-10-05"),
       entryDate: new Date("2024-03-11"),
@@ -411,7 +411,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Choco",
       icad: "ICAD000024",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Lapin nain",
       birthdate: new Date("2022-12-01"),
       entryDate: new Date("2024-04-01"),
@@ -427,7 +427,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Câline",
       icad: "ICAD000025",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Chartreuse",
       birthdate: new Date("2019-04-01"),
       entryDate: new Date("2024-04-15"),
@@ -443,7 +443,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Maya",
       icad: "ICAD000026",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Chat écaille de tortue",
       birthdate: new Date("2020-03-20"),
       entryDate: new Date("2024-04-12"),
@@ -459,7 +459,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Zeus",
       icad: "ICAD000027",
-      sexe: "Mâle",
+      sexe: "male",
       race: "Berger Allemand",
       birthdate: new Date("2016-01-01"),
       entryDate: new Date("2024-03-30"),
@@ -475,7 +475,7 @@ export const createAnimals = async (dataSource: DataSource) => {
     {
       name: "Kira",
       icad: "ICAD000028",
-      sexe: "Femelle",
+      sexe: "female",
       race: "Chat Européen",
       birthdate: new Date("2017-07-14"),
       entryDate: new Date("2024-04-01"),

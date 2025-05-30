@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { Button, Col, Input, Row, Nav, NavItem, NavLink, TabContent, TabPane, Label, Card, CardBody } from "reactstrap";
 import HostFamiliesManager from "../../../managers/hostFamilies.manager";
 import HostFamilyKindsManager from "../../../managers/hostFamilyKinds.manager";
@@ -119,7 +119,7 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
     const navigate = useNavigate();
 
     const [notificationSystem, setNotificationSystem] = useState<NotificationSystem | undefined>(undefined);
-    const [mapRef, setMapRef] = useState<L.Map | null>(null);
+    const mapRef = useRef<L.Map | null>(null);
 
     const getAllHostFamilies = () => {
         return HostFamiliesManager.getAll()
@@ -183,9 +183,10 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
     }, [data, searchText, filters]);
 
     useEffect(() => {
-        if (mapRef !== null && mapRef !== null) {
-            mapRef.invalidateSize();
-            mapRef.locate().on("locationfound", function (e) {
+        const map = mapRef.current;
+        if (showMap && map) {
+            map.invalidateSize();
+            map.locate().on("locationfound", function (e) {
                 setUserPosition(e.latlng);
             });
         }
@@ -235,7 +236,7 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
             case FilterType.HAS_A_VEHICULE:
             case FilterType.MEMBERSHIP_LATE:
                 return (
-                    <Col className="mb-0">
+                    <Col key={filter.type} className="mb-0">
                         <Label>{filter.type}</Label>
                         <br />
                         <Switch
@@ -250,7 +251,7 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
                 );
             case FilterType.ON_A_BREAK:
                 return (
-                    <Col className="mb-0">
+                    <Col key={filter.type} className="mb-0">
                         <Label>Statut</Label>
                         <Dropdown
                             withNewLine={true}
@@ -266,7 +267,7 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
                 );
             case FilterType.REFERENT:
                 return (
-                    <Col className="mb-0">
+                    <Col key={filter.type} className="mb-0">
                         <Label>Référent·e</Label>
                         <Dropdown
                             withNewLine={true}
@@ -284,7 +285,7 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
                 );
             case FilterType.TYPE:
                 return (
-                    <Col className="mb-0">
+                    <Col key={filter.type} className="mb-0">
                         <Label>Type de FA</Label>
                         <Dropdown
                             withNewLine={true}
@@ -300,7 +301,7 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
                 );
             case FilterType.TEMPORARY:
                 return (
-                    <Col className="mb-0">
+                    <Col key={filter.type} className="mb-0">
                         <Label>Tampon</Label>
                         <Dropdown
                             withNewLine={true}
@@ -438,9 +439,7 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
                             <Row>
                                 <Col xs={12}>
                                     <MapContainer
-                                        whenCreated={(map) => {
-                                            setMapRef(map);
-                                        }}
+                                        ref={mapRef}
                                         center={[47.207959, -1.549425]}
                                         zoom={12}
                                         scrollWheelZoom={false}
