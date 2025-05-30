@@ -47,6 +47,12 @@ services:
     volumes:
       - ./server/node_modules:/usr/app/node_modules
       - ./firebase-service-account.json:/usr/app/firebase-service-account.json:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:5001/admin-1000-moustaches/us-central1/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
       - server
 

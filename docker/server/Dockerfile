@@ -1,8 +1,8 @@
 # Use the official Node.js image as a base
 FROM node:20-alpine 
 
-# Install firebase-tools globally as root
-RUN npm install -g firebase-tools
+# Install firebase-tools globally and curl for healthchecks
+RUN npm install -g firebase-tools && apk add --no-cache curl
 
 # Set the working directory to /app
 WORKDIR /usr/app
