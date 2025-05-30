@@ -50,8 +50,6 @@ RUN ["npm", "run", "build"]
 WORKDIR /usr/app
 
 EXPOSE 5173
-# Emulator Suite UI
-EXPOSE 4000
 
 # Start the firebase emulators
 CMD ["npm", "--prefix", "front", "run", "start:dev"]
