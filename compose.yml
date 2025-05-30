@@ -16,8 +16,8 @@ services:
       database:
         condition: service_healthy
     build:
-      context: ./server
-      dockerfile: ../docker/server/Dockerfile
+      context: ./
+      dockerfile: ./docker/server/Dockerfile
     environment:
       PORT: 5001
       DB_HOST: ${DB_HOST}
@@ -30,7 +30,7 @@ services:
     ports:
       - "${PORT:-5001}:5001"
     volumes:
-      - ./node_modules
+      - ./server/node_modules:/usr/app/node_modules
     networks:
       - server
 
@@ -40,20 +40,15 @@ services:
       dockerfile: ./docker/database/Dockerfile
     ports:
       - "${DB_PORT:-3306}:3306"
-    env_file:
-      - ./server/.env
     environment:
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      DB_NAME: ${DB_NAME}
-      NODE_ENV: ${NODE_ENV}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     networks:
       - server
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-P", "${DB_PORT}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-P", "${DB_PORT:-3306}"]
       interval: 10s
       timeout: 5s
       retries: 5

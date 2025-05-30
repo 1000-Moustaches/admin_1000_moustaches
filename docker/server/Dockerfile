@@ -2,16 +2,17 @@
 FROM node:20-alpine 
 
 # Set the working directory to /app
-WORKDIR .
+WORKDIR /usr/app
 
-RUN echo "$PWD"
-
-RUN npm install
+# Change ownership of the working directory to node user
+RUN chown -R node:node /usr/app
 
 # Set the default user
 USER node 
 
-COPY --chown=node:node ./ /usr/app
+COPY --chown=node:node ./server /usr/app
+
+RUN npm install
 
 # Arguments 
 ARG DB_NAME
