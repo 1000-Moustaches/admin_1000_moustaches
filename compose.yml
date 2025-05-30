@@ -1,15 +1,29 @@
 services:
-  # front:
-  #   image: example/webapp
-  #   ports:
-  #     - "443:8043"
-  #   networks:
-  #     - front
-  #     - server
-  #   configs:
-  #     - httpd-config
-  #   secrets:
-  #     - server-certificate
+  front:
+    depends_on:
+      server:
+        condition: service_healthy
+    build:
+      context: ./
+      dockerfile: ./docker/front/Dockerfile
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+      VITE_FIREBASE_API_KEY: ${VITE_FIREBASE_API_KEY}
+      VITE_FIREBASE_AUTH_DOMAIN: ${VITE_FIREBASE_AUTH_DOMAIN}
+      VITE_FIREBASE_DATABASE_URL: ${VITE_FIREBASE_DATABASE_URL}
+      VITE_FIREBASE_PROJECT_ID: ${VITE_FIREBASE_PROJECT_ID}
+      VITE_FIREBASE_STORAGE_BUCKET: ${VITE_FIREBASE_STORAGE_BUCKET}
+      VITE_FIREBASE_MESSAGE_SENDER_ID: ${VITE_FIREBASE_MESSAGE_SENDER_ID}
+      VITE_FIREBASE_APP_ID: ${VITE_FIREBASE_APP_ID}
+      VITE_FIREBASE_MESUREMENT_ID: ${VITE_FIREBASE_MESUREMENT_ID}
+      VITE_GEOAPPIFY_API_KEY: ${VITE_GEOAPPIFY_API_KEY}
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./front/node_modules:/usr/app/node_modules
+    networks:
+      - front
+      - server
 
   server:
     depends_on:
@@ -48,7 +62,13 @@ services:
       - ./server/node_modules:/usr/app/node_modules
       - ./firebase-service-account.json:/usr/app/firebase-service-account.json:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://0.0.0.0:5001/admin-1000-moustaches/us-central1/api/health"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://0.0.0.0:5001/admin-1000-moustaches/us-central1/api/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
