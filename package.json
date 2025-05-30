@@ -1,0 +1,15 @@
+{
+  "name": "admin-1000-moustaches",
+  "version": "1.0.0",
+  "description": "",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "start": "docker compose --env-file .env.local up --build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {}
+}

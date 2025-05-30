@@ -67,7 +67,7 @@ services:
           "CMD",
           "curl",
           "-f",
-          "http://0.0.0.0:5001/admin-1000-moustaches/us-central1/api/health",
+          "http://127.0.0.1:5001/admin-1000-moustaches/us-central1/api/health",
         ]
       interval: 30s
       timeout: 10s
