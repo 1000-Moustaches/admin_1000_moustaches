@@ -1,0 +1,65 @@
+services:
+  # front:
+  #   image: example/webapp
+  #   ports:
+  #     - "443:8043"
+  #   networks:
+  #     - front
+  #     - server
+  #   configs:
+  #     - httpd-config
+  #   secrets:
+  #     - server-certificate
+
+  server:
+    depends_on:
+      database:
+        condition: service_healthy
+    build:
+      context: ./server
+      dockerfile: ../docker/server/Dockerfile
+    environment:
+      PORT: 5001
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      NODE_ENV: ${NODE_ENV}
+    ports:
+      - "${PORT:-5001}:5001"
+    volumes:
+      - ./node_modules
+    networks:
+      - server
+
+  database:
+    build:
+      context: ./
+      dockerfile: ./docker/database/Dockerfile
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    env_file:
+      - ./server/.env
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      NODE_ENV: ${NODE_ENV}
+    networks:
+      - server
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-P", "${DB_PORT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+networks:
+  # The presence of these objects is sufficient to define them
+  front: {}
+  server: {}
