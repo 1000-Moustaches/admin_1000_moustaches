@@ -4,3 +4,5 @@
 front/dist
 server/dist
 firebase-service-account.json
+.env.local
+.env.production

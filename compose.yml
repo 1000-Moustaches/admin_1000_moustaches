@@ -34,7 +34,7 @@ services:
       dockerfile: ./docker/server/Dockerfile
     environment:
       PORT: 5001
-      DB_HOST: database
+      DB_HOST: ${DB_HOST}
       DB_PORT: 3306
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -80,8 +80,6 @@ services:
     build:
       context: ./
       dockerfile: ./docker/database/Dockerfile
-    env_file:
-      - server/.env.local
     ports:
       - "${DB_PORT:-3306}:3306"
     environment:
