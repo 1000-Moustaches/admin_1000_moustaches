@@ -28,7 +28,22 @@ services:
       DB_NAME: ${DB_NAME}
       NODE_ENV: ${NODE_ENV}
     ports:
+      # Firebase Functions emulator
       - "${PORT:-5001}:5001"
+      # Firebase Emulator Suite UI
+      - "4000:4000"
+      # Firebase Auth emulator
+      - "9099:9099"
+      # Firebase Firestore emulator
+      - "8080:8080"
+      # Firebase Realtime Database emulator
+      - "9000:9000"
+      # Firebase Storage emulator
+      - "9199:9199"
+      # Firebase Hosting emulator
+      - "5000:5000"
+      # Firebase Pub/Sub emulator
+      - "8085:8085"
     volumes:
       - ./server/node_modules:/usr/app/node_modules
     networks:
