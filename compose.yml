@@ -46,6 +46,7 @@ services:
       - "8085:8085"
     volumes:
       - ./server/node_modules:/usr/app/node_modules
+      - ./firebase-service-account.json:/usr/app/firebase-service-account.json:ro
     networks:
       - server
 

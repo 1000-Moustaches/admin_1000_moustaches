@@ -3,3 +3,4 @@
 *.log
 front/dist
 server/dist
+firebase-service-account.json
