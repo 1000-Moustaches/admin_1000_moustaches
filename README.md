@@ -56,17 +56,44 @@ Information about [conventionalcommits](https://www.conventionalcommits.org/en/v
 
 ## Installation
 
-- lancer la bdd
-  - builder l'image docker en exécutant la commande depuis le dossier docker/database :
+### Méthode recommandée (avec Docker)
+
+1. Cloner le dépôt
+2. Créer un fichier `.env.local` à la racine du projet avec les variables d'environnement nécessaires
+3. Exécuter `npm run start:fresh` pour démarrer l'application avec Docker Compose
+
+### Méthode manuelle (sans Docker)
+
+- Configurer la base de données:
+  - Builder l'image docker en exécutant la commande depuis le dossier docker/database :
     `docker build --build-arg DB_ROOT_PASSWORD=$(grep DB_ROOT_PASSWORD ../../server/.env | cut -d '=' -f2) --build-arg DB_NAME=$(grep DB_NAME ../../server/.env | cut -d '=' -f2) --build-arg DB_USER=$(grep DB_USER ../../server/.env | cut -d '=' -f2) --build-arg DB_PASSWORD=$(grep DB_PASSWORD ../../server/.env | cut -d '=' -f2) -t mysql-docker .`
-    - lancer le conteneur dans docker desktop
-- installer le server en local : `cd server && npm i`
-- installer le front en local : `cd front && npm i`
+  - Lancer le conteneur dans Docker Desktop
+- Installer le server en local : `cd server && npm i`
+- Installer le front en local : `cd front && npm i`
 
 ## Développement local
 
-- lancer le server avec firebase emulator : `cd server && npm start`
-- lancer le front : `cd front && npm start`
+### Avec Docker (recommandé)
+
+- `npm run start` : Démarrer l'application complète
+- `npm run start:fresh` : Redémarrer l'application avec une base de données vide
+- `npm run start:fresh:fixtures` : Redémarrer l'application avec les données de test
+
+### Sans Docker
+
+- Lancer le server avec Firebase Emulator : `cd server && npm start`
+- Lancer le front : `cd front && npm start`
+
+## Commandes npm disponibles
+
+### Commandes racine (package.json)
+
+- `npm run start` : Lancer l'application avec Docker Compose
+- `npm run start:fresh` : Arrêter les conteneurs, supprimer les volumes et relancer l'application
+- `npm run start:fresh:detached` : Identique à start:fresh mais en mode détaché
+- `npm run start:fresh:fixtures` : Lancer l'application avec les fixtures de données
+- `npm run docker:fixtures` : Exécuter les fixtures dans le conteneur Docker
+- `npm run set-version -- X.Y.Z` : Mettre à jour la version dans tous les fichiers package.json (racine, front, server)
 
 ## Roles Google Cloud
 
