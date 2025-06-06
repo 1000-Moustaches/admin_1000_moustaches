@@ -1,6 +1,6 @@
 {
   "name": "admin1000moustaches",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "dependencies": {
     "@types/jest": "^29.5.0",
@@ -53,7 +53,8 @@
     "start:dev": "cross-env NODE_PATH=./src vite",
     "build": "NODE_PATH=./src tsc && vite build && cp _headers dist/_headers",
     "serve": "NODE_PATH=./src vite preview",
-    "deploy": "export NODE_ENV=production && npm run build && firebase deploy --only hosting"
+    "deploy": "export NODE_ENV=production && npm run build && firebase deploy --only hosting",
+    "test": "echo \"No tests yet - passing automatically\" && exit 0"
   },
   "eslintConfig": {
     "extends": [
