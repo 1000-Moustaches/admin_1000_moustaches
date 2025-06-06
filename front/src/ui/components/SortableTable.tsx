@@ -15,11 +15,7 @@ interface SortableTableProps {
     isLoading: boolean;
 }
 
-const SortableTable: FC<SortableTableProps> = ({
-    columns,
-    values,
-    isLoading,
-}) => {
+const SortableTable: FC<SortableTableProps> = ({ columns, values, isLoading }) => {
     const [sortColumn, setSortColumn] = useState<Column | null>(null);
     const [sortInverted, setSortInverted] = useState<boolean>(false);
     const [sortedValues, setSortedValues] = useState<any[]>([]);
@@ -66,6 +62,7 @@ const SortableTable: FC<SortableTableProps> = ({
                         {columns.map((column) => {
                             return (
                                 <th
+                                    key={column.key}
                                     scope="col"
                                     onClick={() => {
                                         if (column.sortable !== false) {
@@ -74,14 +71,8 @@ const SortableTable: FC<SortableTableProps> = ({
                                     }}
                                 >
                                     {column.value}
-                                    {sortColumn?.key === column.key &&
-                                        sortInverted === true && (
-                                            <MdArrowDownward />
-                                        )}
-                                    {sortColumn?.key === column.key &&
-                                        sortInverted === false && (
-                                            <MdArrowUpward />
-                                        )}
+                                    {sortColumn?.key === column.key && sortInverted === true && <MdArrowDownward />}
+                                    {sortColumn?.key === column.key && sortInverted === false && <MdArrowUpward />}
                                 </th>
                             );
                         })}
@@ -92,9 +83,11 @@ const SortableTable: FC<SortableTableProps> = ({
                         <tr key={index}>
                             {columns.map((column) => {
                                 return column.isMain ? (
-                                    <th scope="row">{value[column.key]}</th>
+                                    <th key={column.key} scope="row">
+                                        {value[column.key]}
+                                    </th>
                                 ) : (
-                                    <td>{value[column.key]}</td>
+                                    <td key={column.key}>{value[column.key]}</td>
                                 );
                             })}
                         </tr>

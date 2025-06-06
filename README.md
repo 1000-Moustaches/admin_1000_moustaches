@@ -56,16 +56,35 @@ Information about [conventionalcommits](https://www.conventionalcommits.org/en/v
 
 ## Installation
 
+- lancer la bdd
+  - builder l'image docker en exécutant la commande depuis le dossier docker/database :
+    `docker build --build-arg DB_ROOT_PASSWORD=$(grep DB_ROOT_PASSWORD ../../server/.env | cut -d '=' -f2) --build-arg DB_NAME=$(grep DB_NAME ../../server/.env | cut -d '=' -f2) --build-arg DB_USER=$(grep DB_USER ../../server/.env | cut -d '=' -f2) --build-arg DB_PASSWORD=$(grep DB_PASSWORD ../../server/.env | cut -d '=' -f2) -t mysql-docker .`
+    - lancer le conteneur dans docker desktop
 - installer le server en local : `cd server && npm i`
 - installer le front en local : `cd front && npm i`
-- créer une db locale (et la lancer) puis renseigner les informations de connexion dans le fichier .env.development
 
 ## Développement local
 
 - lancer le server avec firebase emulator : `cd server && npm start`
 - lancer le front : `cd front && npm start`
 
-## Déploiement
+## Roles Google Cloud
 
-- déploiement du front : `cd front && npm run deploy`
-- déploiement du server : `cd server && npm run deploy`
+For the CICD to work, you need to add a json file in the CICD secrets.
+This file is generated on Google Cloud.
+You have to add a service account with these roles :
+- Administrateur Firebase Hosting
+- Administrateur d'extension Firebase
+- Editeur d'extensions Firebase
+- Dévelopeur d'extensions Firebase
+- Administrateur des objets Storage
+- Administrateur Cloud Function
+- Administrateur Logging
+- Utilisateur du compte de service
+
+When the account is created, create a key as JSON.
+
+Encode the JSON file with base 64
+`base64 -b -i key.json -o key-base64.json`
+
+Upload the content of the key-base64.json file in a secret on the CICD (as GOOGLE_APPLICATION_CREDENTIALS)

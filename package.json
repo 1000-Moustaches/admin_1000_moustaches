@@ -1,0 +1,19 @@
+{
+  "name": "admin-1000-moustaches",
+  "version": "0.0.4",
+  "description": "",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "start": "docker compose --env-file .env.local up --build",
+    "start:fresh": "docker compose --env-file .env.local down -v && docker compose --env-file .env.local up --build",
+    "start:fresh:detached": "docker compose --env-file .env.local down -v && docker compose --env-file .env.local up -d --build",
+    "start:fresh:fixtures": "npm run start:fresh:detached && npm run docker:fixtures && docker compose logs -f",
+    "docker:fixtures": "docker exec admin_1000_moustaches-server-1 /bin/sh -c 'cd server && npm run dev:fixtures'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {}
+}

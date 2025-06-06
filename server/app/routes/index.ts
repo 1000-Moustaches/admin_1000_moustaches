@@ -13,6 +13,15 @@ import countAnimalsNonAdoptedRoutes from './CountAnimalsNonAdopted'
 
 const router = Router()
 
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    service: 'admin_1000_moustaches_server'
+  })
+})
+
 router.use('/animals', animalRoutes)
 router.use('/animal-host-families', animalHostFamilyRoutes)
 router.use('/host-families', hostFamilyRoutes)
