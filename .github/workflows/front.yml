@@ -43,7 +43,6 @@ jobs:
           echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env.production
           echo "VITE_FIREBASE_MESUREMENT_ID=${{ secrets.VITE_FIREBASE_MESUREMENT_ID }}" >> .env.production
           echo "VITE_GEOAPPIFY_API_KEY=${{ secrets.VITE_GEOAPPIFY_API_KEY }}" >> .env.production
-          echo "VITE_PUBLIC_URL=${{ secrets.VITE_PUBLIC_URL }}" >> .env.production
 
       - name: Build the app
         run: npm run build

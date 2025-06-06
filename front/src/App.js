@@ -4,7 +4,7 @@ import { AuthFormState } from "./ui/components/AuthForm";
 import { EmptyLayout, LayoutRoute, MainLayout } from "./ui/components/Layout";
 import PageSpinner from "./ui/components/PageSpinner";
 import "./ui/styles/reduction.scss";
-import { Outlet, Routes } from "react-router";
+import { Routes } from "react-router";
 
 const AuthPage = React.lazy(() => import("./ui/pages/AuthPage"));
 const DashboardPage = React.lazy(() => import("./ui/pages/DashboardPage"));
@@ -16,10 +16,6 @@ const HostFamiliesPage = React.lazy(() => import("./ui/pages/hostFamilies/HostFa
 const HostFamilyDetailPage = React.lazy(() => import("./ui/pages/hostFamilies/HostFamilyDetailPage"));
 const UsersPage = React.lazy(() => import("./ui/pages/users/UsersPage"));
 const UserDetailPage = React.lazy(() => import("./ui/pages/users/UserDetailPage"));
-
-const getBasename = () => {
-    return `/${import.meta.env.VITE_PUBLIC_URL?.split("/").pop()}`;
-};
 
 const App = () => {
     return (

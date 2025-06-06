@@ -296,8 +296,10 @@ const VeterinariansPage: FC<VeterinariansPageProps> = ({ ...props }) => {
                             <Row>
                                 <Col xs={12}>
                                     <MapContainer
-                                        whenCreated={(map) => {
-                                            setMapRef(map);
+                                        ref={(map) => {
+                                            if (map) {
+                                                setMapRef(map);
+                                            }
                                         }}
                                         center={[47.207959, -1.549425]}
                                         zoom={12}
