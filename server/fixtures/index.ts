@@ -16,12 +16,24 @@ import { createAnimals } from "./animals";
 import { createHostFamilies } from "./hostFamilies";
 
 const loadFixtures = async () => {
-  AppDataSource.initialize().then(async () => {
+  try {
+    await AppDataSource.initialize();
+    console.log("Loading fixtures...");
+
     await createUsers(AppDataSource);
     await createAnimals(AppDataSource);
     await createHostFamilies(AppDataSource);
     // TODO: Add other fixtures here
-  });
+
+    console.log("Fixtures loaded successfully!");
+
+    // Close the connection and exit
+    await AppDataSource.destroy();
+    process.exit(0);
+  } catch (error) {
+    console.error("Error loading fixtures:", error);
+    process.exit(1);
+  }
 };
 
 loadFixtures();
