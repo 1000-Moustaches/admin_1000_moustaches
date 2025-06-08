@@ -110,7 +110,7 @@ jobs:
 
       - name: Deploy on firebase functions
         working-directory: ./server
-        run: firebase deploy --only functions --debug
+        run: firebase deploy --only functions --debug --set-env-vars "DB_HOST=${{ secrets.DB_HOST }},DB_USER=${{ secrets.DB_USER }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_NAME=${{ secrets.DB_NAME }}"
         env:
           NODE_ENV: production
           CI: true
