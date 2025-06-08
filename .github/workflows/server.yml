@@ -108,9 +108,17 @@ jobs:
       - name: Install firebase CLI
         run: npm install -g firebase-tools@14.2.2
 
+      - name: Create .env file
+        run: |
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env.production
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env.production
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env.production
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env.production
+          echo "NODE_ENV=production" >> .env.production
+
       - name: Deploy on firebase functions
         working-directory: ./server
-        run: firebase deploy --only functions --debug --set-env-vars "DB_HOST=${{ secrets.DB_HOST }},DB_USER=${{ secrets.DB_USER }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_NAME=${{ secrets.DB_NAME }}"
+        run: firebase deploy --only functions --debug
         env:
           NODE_ENV: production
           CI: true
