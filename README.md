@@ -94,12 +94,14 @@ Information about [conventionalcommits](https://www.conventionalcommits.org/en/v
 - `npm run start:fresh:fixtures` : Lancer l'application avec les fixtures de données
 - `npm run docker:fixtures` : Exécuter les fixtures dans le conteneur Docker
 - `npm run set-version -- X.Y.Z` : Mettre à jour la version dans tous les fichiers package.json (racine, front, server)
+- `npm run restart:docker` : Redémarre le container ciblé. Ex : npm run restart:docker -- front -> redémarre le container front uniquement
 
 ## Roles Google Cloud
 
 For the CICD to work, you need to add a json file in the CICD secrets.
 This file is generated on Google Cloud.
 You have to add a service account with these roles :
+
 - Administrateur Firebase Hosting
 - Administrateur d'extension Firebase
 - Editeur d'extensions Firebase
