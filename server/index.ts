@@ -1,11 +1,8 @@
 import * as dotenv from 'dotenv';
 import path from 'path';
 
-if (process.env.NODE_ENV !== 'production') {
-  // Load environment variables from .env file in the server directory
-  // Usefull for windows local development
-  dotenv.config({ path: path.resolve(__dirname, '../.env') });
-}
+// Load environment variables from .env file in the server directory
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 import express from 'express'
 import cors from 'cors'
@@ -37,7 +34,7 @@ if (!isCI) {
     .then(() => {
       console.log("Database connected successfully")
     })
-    .catch((error) => {
+    .catch((error: Error) => {
       console.error("Error during Data Source initialization:", error)
     })
 }

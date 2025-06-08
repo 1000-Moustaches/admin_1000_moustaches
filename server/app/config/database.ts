@@ -1,6 +1,13 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 
+console.log("Will initialize database with the following config:", {
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  username: process.env.DB_USER,
+  database: process.env.DB_NAME,
+});
+
 export const AppDataSource = new DataSource({
   type: "mysql",
   host: process.env.DB_HOST || "localhost",
