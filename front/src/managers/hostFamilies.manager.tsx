@@ -6,6 +6,11 @@ import fetchWithAuth from "../middleware/fetch-middleware";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+type GetAllParams = {
+    kinds?: number[];
+    isActive?: boolean;
+};
+
 class HostFamiliesManager {
     static createHostFamily = () => {
         return new HostFamily();
@@ -25,8 +30,23 @@ class HostFamiliesManager {
         };
     };
 
-    static getAll = () => {
-        return fetchWithAuth(`${API_URL}/host-families`, { method: "GET" })
+    static getAll = ({ kinds }: GetAllParams = {}) => {
+        const params = {
+            kinds: kinds ?? null,
+        };
+
+        const queryString = new URLSearchParams(
+            Object.entries(params)
+                .filter(([_, value]) => value !== null)
+                .flatMap(([key, value]) => {
+                    if (Array.isArray(value)) {
+                        return value.map((v) => [key, String(v)]);
+                    }
+                    return [[key, String(value)]];
+                })
+        ).toString();
+
+        return fetchWithAuth(`${API_URL}/host-families${queryString ? `?${queryString}` : ""}`, { method: "GET" })
             .then((response) => {
                 if (response.status === 200) {
                     return response.json();
