@@ -73,7 +73,14 @@ Information about [conventionalcommits](https://www.conventionalcommits.org/en/v
 
 ## Développement local
 
-### Avec Docker (recommandé)
+### Database Dockerizée et le reste sans Docker (recommandé en mode développement)
+
+- `npm run start:fresh:database-only` : Redémarrer la database avec une base de données vide
+- Dans un autre terminal, `cd server && npm run dev` : Lance le server en mode dev (watch)
+- Dans un autre terminal, `cd server && npm run dev:fixtures` : Installe les fixtures dans la base de données
+- Dans un autre terminal, `cd front && npm run start:dev` : Lance le front en mode dev (watch)
+
+### Complet avec Docker (recommandé pour juste lancer le projet en local)
 
 - `npm run start` : Démarrer l'application complète
 - `npm run start:fresh` : Redémarrer l'application avec une base de données vide
