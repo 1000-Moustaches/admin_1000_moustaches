@@ -1,24 +1,29 @@
 import { In } from "typeorm";
 import { AppDataSource } from "../config/database";
 import { HostFamily } from "../models/HostFamily";
+
+type GetAllParams = {
+  kinds: string[];
+  isAvailable?: boolean;
+};
+
 export class HostFamilyController {
   private hostFamilyRepository = AppDataSource.getRepository(HostFamily);
 
-  async getAllHostFamilies({ kinds }: { kinds: string[] } = { kinds: [] }) {
+  async getAllHostFamilies(
+    { kinds, isAvailable }: GetAllParams = { kinds: [] }
+  ) {
+    console.log("isAvailable", isAvailable);
     return await this.hostFamilyRepository.find({
       relations: {
         hostFamilyKinds: true,
         animalRelations: false,
         referent: true,
       },
-      where:
-        kinds.length > 0
-          ? {
-              hostFamilyKinds: {
-                id: In(kinds),
-              },
-            }
-          : {},
+      where: {
+        isAvailable: isAvailable,
+        hostFamilyKinds: kinds.length > 0 ? { id: In(kinds) } : {},
+      },
     });
   }
 

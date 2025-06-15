@@ -16,7 +16,18 @@ router.get("/", checkIfAuthenticated, async (req, res) => {
     kinds = [String(kindsParam)];
   }
 
-  const hostFamilies = await hostFamilyController.getAllHostFamilies({ kinds });
+  const isAvailableParam = req.query.isAvailable;
+  const isAvailable =
+    isAvailableParam == "true"
+      ? true
+      : isAvailableParam == "false"
+      ? false
+      : undefined;
+
+  const hostFamilies = await hostFamilyController.getAllHostFamilies({
+    kinds,
+    isAvailable,
+  });
   res.json(hostFamilies);
 });
 
