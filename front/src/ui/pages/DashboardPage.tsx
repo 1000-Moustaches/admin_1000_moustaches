@@ -7,6 +7,7 @@ import Permissions from "../../logic/entities/Permissions";
 import AnimalsNonAdopted from "../components/Card/Dashboard/AnimalsNonAdopted";
 import AnimalsAdopted from "../components/Card/Dashboard/AnimalsAdopted";
 import HostFamiliesCard from "../components/Card/Dashboard/HostFamiliesCard";
+import HostFamiliesAvailable from "../components/Card/Dashboard/HostFamiliesAvailable";
 
 type PagePermissions = {
     canReadPets?: boolean;
@@ -39,7 +40,7 @@ const DashboardPage: FC = () => {
                     <AnimalsAdopted />
                 </Col>
                 <Col sm={{ size: 4 }}>
-                    <HostFamiliesCard />
+                    <HostFamiliesAvailable />
                 </Col>
             </Row>
         </Page>

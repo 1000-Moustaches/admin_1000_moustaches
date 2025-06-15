@@ -9,6 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 type GetAllParams = {
     kinds?: number[];
     isActive?: boolean;
+    isAvailable?: boolean;
 };
 
 class HostFamiliesManager {
@@ -30,9 +31,10 @@ class HostFamiliesManager {
         };
     };
 
-    static getAll = ({ kinds }: GetAllParams = {}) => {
+    static getAll = ({ kinds, isAvailable }: GetAllParams = {}) => {
         const params = {
             kinds: kinds ?? null,
+            isAvailable: isAvailable ?? null,
         };
 
         const queryString = new URLSearchParams(

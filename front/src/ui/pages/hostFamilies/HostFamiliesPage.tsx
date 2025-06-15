@@ -124,9 +124,11 @@ const HostFamiliesPage: FC<HostFamiliesPageProps> = (props) => {
     const [searchParams] = useSearchParams();
     const kinds = searchParams.getAll("kinds");
     const kindsIds = kinds != null ? kinds.map((kind) => parseInt(kind)) : undefined;
+    const isAvailableStr = searchParams.get("isAvailable");
+    const isAvailable = isAvailableStr == "true" ? true : isAvailableStr == "false" ? false : undefined;
 
     const getAllHostFamilies = () => {
-        return HostFamiliesManager.getAll({ kinds: kindsIds })
+        return HostFamiliesManager.getAll({ kinds: kindsIds, isAvailable })
             .then((hostFamilies) => {
                 return sortBy(hostFamilies || [], "id") as HostFamily[];
             })
